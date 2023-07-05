@@ -7,6 +7,24 @@
 
 import SwiftUI
 
+import Firebase
+
+class FirebaseManager: NSObject {
+
+    let auth: Auth
+    
+    static let shared = FirebaseManager()
+    
+    private override init() {
+        FirebaseApp.configure()
+        
+        self.auth = Auth.auth()
+        
+        super.init()
+    }
+    
+}
+
 struct LoginView: View {
     
     @State var isLoginMode = false
@@ -59,6 +77,9 @@ struct LoginView: View {
                         }
                         .background(Color.blue)
                     }
+                    
+                    Text(loginStatusMessage)
+                        .foregroundColor(.red)
                 }
                 .padding()
             }
@@ -72,9 +93,35 @@ struct LoginView: View {
     
     private func handleAction() {
         if isLoginMode {
-            print("Firebase Log In")
+            loginUser()
         } else {
-            print("new account Firebase")
+            createNewAccount()
+        }
+    }
+    
+    @State var loginStatusMessage = ""
+    
+    private func createNewAccount() {
+        FirebaseManager.shared.auth.createUser(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print(error.localizedDescription)
+                loginStatusMessage = error.localizedDescription
+                return
+            }
+            loginStatusMessage = "Success \(result?.user.uid ?? "")"
+            print("Success \(result?.user.uid ?? "")")
+        }
+    }
+    
+    private func loginUser() {
+        FirebaseManager.shared.auth.signIn(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print(error.localizedDescription)
+                loginStatusMessage = error.localizedDescription
+                return
+            }
+            loginStatusMessage = "Success \(result?.user.uid ?? "")"
+            print("Success \(result?.user.uid ?? "")")
         }
     }
 }
