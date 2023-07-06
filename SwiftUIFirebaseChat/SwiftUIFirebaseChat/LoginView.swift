@@ -8,10 +8,12 @@
 import SwiftUI
 
 import Firebase
+import FirebaseStorage
 
 class FirebaseManager: NSObject {
-
+    
     let auth: Auth
+    let storage: Storage
     
     static let shared = FirebaseManager()
     
@@ -19,6 +21,7 @@ class FirebaseManager: NSObject {
         FirebaseApp.configure()
         
         self.auth = Auth.auth()
+        self.storage = Storage.storage()
         
         super.init()
     }
@@ -30,6 +33,8 @@ struct LoginView: View {
     @State var isLoginMode = false
     @State var email = ""
     @State var password = ""
+    
+    @State var shouldShowImagePicker = false
     
     var body: some View {
         NavigationView {
@@ -46,11 +51,27 @@ struct LoginView: View {
                     
                     if !isLoginMode {
                         Button {
-                            
+                            shouldShowImagePicker.toggle()
                         } label: {
-                            Image(systemName: "person.fill")
-                                .font(.system(size: 64))
-                                .padding()
+                            
+                            VStack {
+                                if let image = self.image {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 128, height: 128)
+                                        .cornerRadius(64)
+                                } else {
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 64))
+                                        .padding()
+                                        .foregroundColor(.black)
+                                }
+                            }
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 64)
+                                    .stroke(.black, lineWidth: 3)
+                            )
                         }
                     }
                     
@@ -88,8 +109,13 @@ struct LoginView: View {
                 Color(uiColor: .secondarySystemBackground)
                     .ignoresSafeArea()
             )
+            .fullScreenCover(isPresented: $shouldShowImagePicker) {
+                ImagePicker(image: $image)
+            }
         }
     }
+    
+    @State var image: UIImage?
     
     private func handleAction() {
         if isLoginMode {
@@ -110,6 +136,35 @@ struct LoginView: View {
             }
             loginStatusMessage = "Success \(result?.user.uid ?? "")"
             print("Success \(result?.user.uid ?? "")")
+            
+            persiststImageToStorage()
+        }
+    }
+    
+    private func persiststImageToStorage() {
+        let filename = UUID().uuidString
+        
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+            return
+        }
+        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
+        
+        guard let imageData = self.image?.jpegData(compressionQuality: 0.5) else {
+            return
+        }
+        ref.putData(imageData) { metadata, err in
+            if let err = err {
+                self.loginStatusMessage = "Failed to push image \(err)"
+                return
+            }
+            
+            ref.downloadURL { url, error in
+                if let err = err {
+                    self.loginStatusMessage = "Failed to download URL \(err)"
+                    return
+                }
+                self.loginStatusMessage = "Successfully stored image with url \(url?.absoluteString ?? "")"
+            }
         }
     }
     
@@ -129,5 +184,38 @@ struct LoginView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
+    }
+}
+
+struct ImagePicker: UIViewControllerRepresentable {
+    
+    @Binding var image: UIImage?
+    
+    private let controller = UIImagePickerController()
+    
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(parent: self)
+    }
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: ImagePicker
+        
+        init(parent: ImagePicker) {
+            self.parent = parent
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            parent.image = info[.originalImage] as? UIImage
+            picker.dismiss(animated: true)
+        }
+    }
+    
+    func makeUIViewController(context: Context) -> some UIViewController {
+        controller.delegate = context.coordinator
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+        
     }
 }
