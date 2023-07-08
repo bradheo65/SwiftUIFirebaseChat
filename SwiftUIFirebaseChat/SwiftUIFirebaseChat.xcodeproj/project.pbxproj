@@ -15,6 +15,9 @@
 		A375D0AC2A5707CA0058C415 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A375D0AB2A5707CA0058C415 /* FirebaseAuth */; };
 		A375D0AE2A5707CA0058C415 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A375D0AD2A5707CA0058C415 /* FirebaseFirestore */; };
 		A375D0B02A5707CA0058C415 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = A375D0AF2A5707CA0058C415 /* FirebaseStorage */; };
+		A3B029172A59AA9C008161CE /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B029162A59AA9C008161CE /* FirebaseManager.swift */; };
+		A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B029182A59AAF7008161CE /* LoginViewModel.swift */; };
+		A3B0291B2A59AD09008161CE /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B0291A2A59AD09008161CE /* ImagePicker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +27,9 @@
 		A354F6972A5460640063652A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A354F69A2A5460640063652A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A375D0882A55BC720058C415 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		A3B029162A59AA9C008161CE /* FirebaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
+		A3B029182A59AAF7008161CE /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		A3B0291A2A59AD09008161CE /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +66,11 @@
 			isa = PBXGroup;
 			children = (
 				A354F6932A5460630063652A /* SwiftUIFirebaseChatApp.swift */,
-				A354F6952A5460630063652A /* LoginView.swift */,
+				A3B0291F2A59AD3E008161CE /* Manager */,
+				A3B029162A59AA9C008161CE /* FirebaseManager.swift */,
+				A3B0291E2A59AD32008161CE /* Common */,
+				A3B0291C2A59AD1B008161CE /* ViewModel */,
+				A3B0291D2A59AD25008161CE /* View */,
 				A375D0882A55BC720058C415 /* GoogleService-Info.plist */,
 				A354F6972A5460640063652A /* Assets.xcassets */,
 				A354F6992A5460640063652A /* Preview Content */,
@@ -74,6 +84,37 @@
 				A354F69A2A5460640063652A /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		A3B0291C2A59AD1B008161CE /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				A3B029182A59AAF7008161CE /* LoginViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		A3B0291D2A59AD25008161CE /* View */ = {
+			isa = PBXGroup;
+			children = (
+				A354F6952A5460630063652A /* LoginView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		A3B0291E2A59AD32008161CE /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				A3B0291A2A59AD09008161CE /* ImagePicker.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		A3B0291F2A59AD3E008161CE /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Manager;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -155,6 +196,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */,
+				A3B029172A59AA9C008161CE /* FirebaseManager.swift in Sources */,
+				A3B0291B2A59AD09008161CE /* ImagePicker.swift in Sources */,
 				A354F6962A5460630063652A /* LoginView.swift in Sources */,
 				A354F6942A5460630063652A /* SwiftUIFirebaseChatApp.swift in Sources */,
 			);
