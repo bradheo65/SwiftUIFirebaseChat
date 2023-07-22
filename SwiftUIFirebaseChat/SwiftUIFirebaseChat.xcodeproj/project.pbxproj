@@ -69,7 +69,6 @@
 			children = (
 				A354F6932A5460630063652A /* SwiftUIFirebaseChatApp.swift */,
 				A3B0291F2A59AD3E008161CE /* Manager */,
-				A3B029162A59AA9C008161CE /* FirebaseManager.swift */,
 				A3B0291E2A59AD32008161CE /* Common */,
 				A3B029212A5C41D0008161CE /* MainMessage */,
 				A3B029202A5C4199008161CE /* Login */,
@@ -115,6 +114,7 @@
 		A3B0291F2A59AD3E008161CE /* Manager */ = {
 			isa = PBXGroup;
 			children = (
+				A3B029162A59AA9C008161CE /* FirebaseManager.swift */,
 			);
 			path = Manager;
 			sourceTree = "<group>";

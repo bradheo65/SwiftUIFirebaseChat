@@ -7,11 +7,62 @@
 
 import SwiftUI
 
+struct ChatUser {
+    let uid, email, profileImageURL: String
+}
+
+final class MainMessageViewModel: ObservableObject {
+    
+    @Published var errorMessage = ""
+    @Published var chatUser: ChatUser?
+
+    init() {
+        fetchCurrentUser()
+    }
+    
+    private func fetchCurrentUser() {
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+            self.errorMessage = "Could not find firebase uid"
+            return
+        }
+        errorMessage = "Fetching current user \(uid)"
+
+        FirebaseManager.shared.firestore.collection("users").document(uid).getDocument { snapshot, error in
+            if let error = error {
+                self.errorMessage = "Failed to fetch current user \(error)"
+                print("Failed to fetch current user:", error)
+                return
+            }
+            
+            self.errorMessage = "123"
+            
+            guard let data = snapshot?.data() else {
+                self.errorMessage = "No data found"
+                return
+            }
+            self.errorMessage = "Data \(data.description)"
+            
+            let uid = data["uid"] as? String ?? ""
+            let email = data["email"] as? String ?? ""
+            let profileImageURL = data["profileImageURL"] as? String ?? ""
+            
+            let chatUser = ChatUser(uid: uid, email: email, profileImageURL: profileImageURL)
+            
+            self.chatUser = chatUser
+        }
+    }
+}
+
 struct MainMessageView: View {
+    @StateObject private var viewModel = MainMessageViewModel()
+    
     var body: some View {
         NavigationView {
             VStack {
+                Text("User: \(viewModel.chatUser?.uid ?? "")")
+
                 CustomNavgationBar()
+                    .environmentObject(viewModel)
                 
                 MessageView()
             }
@@ -33,15 +84,28 @@ struct MainMessageView_Previews: PreviewProvider {
 }
 
 struct CustomNavgationBar: View {
+    @EnvironmentObject var viewModel: MainMessageViewModel
+    
     @State private var shouldShowLogoutOptions = false
     
     var body: some View {
         HStack {
-            Image(systemName: "person.fill")
-                .font(.system(size: 34, weight: .heavy))
+            
+            AsyncImage(
+                url: URL(string: "\(viewModel.chatUser?.profileImageURL ?? "")")) { image in image.resizable()
+                } placeholder: {
+                    ProgressView()
+                }
+                .scaledToFill()
+                .frame(width: 50, height: 50)
+                .clipped()
+                .cornerRadius(50)
+                .overlay(RoundedRectangle(cornerRadius: 50)
+                    .stroke(Color(.label), lineWidth: 1))
+                .shadow(radius: 5)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text("user name")
+                Text("\(viewModel.chatUser?.email ?? "")")
                     .font(.system(size: 24, weight: .bold))
                 
                 HStack {
