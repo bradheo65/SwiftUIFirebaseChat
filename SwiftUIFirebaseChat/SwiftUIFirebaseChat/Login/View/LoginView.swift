@@ -94,6 +94,9 @@ struct LoginView: View {
                 Color(uiColor: .secondarySystemBackground)
                     .ignoresSafeArea()
             )
+            .fullScreenCover(isPresented: $viewModel.isLoginSuccess, content: {
+                MainMessageView()
+            })
             .fullScreenCover(isPresented: $shouldShowImagePicker) {
                 ImagePicker(image: $image)
             }

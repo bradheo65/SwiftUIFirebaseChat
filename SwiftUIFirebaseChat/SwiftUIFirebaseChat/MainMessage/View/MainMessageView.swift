@@ -7,20 +7,12 @@
 
 import SwiftUI
 
-struct ChatUser {
-    let uid, email, profileImageURL: String
-}
-
 final class MainMessageViewModel: ObservableObject {
     
     @Published var errorMessage = ""
     @Published var chatUser: ChatUser?
 
-    init() {
-        fetchCurrentUser()
-    }
-    
-    private func fetchCurrentUser() {
+    func fetchCurrentUser() {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
             self.errorMessage = "Could not find firebase uid"
             return
@@ -41,19 +33,22 @@ final class MainMessageViewModel: ObservableObject {
                 return
             }
             self.errorMessage = "Data \(data.description)"
-            
-            let uid = data["uid"] as? String ?? ""
-            let email = data["email"] as? String ?? ""
-            let profileImageURL = data["profileImageURL"] as? String ?? ""
-            
-            let chatUser = ChatUser(uid: uid, email: email, profileImageURL: profileImageURL)
-            
-            self.chatUser = chatUser
+    
+            self.chatUser = .init(data: data)
         }
+    }
+    
+    @Published var isUserCurrentlyLoggedOut = false
+    
+    func handleSignOut() {
+        isUserCurrentlyLoggedOut.toggle()
+        try? FirebaseManager.shared.auth.signOut()
     }
 }
 
 struct MainMessageView: View {
+    @Environment(\.dismiss) var dismiss
+
     @StateObject private var viewModel = MainMessageViewModel()
     
     var body: some View {
@@ -71,6 +66,12 @@ struct MainMessageView: View {
             newMessageButton()
         }
         .navigationBarHidden(true)
+        .onChange(of: viewModel.isUserCurrentlyLoggedOut) { newValue in
+            dismiss()
+        }
+        .onAppear {
+            viewModel.fetchCurrentUser()
+        }
     }
 }
 
@@ -138,7 +139,8 @@ struct CustomNavgationBar: View {
                     .destructive(
                         Text("Sign out"),
                         action: {
-                            print("handle Sogn out")
+                            print("handle Sign out")
+                            viewModel.handleSignOut()
                         }
                     ),
                     .default(Text("DEFAULT BUTTON")),

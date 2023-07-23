@@ -10,6 +10,8 @@ import SwiftUI
 
 final class LoginViewModel: ObservableObject {
     @Published var loginStatusMessage = ""
+    @Published var isLoginSuccess = false
+
     
     func handleAction(isLoginMode: Bool, email: String, password: String, image: UIImage?) {
         if isLoginMode {
@@ -22,6 +24,11 @@ final class LoginViewModel: ObservableObject {
 
 extension LoginViewModel {
     private func createNewAccount(email: String, password: String, image: UIImage?) {
+        if image == nil {
+            self.loginStatusMessage = "You must select an avatar image"
+            return
+        }
+        
         FirebaseManager.shared.auth.createUser(withEmail: email, password: password) { result, error in
             if let error = error {
                 print(error.localizedDescription)
@@ -96,6 +103,7 @@ extension LoginViewModel {
             }
             self.loginStatusMessage = "Success \(result?.user.uid ?? "")"
             print("Success \(result?.user.uid ?? "")")
+            self.isLoginSuccess = true
         }
     }
 }
