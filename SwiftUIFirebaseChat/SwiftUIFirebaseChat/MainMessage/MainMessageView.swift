@@ -63,7 +63,7 @@ struct MainMessageView: View {
             }
         }
         .overlay(alignment: .bottom) {
-            newMessageButton()
+            newMessageButton
         }
         .navigationBarHidden(true)
         .onChange(of: viewModel.isUserCurrentlyLoggedOut) { newValue in
@@ -71,6 +71,29 @@ struct MainMessageView: View {
         }
         .onAppear {
             viewModel.fetchCurrentUser()
+        }
+    }
+    @State var shouldShowNewMessageScreen = false
+    
+    private var newMessageButton: some View {
+        Button {
+            shouldShowNewMessageScreen.toggle()
+        } label: {
+            HStack {
+                Spacer()
+                Text("+ New message")
+                    .font(.system(size: 16, weight: .bold))
+                Spacer()
+            }
+            .foregroundColor(.white)
+            .padding(.vertical)
+            .background(.blue)
+            .cornerRadius(32)
+            .padding(.horizontal)
+            .shadow(radius: 15)
+        }
+        .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
+            CreateNewMessageView()
         }
     }
 }
@@ -184,25 +207,26 @@ struct MessageView: View {
             .padding(.bottom, 50)
         }
     }
+    
 }
 
-struct newMessageButton: View {
-    var body: some View {
-        Button {
-            
-        } label: {
-            HStack {
-                Spacer()
-                Text("+ New message")
-                    .font(.system(size: 16, weight: .bold))
-                Spacer()
-            }
-            .foregroundColor(.white)
-            .padding(.vertical)
-            .background(.blue)
-            .cornerRadius(32)
-            .padding(.horizontal)
-            .shadow(radius: 15)
-        }
-    }
-}
+//struct newMessageButton: View {
+//    var body: some View {
+//        Button {
+//
+//        } label: {
+//            HStack {
+//                Spacer()
+//                Text("+ New message")
+//                    .font(.system(size: 16, weight: .bold))
+//                Spacer()
+//            }
+//            .foregroundColor(.white)
+//            .padding(.vertical)
+//            .background(.blue)
+//            .cornerRadius(32)
+//            .padding(.horizontal)
+//            .shadow(radius: 15)
+//        }
+//    }
+//}

@@ -5,7 +5,11 @@
 //  Created by brad on 2023/07/23.
 //
 
+import Foundation
+
 struct ChatUser {
+    var id = UUID()
+    
     let uid, email, profileImageURL: String
     
     init(data: [String: Any]) {
