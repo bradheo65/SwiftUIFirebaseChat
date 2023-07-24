@@ -39,14 +39,17 @@ final class CreateNewMessageViewModel: ObservableObject {
 struct CreateNewMessageView: View {
     @Environment(\.dismiss) var dismiss
     
+    let didSelectNewUser: (ChatUser) -> ()
+    
     @StateObject private var viewModel = CreateNewMessageViewModel()
 
     var body: some View {
         NavigationView {
             List {
                 ForEach(viewModel.users, id: \.id) { user in
-                    NavigationLink {
-                        
+                    Button {
+                        dismiss()
+                        didSelectNewUser(user)
                     } label: {
                         VStack {
                             HStack {
@@ -91,6 +94,7 @@ struct CreateNewMessageView: View {
 
 struct CreateNewMessageView_Previews: PreviewProvider {
     static var previews: some View {
-        CreateNewMessageView()
+        // CreateNewMessageView()
+        MainMessageView()
     }
 }

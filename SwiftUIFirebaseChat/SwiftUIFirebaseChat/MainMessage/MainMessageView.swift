@@ -51,6 +51,8 @@ struct MainMessageView: View {
 
     @StateObject private var viewModel = MainMessageViewModel()
     
+    @State var shouldNavigatieToChatLogView = false
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -60,6 +62,10 @@ struct MainMessageView: View {
                     .environmentObject(viewModel)
                 
                 MessageView()
+                
+                NavigationLink("", isActive: $shouldNavigatieToChatLogView) {
+                    ChatLogView(chatUser: self.chatUser)
+                }
             }
         }
         .overlay(alignment: .bottom) {
@@ -93,9 +99,15 @@ struct MainMessageView: View {
             .shadow(radius: 15)
         }
         .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
-            CreateNewMessageView()
+            CreateNewMessageView { user in
+                print(user.email)
+                shouldNavigatieToChatLogView.toggle()
+                self.chatUser = user
+            }
         }
     }
+    
+    @State var chatUser: ChatUser?
 }
 
 struct MainMessageView_Previews: PreviewProvider {
@@ -179,25 +191,29 @@ struct MessageView: View {
         ScrollView {
             ForEach(0..<10, id: \.self) { num in
                 VStack {
-                    HStack(spacing: 16) {
-                        Image(systemName: "person.fill")
-                            .font(.system(size: 32))
-                            .padding(8)
-                            .overlay(RoundedRectangle(cornerRadius: 44)
-                                .stroke(Color(.label), lineWidth: 1))
+                    NavigationLink {
                         
-                        VStack(alignment: .leading) {
-                            Text("UserName")
-                                .font(.system(size: 16, weight: .bold))
+                    } label: {
+                        HStack(spacing: 16) {
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 32))
+                                .padding(8)
+                                .overlay(RoundedRectangle(cornerRadius: 44)
+                                    .stroke(Color(.label), lineWidth: 1))
                             
-                            Text("Message sent to user")
-                                .font(.system(size: 14))
-                                .foregroundColor(Color(.lightGray))
+                            VStack(alignment: .leading) {
+                                Text("UserName")
+                                    .font(.system(size: 16, weight: .bold))
+                                
+                                Text("Message sent to user")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(Color(.lightGray))
+                            }
+                            Spacer()
+                            
+                            Text("Message row\(num)")
+                                .font(.system(size: 14, weight: .semibold))
                         }
-                        Spacer()
-                        
-                        Text("Message row\(num)")
-                            .font(.system(size: 14, weight: .semibold))
                     }
                     Divider()
                         .padding(.vertical, 8)
@@ -210,23 +226,15 @@ struct MessageView: View {
     
 }
 
-//struct newMessageButton: View {
-//    var body: some View {
-//        Button {
-//
-//        } label: {
-//            HStack {
-//                Spacer()
-//                Text("+ New message")
-//                    .font(.system(size: 16, weight: .bold))
-//                Spacer()
-//            }
-//            .foregroundColor(.white)
-//            .padding(.vertical)
-//            .background(.blue)
-//            .cornerRadius(32)
-//            .padding(.horizontal)
-//            .shadow(radius: 15)
-//        }
-//    }
-//}
+struct ChatLogView: View {
+    let chatUser: ChatUser?
+    
+    var body: some View {
+        ScrollView {
+            ForEach(0..<10) { num in
+                Text("Messages")
+            }
+        }
+        .navigationTitle(chatUser?.email ?? "")
+    }
+}
