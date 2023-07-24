@@ -67,10 +67,11 @@ struct MainMessageView: View {
                     ChatLogView(chatUser: self.chatUser)
                 }
             }
+            .overlay(alignment: .bottom) {
+                newMessageButton
+            }
         }
-        .overlay(alignment: .bottom) {
-            newMessageButton
-        }
+
         .navigationBarHidden(true)
         .onChange(of: viewModel.isUserCurrentlyLoggedOut) { newValue in
             dismiss()
@@ -224,17 +225,4 @@ struct MessageView: View {
         }
     }
     
-}
-
-struct ChatLogView: View {
-    let chatUser: ChatUser?
-    
-    var body: some View {
-        ScrollView {
-            ForEach(0..<10) { num in
-                Text("Messages")
-            }
-        }
-        .navigationTitle(chatUser?.email ?? "")
-    }
 }
