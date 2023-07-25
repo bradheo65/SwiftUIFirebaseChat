@@ -13,6 +13,9 @@ struct FirebaseConstants {
     static let fromId = "fromId"
     static let toId = "toId"
     static let text = "text"
+    static let timestamp = "timestamp"
+    static let profileImageURL = "profileImageURL"
+    static let email = "email"
 }
 
 struct ChatMessage: Identifiable {
@@ -62,7 +65,7 @@ final class ChatLogViewModel: ObservableObject {
             FirebaseConstants.fromId : fromId,
             FirebaseConstants.toId: toId,
             FirebaseConstants.text: text,
-            "timestamp": Timestamp()
+            FirebaseConstants.timestamp: Timestamp()
         ] as [String : Any]
         
         document.setData(messageData) { error in
@@ -72,6 +75,8 @@ final class ChatLogViewModel: ObservableObject {
             }
             
             print("Successfully saved current user sending message")
+            
+            self.persistRecentMessage(text: text)
         }
         
         let recipientMessageDocument = FirebaseManager.shared.firestore
@@ -87,6 +92,39 @@ final class ChatLogViewModel: ObservableObject {
             
             compltion()
             print("Successfully saved current user sending message")
+        }
+    }
+    
+    private func persistRecentMessage(text: String) {
+        guard let chatUser = chatUser else { return }
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+            return
+        }
+        guard let toId = self.chatUser?.uid else {
+            return
+        }
+        
+        let document = FirebaseManager.shared.firestore
+            .collection("recent_messages")
+            .document(uid)
+            .collection("messages")
+            .document(toId)
+        
+        let data = [
+            FirebaseConstants.timestamp: Timestamp(),
+            FirebaseConstants.text: text,
+            FirebaseConstants.fromId: uid,
+            FirebaseConstants.toId: toId,
+            FirebaseConstants.profileImageURL: chatUser.profileImageURL,
+            FirebaseConstants.email: chatUser.email
+        ] as [String : Any]
+        
+        document.setData(data) { error in
+            if let error = error {
+                self.errorMessage = "Failed to save recent message: \(error)"
+                print("Failed to save recent message: \(error)")
+                return
+            }
         }
     }
     
@@ -112,7 +150,11 @@ final class ChatLogViewModel: ObservableObject {
                         let data = change.document.data()
                         self.chatMessages.append(.init(documentID: change.document.documentID, data: data))
                     }
+                    guard let text = change.document.data()["text"] as? String else { return }
+                    
+                    self.persistRecentMessage(text: text)
                 })
+                
                 DispatchQueue.main.async {
                     self.count += 1
                 }

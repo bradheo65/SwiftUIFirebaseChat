@@ -7,12 +7,43 @@
 
 import SwiftUI
 
+import Firebase
+struct RecentMessage: Identifiable {
+    var id: String {
+        documentId
+    }
+    let documentId: String
+    let text, email: String
+    let fromId, toId: String
+    let profileImageURL: String
+    let timestamp: Timestamp
+    
+    init(documentId: String, data: [String: Any]) {
+        self.documentId = documentId
+        self.text = data["text"] as? String ?? ""
+        self.email = data[FirebaseConstants.email] as? String ?? ""
+        self.fromId = data[FirebaseConstants.fromId] as? String ?? ""
+        self.toId = data[FirebaseConstants.toId] as? String ?? ""
+        self.profileImageURL = data[FirebaseConstants.profileImageURL] as? String ?? ""
+        self.timestamp = data[FirebaseConstants.timestamp] as? Timestamp ?? Timestamp(date:  Date())
+    }
+}
 final class MainMessageViewModel: ObservableObject {
     
     @Published var errorMessage = ""
     @Published var chatUser: ChatUser?
 
-    func fetchCurrentUser() {
+    init() {
+        fetchCurrentUser()
+        fetchRecentMessages()
+    }
+    
+    func handleSignOut() {
+        isUserCurrentlyLoggedOut.toggle()
+        try? FirebaseManager.shared.auth.signOut()
+    }
+    
+    private func fetchCurrentUser() {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
             self.errorMessage = "Could not find firebase uid"
             return
@@ -40,9 +71,33 @@ final class MainMessageViewModel: ObservableObject {
     
     @Published var isUserCurrentlyLoggedOut = false
     
-    func handleSignOut() {
-        isUserCurrentlyLoggedOut.toggle()
-        try? FirebaseManager.shared.auth.signOut()
+    @Published var recentMessages: [RecentMessage] = []
+    
+    private func fetchRecentMessages() {
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        
+        FirebaseManager.shared.firestore
+            .collection("recent_messages")
+            .document(uid)
+            .collection("messages")
+            .order(by: "timestamp")
+            .addSnapshotListener { querySnapshot, error in
+                if let error = error {
+                    self.errorMessage = "Failed to listen for recent messages: \(error)"
+                    print(error)
+                    return
+                }
+                querySnapshot?.documentChanges.forEach({ change in
+                    let docId = change.document.documentID
+                    
+                    if let index = self.recentMessages.firstIndex(where: { recentMessage in
+                        return recentMessage.documentId == docId
+                    }) {
+                        self.recentMessages.remove(at: index)
+                    }
+                    self.recentMessages.insert(.init(documentId: docId, data: change.document.data()), at: 0)
+                })
+            }
     }
 }
 
@@ -56,35 +111,43 @@ struct MainMessageView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("User: \(viewModel.chatUser?.uid ?? "")")
-
                 CustomNavgationBar()
                     .environmentObject(viewModel)
                 
                 ScrollView {
-                    ForEach(0..<10, id: \.self) { num in
+                    ForEach(viewModel.recentMessages) { recentMessage in
                         VStack {
                             NavigationLink {
                                 
                             } label: {
                                 HStack(spacing: 16) {
-                                    Image(systemName: "person.fill")
-                                        .font(.system(size: 32))
-                                        .padding(8)
-                                        .overlay(RoundedRectangle(cornerRadius: 44)
+                                    AsyncImage(
+                                        url: URL(string: recentMessage.profileImageURL)) { image in image.resizable()
+                                        } placeholder: {
+                                            ProgressView()
+                                        }
+                                        .scaledToFill()
+                                        .frame(width: 64, height: 64)
+                                        .clipped()
+                                        .cornerRadius(64)
+                                        .overlay(RoundedRectangle(cornerRadius: 64)
                                             .stroke(Color(.label), lineWidth: 1))
+                                        .shadow(radius: 5)
                                     
-                                    VStack(alignment: .leading) {
-                                        Text("UserName")
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text(recentMessage.email)
+                                            .lineLimit(1)
                                             .font(.system(size: 16, weight: .bold))
                                         
-                                        Text("Message sent to user")
+                                        Text(recentMessage.text)
                                             .font(.system(size: 14))
                                             .foregroundColor(Color(.lightGray))
+                                            .multilineTextAlignment(.leading)
+                                            .lineLimit(3)
                                     }
                                     Spacer()
-                                    
-                                    Text("Message row\(num)")
+
+                                    Text("Message row")
                                         .font(.system(size: 14, weight: .semibold))
                                 }
                             }
@@ -108,9 +171,6 @@ struct MainMessageView: View {
         .navigationBarHidden(true)
         .onChange(of: viewModel.isUserCurrentlyLoggedOut) { newValue in
             dismiss()
-        }
-        .onAppear {
-            viewModel.fetchCurrentUser()
         }
     }
     @State var shouldShowNewMessageScreen = false
@@ -160,7 +220,6 @@ struct CustomNavgationBar: View {
     
     var body: some View {
         HStack {
-            
             AsyncImage(
                 url: URL(string: "\(viewModel.chatUser?.profileImageURL ?? "")")) { image in image.resizable()
                 } placeholder: {
