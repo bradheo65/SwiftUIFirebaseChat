@@ -8,26 +8,8 @@
 import SwiftUI
 
 import Firebase
-struct RecentMessage: Identifiable {
-    var id: String {
-        documentId
-    }
-    let documentId: String
-    let text, email: String
-    let fromId, toId: String
-    let profileImageURL: String
-    let timestamp: Timestamp
-    
-    init(documentId: String, data: [String: Any]) {
-        self.documentId = documentId
-        self.text = data["text"] as? String ?? ""
-        self.email = data[FirebaseConstants.email] as? String ?? ""
-        self.fromId = data[FirebaseConstants.fromId] as? String ?? ""
-        self.toId = data[FirebaseConstants.toId] as? String ?? ""
-        self.profileImageURL = data[FirebaseConstants.profileImageURL] as? String ?? ""
-        self.timestamp = data[FirebaseConstants.timestamp] as? Timestamp ?? Timestamp(date:  Date())
-    }
-}
+import FirebaseFirestoreSwift
+
 final class MainMessageViewModel: ObservableObject {
     
     @Published var errorMessage = ""
@@ -65,7 +47,13 @@ final class MainMessageViewModel: ObservableObject {
             }
             self.errorMessage = "Data \(data.description)"
     
-            self.chatUser = .init(data: data)
+            do {
+                let chatUser = try snapshot?.data(as: ChatUser.self)
+                
+                self.chatUser = chatUser
+            } catch {
+                print(error)
+            }
         }
     }
     
@@ -91,11 +79,18 @@ final class MainMessageViewModel: ObservableObject {
                     let docId = change.document.documentID
                     
                     if let index = self.recentMessages.firstIndex(where: { recentMessage in
-                        return recentMessage.documentId == docId
+                        return recentMessage.id == docId
                     }) {
                         self.recentMessages.remove(at: index)
                     }
-                    self.recentMessages.insert(.init(documentId: docId, data: change.document.data()), at: 0)
+                    
+                    do {
+                        let rm = try change.document.data(as: RecentMessage.self)
+                        
+                        self.recentMessages.insert(rm, at: 0)
+                    } catch {
+                        print(error)
+                    }
                 })
             }
     }
@@ -135,8 +130,9 @@ struct MainMessageView: View {
                                         .shadow(radius: 5)
                                     
                                     VStack(alignment: .leading, spacing: 6) {
-                                        Text(recentMessage.email)
+                                        Text(recentMessage.username)
                                             .lineLimit(1)
+                                            .foregroundColor(.black)
                                             .font(.system(size: 16, weight: .bold))
                                         
                                         Text(recentMessage.text)
@@ -147,7 +143,7 @@ struct MainMessageView: View {
                                     }
                                     Spacer()
 
-                                    Text("Message row")
+                                    Text(recentMessage.timeAgo)
                                         .font(.system(size: 14, weight: .semibold))
                                 }
                             }
@@ -234,7 +230,7 @@ struct CustomNavgationBar: View {
                 .shadow(radius: 5)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text("\(viewModel.chatUser?.email ?? "")")
+                Text("\(viewModel.chatUser?.username ?? "")")
                     .font(.system(size: 24, weight: .bold))
                 
                 HStack {

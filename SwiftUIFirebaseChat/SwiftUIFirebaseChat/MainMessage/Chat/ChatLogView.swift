@@ -9,29 +9,13 @@ import SwiftUI
 
 import Firebase
 
-struct FirebaseConstants {
+enum FirebaseConstants {
     static let fromId = "fromId"
     static let toId = "toId"
     static let text = "text"
     static let timestamp = "timestamp"
     static let profileImageURL = "profileImageURL"
     static let email = "email"
-}
-
-struct ChatMessage: Identifiable {
-    var id: String {
-        documentID
-    }
-    
-    let documentID: String
-    let fromId, toId, text: String
-    
-    init(documentID: String, data: [String: Any]) {
-        self.documentID = documentID
-        self.fromId = data[FirebaseConstants.fromId] as? String ?? ""
-        self.toId = data[FirebaseConstants.toId] as? String ?? ""
-        self.text = data[FirebaseConstants.text] as? String ?? ""
-    }
 }
 
 final class ChatLogViewModel: ObservableObject {
@@ -148,7 +132,14 @@ final class ChatLogViewModel: ObservableObject {
                 querySnapshot?.documentChanges.forEach({ change in
                     if change.type == .added {
                         let data = change.document.data()
-                        self.chatMessages.append(.init(documentID: change.document.documentID, data: data))
+                        
+                        do {
+                            let data = try change.document.data(as: ChatMessage.self)
+                            
+                            self.chatMessages.append(data)
+                        } catch {
+                            print(error)
+                        }
                     }
                     guard let text = change.document.data()["text"] as? String else { return }
                     
