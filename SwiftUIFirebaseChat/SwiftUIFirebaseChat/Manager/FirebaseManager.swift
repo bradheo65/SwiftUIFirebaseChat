@@ -17,6 +17,8 @@ final class FirebaseManager: NSObject {
     
     static let shared = FirebaseManager()
     
+    var currentUser: ChatUser?
+    
     private override init() {
         FirebaseApp.configure()
         

@@ -32,6 +32,8 @@ final class ChatLogViewModel: ObservableObject {
         fetchMessages()
     }
     
+    var firestoreListener: ListenerRegistration?
+    
     func handleSend(text: String, compltion: @escaping () -> Void) {
         print(text)
         
@@ -60,7 +62,6 @@ final class ChatLogViewModel: ObservableObject {
             
             print("Successfully saved current user sending message")
             
-            self.persistRecentMessage(text: text)
         }
         
         let recipientMessageDocument = FirebaseManager.shared.firestore
@@ -75,6 +76,7 @@ final class ChatLogViewModel: ObservableObject {
             }
             
             compltion()
+            self.persistRecentMessage(text: text)
             print("Successfully saved current user sending message")
         }
     }
@@ -110,6 +112,28 @@ final class ChatLogViewModel: ObservableObject {
                 return
             }
         }
+        
+        guard let currentUser = FirebaseManager.shared.currentUser else { return }
+        let recipientRecentMessageDictionary = [
+            FirebaseConstants.timestamp: Timestamp(),
+            FirebaseConstants.text: text,
+            FirebaseConstants.fromId: uid,
+            FirebaseConstants.toId: toId,
+            FirebaseConstants.profileImageURL: currentUser.profileImageURL,
+            FirebaseConstants.email: currentUser.email
+        ] as [String : Any]
+        
+        FirebaseManager.shared.firestore
+            .collection("recent_messages")
+            .document(toId)
+            .collection("messages")
+            .document(currentUser.uid)
+            .setData(recipientRecentMessageDictionary) { error in
+                if let error = error {
+                    print("Failed to save recipient recent message: \(error)")
+                    return
+                }
+            }
     }
     
     private func fetchMessages() {
@@ -117,7 +141,10 @@ final class ChatLogViewModel: ObservableObject {
         
         guard let toId = chatUser?.uid else { return }
         
-        FirebaseManager.shared.firestore
+        firestoreListener?.remove()
+        chatMessages.removeAll()
+        
+        firestoreListener = FirebaseManager.shared.firestore
             .collection("messages")
             .document(fromId)
             .collection(toId)
@@ -131,19 +158,15 @@ final class ChatLogViewModel: ObservableObject {
                 
                 querySnapshot?.documentChanges.forEach({ change in
                     if change.type == .added {
-                        let data = change.document.data()
-                        
                         do {
                             let data = try change.document.data(as: ChatMessage.self)
                             
                             self.chatMessages.append(data)
+                            print("Appending chatMessage in ChatLogView")
                         } catch {
                             print(error)
                         }
                     }
-                    guard let text = change.document.data()["text"] as? String else { return }
-                    
-                    self.persistRecentMessage(text: text)
                 })
                 
                 DispatchQueue.main.async {
@@ -176,6 +199,9 @@ struct ChatLogView: View {
         }
         .navigationTitle(chatUser?.email ?? "")
         .navigationBarTitleDisplayMode(.inline)
+        .onDisappear {
+            viewModel.firestoreListener?.remove()
+        }
     }
     
     private var messageView: some View {

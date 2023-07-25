@@ -38,9 +38,7 @@ final class MainMessageViewModel: ObservableObject {
                 print("Failed to fetch current user:", error)
                 return
             }
-            
-            self.errorMessage = "123"
-            
+                        
             guard let data = snapshot?.data() else {
                 self.errorMessage = "No data found"
                 return
@@ -51,6 +49,7 @@ final class MainMessageViewModel: ObservableObject {
                 let chatUser = try snapshot?.data(as: ChatUser.self)
                 
                 self.chatUser = chatUser
+                FirebaseManager.shared.currentUser = self.chatUser
             } catch {
                 print(error)
             }
@@ -145,6 +144,7 @@ struct MainMessageView: View {
 
                                     Text(recentMessage.timeAgo)
                                         .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.black)
                                 }
                             }
                             Divider()

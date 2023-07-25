@@ -28,7 +28,10 @@ final class CreateNewMessageViewModel: ObservableObject {
                 let data = snapshot.data()
                 do {
                     let user = try snapshot.data(as: ChatUser.self)
-                    self.users.append(user)
+                    
+                    if user.id != FirebaseManager.shared.auth.currentUser?.uid {
+                        self.users.append(user)
+                    }
                 } catch {
                     print(error)
                 }
