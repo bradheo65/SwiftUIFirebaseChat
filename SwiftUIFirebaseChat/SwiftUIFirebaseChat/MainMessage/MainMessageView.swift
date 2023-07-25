@@ -61,7 +61,40 @@ struct MainMessageView: View {
                 CustomNavgationBar()
                     .environmentObject(viewModel)
                 
-                MessageView()
+                ScrollView {
+                    ForEach(0..<10, id: \.self) { num in
+                        VStack {
+                            NavigationLink {
+                                
+                            } label: {
+                                HStack(spacing: 16) {
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 32))
+                                        .padding(8)
+                                        .overlay(RoundedRectangle(cornerRadius: 44)
+                                            .stroke(Color(.label), lineWidth: 1))
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text("UserName")
+                                            .font(.system(size: 16, weight: .bold))
+                                        
+                                        Text("Message sent to user")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(Color(.lightGray))
+                                    }
+                                    Spacer()
+                                    
+                                    Text("Message row\(num)")
+                                        .font(.system(size: 14, weight: .semibold))
+                                }
+                            }
+                            Divider()
+                                .padding(.vertical, 8)
+                        }
+                        .padding(.horizontal)
+                    }
+                    .padding(.bottom, 50)
+                }
                 
                 NavigationLink("", isActive: $shouldNavigatieToChatLogView) {
                     ChatLogView(chatUser: self.chatUser)
@@ -185,44 +218,4 @@ struct CustomNavgationBar: View {
             )
         }
     }
-}
-
-struct MessageView: View {
-    var body: some View {
-        ScrollView {
-            ForEach(0..<10, id: \.self) { num in
-                VStack {
-                    NavigationLink {
-                        
-                    } label: {
-                        HStack(spacing: 16) {
-                            Image(systemName: "person.fill")
-                                .font(.system(size: 32))
-                                .padding(8)
-                                .overlay(RoundedRectangle(cornerRadius: 44)
-                                    .stroke(Color(.label), lineWidth: 1))
-                            
-                            VStack(alignment: .leading) {
-                                Text("UserName")
-                                    .font(.system(size: 16, weight: .bold))
-                                
-                                Text("Message sent to user")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(Color(.lightGray))
-                            }
-                            Spacer()
-                            
-                            Text("Message row\(num)")
-                                .font(.system(size: 14, weight: .semibold))
-                        }
-                    }
-                    Divider()
-                        .padding(.vertical, 8)
-                }
-                .padding(.horizontal)
-            }
-            .padding(.bottom, 50)
-        }
-    }
-    
 }
