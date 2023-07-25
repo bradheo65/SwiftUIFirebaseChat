@@ -13,14 +13,7 @@ struct ChatLogView: View {
     @State var chatText = ""
     
     var body: some View {
-        ZStack {
-            messageView
-            VStack {
-                Spacer()
-                chatBottomBar
-                    .background(Color.white)
-            }
-        }
+        messageView
         .navigationTitle(chatUser?.email ?? "")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -44,13 +37,23 @@ struct ChatLogView: View {
             HStack { Spacer() }
         }
         .background(Color(.init(white: 0.95, alpha: 1)))
+        .safeAreaInset(edge: .bottom) {
+            chatBottomBar
+                .background(Color(.systemBackground))
+                .ignoresSafeArea()
+        }
     }
     
     private var chatBottomBar: some View {
         HStack(spacing: 8) {
             Image(systemName: "photo.on.rectangle")
-            TextEditor(text: $chatText)
-                .frame(height: 40)
+            
+            ZStack {
+                DescriptionPlaceholder()
+                TextEditor(text: $chatText)
+                    .opacity(chatText.isEmpty ? 0.5 : 1)
+            }
+            .frame(height: 40)
             Button {
                 
             } label: {
@@ -74,6 +77,18 @@ struct ChatLogVIew_Previews: PreviewProvider {
                 "uid": "Gc9KTdH5ZCUln1QLT9pbbj4Y5Qv2",
                 "email": "Water@gmail.com"
             ]))
+        }
+    }
+}
+private struct DescriptionPlaceholder: View {
+    var body: some View {
+        HStack {
+            Text("Description")
+                .foregroundColor(Color(.gray))
+                .font(.system(size: 17))
+                .padding(.leading, 5)
+                .padding(.top, -4)
+            Spacer()
         }
     }
 }
