@@ -26,7 +26,65 @@ final class ChatLogViewModel: ObservableObject {
         fetchMessages()
     }
         
-    func handleSend(text: String, compltion: @escaping () -> Void) {
+    func handleSendText(text: String, compltion: @escaping () -> Void) {
+        guard let fromId = FirebaseManager.shared.auth.currentUser?.uid else {
+            return
+        }
+        
+        guard let toId = chatUser?.uid else {
+            return
+        }
+        
+        let document = FirebaseManager.shared.firestore
+            .collection(FirebaseConstants.messages)
+            .document(fromId)
+            .collection(toId)
+            .document()
+
+        let recipientMessageDocument = FirebaseManager.shared.firestore
+            .collection(FirebaseConstants.messages)
+            .document(toId)
+            .collection(fromId)
+            .document()
+        
+        let messageData = [
+            FirebaseConstants.fromId : fromId,
+            FirebaseConstants.toId: toId,
+            FirebaseConstants.text: text,
+            FirebaseConstants.timestamp: Timestamp()
+        ] as [String : Any]
+        
+        FirebaseManager.shared.handleSendMessage(
+            fromDocument: document,
+            toDocument: recipientMessageDocument,
+            messageData: messageData
+        ) {
+            self.persistRecentMessage(text: text)
+        }
+    }
+     
+    func handleSendImage(image: UIImage) {
+        let ref = FirebaseManager.shared.storage.reference()
+            .child("message_images")
+            .child(UUID().uuidString)
+        
+        FirebaseManager.shared.uploadImage(image: image, storageReference: ref) { result in
+            switch result {
+            case .success(let url):
+                self.handleImageMessageData(imageUrl: url.absoluteString, image: image) {
+                    print("ok")
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+}
+
+extension ChatLogViewModel {
+    
+    private func handleImageMessageData(imageUrl: String, image: UIImage?, compltion: @escaping () -> Void) {
         guard let fromId = FirebaseManager.shared.auth.currentUser?.uid else {
             return
         }
@@ -41,43 +99,36 @@ final class ChatLogViewModel: ObservableObject {
             .collection(toId)
             .document()
         
-        let messageData = [
-            FirebaseConstants.fromId : fromId,
-            FirebaseConstants.toId: toId,
-            FirebaseConstants.text: text,
-            FirebaseConstants.timestamp: Timestamp()
-        ] as [String : Any]
-        
-        document.setData(messageData) { error in
-            if let error = error {
-                self.errorMessage = "Failed to save message into Firestore: \(error)"
-                return
-            }
-            
-            print("Successfully saved current user sending message")
-        }
-        
         let recipientMessageDocument = FirebaseManager.shared.firestore
             .collection(FirebaseConstants.messages)
             .document(toId)
             .collection(fromId)
             .document()
+
+        guard let image = image else {
+            return
+        }
         
-        recipientMessageDocument.setData(messageData) { error in
-            if let error = error {
-                self.errorMessage = "Failed to save message into Firestore: \(error)"
-                return
-            }
-            
-            compltion()
-            self.persistRecentMessage(text: text)
-            print("Successfully saved current user sending message")
+        let width = Float(image.size.width)
+        let height = Float(image.size.height)
+        
+        let messageData = [
+            FirebaseConstants.fromId : fromId,
+            FirebaseConstants.toId: toId,
+            "imageUrl": imageUrl,
+            "imageWidth": CGFloat(200),
+            "imageHeight": CGFloat(height / width * 200),
+            FirebaseConstants.timestamp: Timestamp()
+        ] as [String : Any]
+    
+        FirebaseManager.shared.handleSendMessage(
+            fromDocument: document,
+            toDocument: recipientMessageDocument,
+            messageData: messageData
+        ) {
+            self.persistRecentMessage(text: "이미지")
         }
     }
-    
-}
-
-extension ChatLogViewModel {
     
     private func persistRecentMessage(text: String) {
         guard let chatUser = chatUser else {

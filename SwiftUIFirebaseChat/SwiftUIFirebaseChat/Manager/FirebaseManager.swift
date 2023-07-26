@@ -28,4 +28,53 @@ final class FirebaseManager: NSObject {
         
         super.init()
     }
+    
+    func handleSendMessage(fromDocument: DocumentReference, toDocument: DocumentReference, messageData: [String: Any], compltion: @escaping () -> Void) {
+        
+        fromDocument.setData(messageData) { error in
+            if let error = error {
+                print("Failed to save message into Firestore: \(error)")
+                return
+            }
+            
+            print("Successfully saved current user sending message")
+        }
+        
+        toDocument.setData(messageData) { error in
+            if let error = error {
+                print("Failed to save message into Firestore: \(error)")
+                return
+            }
+            
+            print("Successfully saved current user sending message")
+        }
+    }
+    
+    func uploadImage(image: UIImage, storageReference: StorageReference, compltion: @escaping (Result<URL, Error>) -> Void) {
+        if let uploadData = image.jpegData(compressionQuality: 0.5) {
+            storageReference.putData(uploadData) { metadata, error in
+                if let error = error {
+                    print(error)
+                    compltion(.failure(error))
+                    return
+                }
+                
+                storageReference.downloadURL { url, error in
+                    if let error = error {
+                        print(error)
+                        compltion(.failure(error))
+                        return
+                    }
+                    print("Successfully stored image with url \(url?.absoluteString ?? "")")
+                    
+                    guard let url = url else {
+                        return
+                    }
+                    compltion(.success(url))
+                    }
+                }
+            }
+        }
+    
+    
 }

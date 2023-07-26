@@ -17,14 +17,14 @@ struct ProfileImageView: View {
                 case .empty:
                     ProgressView()
                 case .failure(_):
-                    Image("person.fill")
+                    Image(systemName: "person.fill")
                 case .success(let image):
                     image.resizable()
                 @unknown default:
                     EmptyView()
                 }
             }
-            .scaledToFill()
+            .scaledToFit()
             .shadow(radius: 5)
     }
 }

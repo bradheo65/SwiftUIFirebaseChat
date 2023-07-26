@@ -9,9 +9,13 @@ import SwiftUI
 
 struct ChatLogView: View {
     @StateObject private var viewModel: ChatLogViewModel
+    
+    @State private var image: UIImage?
 
     @State private var chatText = ""
     
+    @State private var shouldShowImagePicker = false
+
     private let chatUser: ChatUser?
     
     init(chatUser: ChatUser?) {
@@ -29,6 +33,12 @@ struct ChatLogView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onDisappear {
             viewModel.firestoreListener?.remove()
+        }
+        .fullScreenCover(isPresented: $shouldShowImagePicker) {
+            ImagePicker(image: $image)
+        }
+        .onChange(of: image) { newValue in
+            viewModel.handleSendImage(image: newValue ?? UIImage())
         }
     }
     
@@ -63,7 +73,11 @@ extension ChatLogView {
     
     private var chatBottomBar: some View {
         HStack(spacing: 8) {
-            Image(systemName: "photo.on.rectangle")
+            Button {
+                shouldShowImagePicker.toggle()
+            } label: {
+                Image(systemName: "photo.on.rectangle")
+            }
             
             ZStack {
                 descriptionPlaceholder
@@ -73,7 +87,7 @@ extension ChatLogView {
             }
             .frame(height: 40)
             Button {
-                viewModel.handleSend(text: self.chatText) {
+                viewModel.handleSendText(text: self.chatText) {
                     self.chatText = ""
                 }
             } label: {
@@ -107,22 +121,39 @@ extension ChatLogView {
                     HStack {
                         Spacer()
                         HStack {
-                            Text(message.text)
-                                .foregroundColor(.white)
+                            if let text = message.text {
+                                Text(text)
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .background(Color.blue)
+                            } else {
+                                ProfileImageView(url: message.imageUrl ?? "")
+                                    .frame(
+                                        width: message.imageWidth,
+                                        height: message.imageHeight
+                                    )
+                            }
                         }
-                        .padding()
-                        .background(Color.blue)
                         .cornerRadius(8)
                     }
                 } else {
                     HStack {
                         HStack {
-                            Text(message.text)
-                                .foregroundColor(.black)
+                            if let text = message.text {
+                                Text(text)
+                                    .foregroundColor(.black)
+                                    .padding()
+                                    .background(Color.white)
+                            } else {
+                                ProfileImageView(url: message.imageUrl ?? "")
+                                    .frame(
+                                        width: message.imageWidth,
+                                        height: message.imageHeight
+                                    )
+                            }
                         }
-                        .padding()
-                        .background(Color.white)
                         .cornerRadius(8)
+                        
                         Spacer()
                     }
                 }
