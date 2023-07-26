@@ -10,9 +10,9 @@ import SwiftUI
 
 final class LoginViewModel: ObservableObject {
     @Published var loginStatusMessage = ""
+    
     @Published var isLoginSuccess = false
 
-    
     func handleAction(isLoginMode: Bool, email: String, password: String, image: UIImage?) {
         if isLoginMode {
             loginUser(email: email, password: password)
@@ -35,6 +35,7 @@ extension LoginViewModel {
                 self.loginStatusMessage = error.localizedDescription
                 return
             }
+            
             self.loginStatusMessage = "Success \(result?.user.uid ?? "")"
             print("Success \(result?.user.uid ?? "")")
             
@@ -42,9 +43,7 @@ extension LoginViewModel {
         }
     }
     
-    private func persiststImageToStorage(email: String, image: UIImage?) {
-        _ = UUID().uuidString
-        
+    private func persiststImageToStorage(email: String, image: UIImage?) {        
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
             return
         }
@@ -53,6 +52,7 @@ extension LoginViewModel {
         guard let imageData = image?.jpegData(compressionQuality: 0.5) else {
             return
         }
+        
         ref.putData(imageData) { metadata, err in
             if let err = err {
                 self.loginStatusMessage = "Failed to push image \(err)"
@@ -69,6 +69,7 @@ extension LoginViewModel {
                 guard let url = url else {
                     return
                 }
+                
                 self.storeUserInformation(email: email, imageProfileURL: url)
             }
         }
@@ -78,12 +79,15 @@ extension LoginViewModel {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
             return
         }
+        
         let userData = [
-            "email": email,
-            "uid": uid,
-            "profileImageURL": imageProfileURL.absoluteString
+            FirebaseConstants.email: email,
+            FirebaseConstants.uid: uid,
+            FirebaseConstants.profileImageURL: imageProfileURL.absoluteString
         ]
-        FirebaseManager.shared.firestore.collection("users")
+        
+        FirebaseManager.shared.firestore
+            .collection(FirebaseConstants.users)
             .document(uid).setData(userData) { err in
                 if let err = err {
                     print(err)
@@ -101,8 +105,10 @@ extension LoginViewModel {
                 self.loginStatusMessage = error.localizedDescription
                 return
             }
+            
             self.loginStatusMessage = "Success \(result?.user.uid ?? "")"
             print("Success \(result?.user.uid ?? "")")
+            
             self.isLoginSuccess = true
         }
     }

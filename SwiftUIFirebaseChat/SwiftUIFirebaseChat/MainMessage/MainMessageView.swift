@@ -7,122 +7,31 @@
 
 import SwiftUI
 
-import Firebase
-import FirebaseFirestoreSwift
-
-final class MainMessageViewModel: ObservableObject {
-    
-    @Published var errorMessage = ""
-    @Published var chatUser: ChatUser?
-
-    init() {
-        fetchCurrentUser()
-        fetchRecentMessages()
-    }
-    
-    func handleSignOut() {
-        isUserCurrentlyLoggedOut.toggle()
-        try? FirebaseManager.shared.auth.signOut()
-    }
-    
-    private func fetchCurrentUser() {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
-            self.errorMessage = "Could not find firebase uid"
-            return
-        }
-        errorMessage = "Fetching current user \(uid)"
-
-        FirebaseManager.shared.firestore.collection("users").document(uid).getDocument { snapshot, error in
-            if let error = error {
-                self.errorMessage = "Failed to fetch current user \(error)"
-                print("Failed to fetch current user:", error)
-                return
-            }
-                        
-            guard let data = snapshot?.data() else {
-                self.errorMessage = "No data found"
-                return
-            }
-            self.errorMessage = "Data \(data.description)"
-    
-            do {
-                let chatUser = try snapshot?.data(as: ChatUser.self)
-                
-                self.chatUser = chatUser
-                FirebaseManager.shared.currentUser = self.chatUser
-            } catch {
-                print(error)
-            }
-        }
-    }
-    
-    @Published var isUserCurrentlyLoggedOut = false
-    
-    @Published var recentMessages: [RecentMessage] = []
-    
-    private func fetchRecentMessages() {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
-        
-        FirebaseManager.shared.firestore
-            .collection("recent_messages")
-            .document(uid)
-            .collection("messages")
-            .order(by: "timestamp")
-            .addSnapshotListener { querySnapshot, error in
-                if let error = error {
-                    self.errorMessage = "Failed to listen for recent messages: \(error)"
-                    print(error)
-                    return
-                }
-                querySnapshot?.documentChanges.forEach({ change in
-                    let docId = change.document.documentID
-                    
-                    if let index = self.recentMessages.firstIndex(where: { recentMessage in
-                        return recentMessage.id == docId
-                    }) {
-                        self.recentMessages.remove(at: index)
-                    }
-                    
-                    do {
-                        let rm = try change.document.data(as: RecentMessage.self)
-                        
-                        self.recentMessages.insert(rm, at: 0)
-                    } catch {
-                        print(error)
-                    }
-                })
-            }
-    }
-}
-
 struct MainMessageView: View {
     @Environment(\.dismiss) var dismiss
 
     @StateObject private var viewModel = MainMessageViewModel()
     
-    @State var shouldNavigatieToChatLogView = false
-    
+    @State private var chatUser: ChatUser?
+
+    @State private var shouldNavigatieToChatLogView = false
+    @State private var shouldShowNewMessageScreen = false
+    @State private var shouldShowLogoutOptions = false
+
     var body: some View {
         NavigationView {
             VStack {
-                CustomNavgationBar()
-                    .environmentObject(viewModel)
+                currentUserTitleView
                 
                 ScrollView {
                     ForEach(viewModel.recentMessages) { recentMessage in
                         VStack {
-                            NavigationLink {
-                                
+                            Button {
+                                checkUser(recentMessage: recentMessage)
                             } label: {
                                 HStack(spacing: 16) {
-                                    AsyncImage(
-                                        url: URL(string: recentMessage.profileImageURL)) { image in image.resizable()
-                                        } placeholder: {
-                                            ProgressView()
-                                        }
-                                        .scaledToFill()
+                                    ProfileImageView(url: recentMessage.profileImageURL)
                                         .frame(width: 64, height: 64)
-                                        .clipped()
                                         .cornerRadius(64)
                                         .overlay(RoundedRectangle(cornerRadius: 64)
                                             .stroke(Color(.label), lineWidth: 1))
@@ -140,6 +49,7 @@ struct MainMessageView: View {
                                             .multilineTextAlignment(.leading)
                                             .lineLimit(3)
                                     }
+                                    
                                     Spacer()
 
                                     Text(recentMessage.timeAgo)
@@ -154,7 +64,6 @@ struct MainMessageView: View {
                     }
                     .padding(.bottom, 50)
                 }
-                
                 NavigationLink("", isActive: $shouldNavigatieToChatLogView) {
                     ChatLogView(chatUser: self.chatUser)
                 }
@@ -163,67 +72,20 @@ struct MainMessageView: View {
                 newMessageButton
             }
         }
-
         .navigationBarHidden(true)
         .onChange(of: viewModel.isUserCurrentlyLoggedOut) { newValue in
             dismiss()
         }
     }
-    @State var shouldShowNewMessageScreen = false
     
-    private var newMessageButton: some View {
-        Button {
-            shouldShowNewMessageScreen.toggle()
-        } label: {
-            HStack {
-                Spacer()
-                Text("+ New message")
-                    .font(.system(size: 16, weight: .bold))
-                Spacer()
-            }
-            .foregroundColor(.white)
-            .padding(.vertical)
-            .background(.blue)
-            .cornerRadius(32)
-            .padding(.horizontal)
-            .shadow(radius: 15)
-        }
-        .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
-            CreateNewMessageView { user in
-                print(user.email)
-                shouldNavigatieToChatLogView.toggle()
-                self.chatUser = user
-            }
-        }
-    }
-    
-    @State var chatUser: ChatUser?
 }
 
-struct MainMessageView_Previews: PreviewProvider {
-    static var previews: some View {
-        MainMessageView()
-        
-        MainMessageView()
-            .preferredColorScheme(.dark)
-    }
-}
-
-struct CustomNavgationBar: View {
-    @EnvironmentObject var viewModel: MainMessageViewModel
+extension MainMessageView {
     
-    @State private var shouldShowLogoutOptions = false
-    
-    var body: some View {
+    private var currentUserTitleView: some View {
         HStack {
-            AsyncImage(
-                url: URL(string: "\(viewModel.chatUser?.profileImageURL ?? "")")) { image in image.resizable()
-                } placeholder: {
-                    ProgressView()
-                }
-                .scaledToFill()
+            ProfileImageView(url: viewModel.chatUser?.profileImageURL ?? "")
                 .frame(width: 50, height: 50)
-                .clipped()
                 .cornerRadius(50)
                 .overlay(RoundedRectangle(cornerRadius: 50)
                     .stroke(Color(.label), lineWidth: 1))
@@ -258,7 +120,7 @@ struct CustomNavgationBar: View {
         .actionSheet(isPresented: $shouldShowLogoutOptions) {
             .init(
                 title: Text("Setting"),
-                message: Text("What do you want to do"),
+                message: nil,
                 buttons: [
                     .destructive(
                         Text("Sign out"),
@@ -267,10 +129,54 @@ struct CustomNavgationBar: View {
                             viewModel.handleSignOut()
                         }
                     ),
-                    .default(Text("DEFAULT BUTTON")),
                     .cancel()
                 ]
             )
         }
+    }
+    
+    private var newMessageButton: some View {
+        Button {
+            shouldShowNewMessageScreen.toggle()
+        } label: {
+            HStack {
+                Spacer()
+                Text("+ New message")
+                    .font(.system(size: 16, weight: .bold))
+                Spacer()
+            }
+            .foregroundColor(.white)
+            .padding(.vertical)
+            .background(.blue)
+            .cornerRadius(32)
+            .padding(.horizontal)
+            .shadow(radius: 15)
+        }
+        .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
+            CreateNewMessageView { user in
+                print(user.email)
+                shouldNavigatieToChatLogView.toggle()
+                self.chatUser = user
+            }
+        }
+    }
+    
+    private func checkUser(recentMessage: RecentMessage) {
+        viewModel.users.forEach({ user in
+            if recentMessage.email == user.email {
+                self.chatUser = user
+            }
+         })
+        shouldNavigatieToChatLogView.toggle()
+    }
+    
+}
+
+struct MainMessageView_Previews: PreviewProvider {
+    static var previews: some View {
+        MainMessageView()
+        
+        MainMessageView()
+            .preferredColorScheme(.dark)
     }
 }

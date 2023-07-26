@@ -34,7 +34,6 @@ struct LoginView: View {
                         Button {
                             shouldShowImagePicker.toggle()
                         } label: {
-                            
                             VStack {
                                 if let image = self.image {
                                     Image(uiImage: image)

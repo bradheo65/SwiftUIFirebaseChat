@@ -15,6 +15,6 @@ struct ChatUser: Codable, Identifiable {
     let uid, email, profileImageURL: String
     
     var username: String {
-           email.components(separatedBy: "@").first ?? email
-       }
+        email.components(separatedBy: "@").first ?? email
+    }
 }
