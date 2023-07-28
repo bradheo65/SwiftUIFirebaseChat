@@ -45,7 +45,7 @@ final class FirebaseManager: NSObject {
                 print("Failed to save message into Firestore: \(error)")
                 return
             }
-            
+            compltion()
             print("Successfully saved current user sending message")
         }
     }

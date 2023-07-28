@@ -18,6 +18,7 @@ struct ProfileImageView: View {
                     ProgressView()
                 case .failure(_):
                     Image(systemName: "person.fill")
+                        .foregroundColor(.black)
                 case .success(let image):
                     image.resizable()
                 @unknown default:

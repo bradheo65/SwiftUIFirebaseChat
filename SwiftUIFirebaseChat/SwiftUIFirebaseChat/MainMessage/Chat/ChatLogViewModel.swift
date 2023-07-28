@@ -59,7 +59,11 @@ final class ChatLogViewModel: ObservableObject {
             toDocument: recipientMessageDocument,
             messageData: messageData
         ) {
-            self.persistRecentMessage(text: text)
+            print("handleSendMessage ok")
+            compltion()
+            self.persistRecentMessage(text: text) {
+                print("persistRecentMessage ok")
+            }
         }
     }
      
@@ -126,11 +130,13 @@ extension ChatLogViewModel {
             toDocument: recipientMessageDocument,
             messageData: messageData
         ) {
-            self.persistRecentMessage(text: "이미지")
+            self.persistRecentMessage(text: "이미지") {
+                print("persistRecentMessage ok")
+            }
         }
     }
     
-    private func persistRecentMessage(text: String) {
+    private func persistRecentMessage(text: String, compltion: @escaping () -> Void) {
         guard let chatUser = chatUser else {
             return
         }
