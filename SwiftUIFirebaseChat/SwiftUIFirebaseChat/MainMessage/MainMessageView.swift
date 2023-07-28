@@ -30,6 +30,9 @@ struct MainMessageView: View {
                     }
                 }
                 .listStyle(.plain)
+                .refreshable {
+                    viewModel.fetchRecentMessages()
+                }
                 NavigationLink("", isActive: $shouldNavigatieToChatLogView) {
                     ChatLogView(chatUser: self.chatUser)
                 }
@@ -130,6 +133,8 @@ extension MainMessageView {
     private func messageListView(recentMessage: RecentMessage) -> some View {
         var body: some View {
             VStack {
+                Spacer()
+                
                 Button {
                     checkUser(recentMessage: recentMessage)
                 } label: {
@@ -161,6 +166,8 @@ extension MainMessageView {
                             .foregroundColor(.black)
                     }
                 }
+                Spacer()
+                
                 Divider()
             }
         }
