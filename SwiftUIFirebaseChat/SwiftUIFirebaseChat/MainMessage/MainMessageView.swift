@@ -23,47 +23,13 @@ struct MainMessageView: View {
             VStack {
                 currentUserTitleView
                 
-                ScrollView {
+                List {
                     ForEach(viewModel.recentMessages) { recentMessage in
-                        VStack {
-                            Button {
-                                checkUser(recentMessage: recentMessage)
-                            } label: {
-                                HStack(spacing: 16) {
-                                    ProfileImageView(url: recentMessage.profileImageURL)
-                                        .frame(width: 64, height: 64)
-                                        .cornerRadius(64)
-                                        .overlay(RoundedRectangle(cornerRadius: 64)
-                                            .stroke(Color(.label), lineWidth: 1))
-                                        .shadow(radius: 5)
-                                    
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text(recentMessage.username)
-                                            .lineLimit(1)
-                                            .foregroundColor(.black)
-                                            .font(.system(size: 16, weight: .bold))
-                                        
-                                        Text(recentMessage.text)
-                                            .font(.system(size: 14))
-                                            .foregroundColor(Color(.lightGray))
-                                            .multilineTextAlignment(.leading)
-                                            .lineLimit(3)
-                                    }
-                                    
-                                    Spacer()
-
-                                    Text(recentMessage.timeAgo)
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(.black)
-                                }
-                            }
-                            Divider()
-                                .padding(.vertical, 8)
-                        }
-                        .padding(.horizontal)
+                        messageListView(recentMessage: recentMessage)
+                            .listRowSeparator(.hidden)
                     }
-                    .padding(.bottom, 50)
                 }
+                .listStyle(.plain)
                 NavigationLink("", isActive: $shouldNavigatieToChatLogView) {
                     ChatLogView(chatUser: self.chatUser)
                 }
@@ -160,6 +126,51 @@ extension MainMessageView {
             }
         }
     }
+    
+    private func messageListView(recentMessage: RecentMessage) -> some View {
+        var body: some View {
+            VStack {
+                Button {
+                    checkUser(recentMessage: recentMessage)
+                } label: {
+                    HStack(spacing: 16) {
+                        ProfileImageView(url: recentMessage.profileImageURL)
+                            .frame(width: 64, height: 64)
+                            .cornerRadius(64)
+                            .overlay(RoundedRectangle(cornerRadius: 64)
+                                .stroke(Color(.label), lineWidth: 1))
+                            .shadow(radius: 5)
+                        
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(recentMessage.username)
+                                .lineLimit(1)
+                                .foregroundColor(.black)
+                                .font(.system(size: 16, weight: .bold))
+                            
+                            Text(recentMessage.text)
+                                .font(.system(size: 14))
+                                .foregroundColor(Color(.lightGray))
+                                .multilineTextAlignment(.leading)
+                                .lineLimit(3)
+                        }
+                        
+                        Spacer()
+
+                        Text(recentMessage.timeAgo)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.black)
+                    }
+                }
+                Divider()
+            }
+        }
+        
+        return body
+    }
+    
+}
+
+extension MainMessageView {
     
     private func checkUser(recentMessage: RecentMessage) {
         viewModel.users.forEach({ user in
