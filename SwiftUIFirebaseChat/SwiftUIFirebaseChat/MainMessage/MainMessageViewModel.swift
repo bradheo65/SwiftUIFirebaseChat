@@ -7,9 +7,6 @@
 
 import Foundation
 
-import Firebase
-import FirebaseFirestoreSwift
-
 final class MainMessageViewModel: ObservableObject {
     @Published var recentMessages: [RecentMessage] = []
     @Published var users: [ChatUser] = []

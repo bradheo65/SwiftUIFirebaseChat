@@ -7,7 +7,7 @@
 
 import Foundation
 
-import Firebase
+import SwiftUI
 
 final class ChatLogViewModel: ObservableObject {
     @Published var chatMessages: [ChatMessage] = []
@@ -16,7 +16,7 @@ final class ChatLogViewModel: ObservableObject {
 
     @Published var count = 0
 
-    var firestoreListener: ListenerRegistration?
+    var firestoreListener = FirebaseManager.shared.firestoreListener
 
     private let chatUser: ChatUser?
     
@@ -51,7 +51,7 @@ final class ChatLogViewModel: ObservableObject {
             FirebaseConstants.fromId : fromId,
             FirebaseConstants.toId: toId,
             FirebaseConstants.text: text,
-            FirebaseConstants.timestamp: Timestamp()
+            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
         ] as [String : Any]
         
         FirebaseManager.shared.handleSendMessage(
@@ -122,7 +122,7 @@ extension ChatLogViewModel {
             "imageUrl": imageUrl,
             "imageWidth": CGFloat(200),
             "imageHeight": CGFloat(height / width * 200),
-            FirebaseConstants.timestamp: Timestamp()
+            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
         ] as [String : Any]
     
         FirebaseManager.shared.handleSendMessage(
@@ -156,12 +156,12 @@ extension ChatLogViewModel {
             .document(toId)
         
         let data = [
-            FirebaseConstants.timestamp: Timestamp(),
             FirebaseConstants.text: text,
             FirebaseConstants.fromId: uid,
             FirebaseConstants.toId: toId,
             FirebaseConstants.profileImageURL: chatUser.profileImageURL,
-            FirebaseConstants.email: chatUser.email
+            FirebaseConstants.email: chatUser.email,
+            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
         ] as [String : Any]
         
         document.setData(data) { error in
@@ -177,12 +177,12 @@ extension ChatLogViewModel {
         }
         
         let recipientRecentMessageDictionary = [
-            FirebaseConstants.timestamp: Timestamp(),
             FirebaseConstants.text: text,
             FirebaseConstants.fromId: uid,
             FirebaseConstants.toId: toId,
             FirebaseConstants.profileImageURL: currentUser.profileImageURL,
-            FirebaseConstants.email: currentUser.email
+            FirebaseConstants.email: currentUser.email,
+            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
         ] as [String : Any]
         
         FirebaseManager.shared.firestore

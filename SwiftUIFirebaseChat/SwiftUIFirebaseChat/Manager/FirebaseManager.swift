@@ -15,6 +15,14 @@ final class FirebaseManager: NSObject {
     let storage: Storage
     let firestore: Firestore
     
+    var timeStamp: Timestamp {
+        get {
+            return Timestamp()
+        }
+    }
+
+    var firestoreListener: ListenerRegistration?
+
     static let shared = FirebaseManager()
     
     var currentUser: ChatUser?

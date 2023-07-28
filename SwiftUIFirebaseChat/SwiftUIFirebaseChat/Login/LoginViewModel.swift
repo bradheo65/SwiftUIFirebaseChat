@@ -24,7 +24,7 @@ final class LoginViewModel: ObservableObject {
 
 extension LoginViewModel {
     private func createNewAccount(email: String, password: String, image: UIImage?) {
-        if image == nil {
+        guard let image = image else {
             self.loginStatusMessage = "You must select an avatar image"
             return
         }
@@ -43,34 +43,21 @@ extension LoginViewModel {
         }
     }
     
-    private func persiststImageToStorage(email: String, image: UIImage?) {        
+    private func persiststImageToStorage(email: String, image: UIImage) {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
             return
         }
-        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
+        let ref = FirebaseManager.shared.storage.reference()
+            .child("user_profile_images")
+            .child(uid)
         
-        guard let imageData = image?.jpegData(compressionQuality: 0.5) else {
-            return
-        }
-        
-        ref.putData(imageData) { metadata, err in
-            if let err = err {
-                self.loginStatusMessage = "Failed to push image \(err)"
-                return
-            }
-            
-            ref.downloadURL { url, error in
-                if let err = err {
-                    self.loginStatusMessage = "Failed to download URL \(err)"
-                    return
-                }
-                self.loginStatusMessage = "Successfully stored image with url \(url?.absoluteString ?? "")"
-                
-                guard let url = url else {
-                    return
-                }
-                
+        FirebaseManager.shared.uploadImage(image: image, storageReference: ref) { result in
+            switch result {
+            case .success(let url):
                 self.storeUserInformation(email: email, imageProfileURL: url)
+
+            case .failure(let error):
+                print(error)
             }
         }
     }

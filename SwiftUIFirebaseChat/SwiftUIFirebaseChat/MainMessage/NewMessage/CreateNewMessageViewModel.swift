@@ -7,8 +7,6 @@
 
 import Foundation
 
-import Firebase
-
 final class CreateNewMessageViewModel: ObservableObject {
     @Published var users: [ChatUser] = []
     @Published var errorMessage = ""
