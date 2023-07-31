@@ -28,11 +28,17 @@ struct MainMessageView: View {
                         messageListView(recentMessage: recentMessage)
                             .listRowSeparator(.hidden)
                     }
+                    .onDelete { indexSet in
+                        print(indexSet)
+                    }
                 }
                 .listStyle(.plain)
                 .refreshable {
-                    viewModel.fetchRecentMessages()
+                    withAnimation {
+                        viewModel.fetchRecentMessages()
+                    }
                 }
+
                 NavigationLink("", isActive: $shouldNavigatieToChatLogView) {
                     ChatLogView(chatUser: self.chatUser)
                 }
