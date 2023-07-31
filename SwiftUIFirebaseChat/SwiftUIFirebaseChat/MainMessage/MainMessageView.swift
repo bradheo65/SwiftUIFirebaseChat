@@ -138,12 +138,12 @@ extension MainMessageView {
     
     private func messageListView(recentMessage: RecentMessage) -> some View {
         var body: some View {
-            VStack {
-                Spacer()
-                
-                Button {
-                    checkUser(recentMessage: recentMessage)
-                } label: {
+            Button {
+                checkUser(recentMessage: recentMessage)
+            } label: {
+                VStack {
+                    Spacer()
+                    
                     HStack(spacing: 16) {
                         ProfileImageView(url: recentMessage.profileImageURL)
                             .frame(width: 64, height: 64)
@@ -166,15 +166,15 @@ extension MainMessageView {
                         }
                         
                         Spacer()
-
+                        
                         Text(recentMessage.timeAgo)
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.black)
                     }
+                    
+                    Spacer()
+                    Divider()
                 }
-                Spacer()
-                
-                Divider()
             }
         }
         

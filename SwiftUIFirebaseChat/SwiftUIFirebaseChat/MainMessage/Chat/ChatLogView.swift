@@ -11,6 +11,7 @@ struct ChatLogView: View {
     @StateObject private var viewModel: ChatLogViewModel
     
     @State private var image: UIImage?
+    @State private var fileURL: URL?
 
     @State private var chatText = ""
     @State private var imageURL = ""
@@ -38,7 +39,7 @@ struct ChatLogView: View {
             viewModel.firestoreListener?.remove()
         }
         .fullScreenCover(isPresented: $shouldShowImagePicker) {
-            ImagePicker(image: $image)
+            ImagePicker(image: $image, fileURL: $fileURL)
         }
         .fullScreenCover(isPresented: $shouldShowImageViewer) {
             ImageViewer(imageURL: $imageURL)
@@ -46,6 +47,11 @@ struct ChatLogView: View {
         .onChange(of: image) { newValue in
             viewModel.handleSendImage(image: newValue ?? UIImage())
         }
+        .onChange(of: fileURL) { newValue in
+            if let url = fileURL {
+                viewModel.handleSendVideo(fileUrl: url)
+            }
+         }
     }
     
 }

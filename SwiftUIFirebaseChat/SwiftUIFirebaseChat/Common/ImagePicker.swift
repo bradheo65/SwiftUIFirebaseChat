@@ -6,10 +6,17 @@
 //
 
 import SwiftUI
+import MobileCoreServices
+
+import UniformTypeIdentifiers
+
+import Firebase
+import FirebaseStorage
 
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
-    
+    @Binding var fileURL: URL?
+
     private let controller = UIImagePickerController()
     
     func makeCoordinator() -> Coordinator {
@@ -24,13 +31,19 @@ struct ImagePicker: UIViewControllerRepresentable {
         }
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let videoUrl = info[UIImagePickerController.InfoKey.mediaURL] as? URL {
+                self.parent.fileURL = videoUrl
+            }
             parent.image = info[.originalImage] as? UIImage
+
             picker.dismiss(animated: true)
         }
     }
     
     func makeUIViewController(context: Context) -> some UIViewController {
+        controller.allowsEditing = true
         controller.delegate = context.coordinator
+        controller.mediaTypes = [UTType.image.identifier, UTType.movie.identifier]
         return controller
     }
     

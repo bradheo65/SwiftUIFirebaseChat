@@ -6,8 +6,9 @@
 //
 
 import Foundation
-
 import SwiftUI
+
+import AVFoundation
 
 final class ChatLogViewModel: ObservableObject {
     @Published var chatMessages: [ChatMessage] = []
@@ -27,44 +28,15 @@ final class ChatLogViewModel: ObservableObject {
     }
         
     func handleSendText(text: String, compltion: @escaping () -> Void) {
-        guard let fromId = FirebaseManager.shared.auth.currentUser?.uid else {
-            return
-        }
-        
-        guard let toId = chatUser?.uid else {
-            return
-        }
-        
-        let document = FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.messages)
-            .document(fromId)
-            .collection(toId)
-            .document()
-
-        let recipientMessageDocument = FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.messages)
-            .document(toId)
-            .collection(fromId)
-            .document()
-        
         let messageData = [
-            FirebaseConstants.fromId : fromId,
-            FirebaseConstants.toId: toId,
+            FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
+            FirebaseConstants.toId: chatUser?.uid ?? "",
             FirebaseConstants.text: text,
             FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
         ] as [String : Any]
         
-        FirebaseManager.shared.handleSendMessage(
-            fromDocument: document,
-            toDocument: recipientMessageDocument,
-            messageData: messageData
-        ) {
-            print("handleSendMessage ok")
-            compltion()
-            self.persistRecentMessage(text: text) {
-                print("persistRecentMessage ok")
-            }
-        }
+        compltion()
+        sendMessage(text: "", messageData: messageData)
     }
      
     func handleSendImage(image: UIImage) {
@@ -75,8 +47,38 @@ final class ChatLogViewModel: ObservableObject {
         FirebaseManager.shared.uploadImage(image: image, storageReference: ref) { result in
             switch result {
             case .success(let url):
-                self.handleImageMessageData(imageUrl: url.absoluteString, image: image) {
+                self.handleImageMessageData(imageURL: url, image: image) {
                     print("ok")
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    func handleSendVideo(fileUrl: URL) {
+        let imageRef = FirebaseManager.shared.storage.reference()
+            .child("message_images")
+            .child(UUID().uuidString)
+        
+        let videoRef = FirebaseManager.shared.storage.reference()
+            .child("message_videos")
+            .child(UUID().uuidString)
+        
+        FirebaseManager.shared.uploadVideo(url: fileUrl, storageReference: videoRef) { [weak self] result in
+            switch result {
+            case .success(let videoURL):
+                if let videoThumbnailImage = self?.thumbnailImageForVideoURL(fileURL: videoURL) {
+                    FirebaseManager.shared.uploadImage(image: videoThumbnailImage, storageReference: imageRef) { [weak self] result in
+                        switch result {
+                        case .success(let imageUrl):
+                            self?.handleVedioMessageData(imageUrl: imageUrl, videoUrl: videoURL, image: videoThumbnailImage) {
+                                print("ok")
+                            }
+                        case .failure(let error):
+                            print(error)
+                        }
+                    }
                 }
             case .failure(let error):
                 print(error)
@@ -88,7 +90,98 @@ final class ChatLogViewModel: ObservableObject {
 
 extension ChatLogViewModel {
     
-    private func handleImageMessageData(imageUrl: String, image: UIImage?, compltion: @escaping () -> Void) {
+    private func fetchMessages() {
+        guard let fromId = FirebaseManager.shared.auth.currentUser?.uid else {
+            return
+        }
+        
+        guard let toId = chatUser?.uid else {
+            return
+        }
+        
+        firestoreListener?.remove()
+        chatMessages.removeAll()
+        
+        firestoreListener = FirebaseManager.shared.firestore
+            .collection(FirebaseConstants.messages)
+            .document(fromId)
+            .collection(toId)
+            .order(by: FirebaseConstants.timestamp)
+            .addSnapshotListener { querySnapshot, error in
+                if let error = error {
+                    self.errorMessage = "Failed to listen for messages: \(error)"
+                    print(error)
+                    return
+                }
+                
+                querySnapshot?.documentChanges.forEach({ change in
+                    if change.type == .added {
+                        do {
+                            let data = try change.document.data(as: ChatMessage.self)
+                            
+                            self.chatMessages.append(data)
+                            print("Appending chatMessage in ChatLogView")
+                        } catch {
+                            print(error)
+                        }
+                    }
+                })
+                
+                // ScollViewProxy receiver
+                DispatchQueue.main.async {
+                    self.count += 1
+                }
+            }
+    }
+    
+    private func thumbnailImageForVideoURL(fileURL: URL) -> UIImage? {
+        let asset = AVAsset(url: fileURL)
+        let imageGenerator = AVAssetImageGenerator(asset: asset)
+        
+        do {
+            let thumbnailCGImage = try imageGenerator.copyCGImage(at: CMTimeMake(value: 1, timescale: 60), actualTime: nil)
+            
+            return UIImage(cgImage: thumbnailCGImage)
+        } catch let error {
+            print(error)
+        }
+        return nil
+    }
+    
+    private func handleImageMessageData(imageURL: URL, image: UIImage, compltion: @escaping () -> Void) {
+        let width = Float(image.size.width)
+        let height = Float(image.size.height)
+        
+        let messageData = [
+            FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
+            FirebaseConstants.toId: chatUser?.uid ?? "",
+            "imageUrl": imageURL.absoluteString,
+            "imageWidth": CGFloat(200),
+            "imageHeight": CGFloat(height / width * 200),
+            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
+        ] as [String : Any]
+    
+        sendMessage(text: "", messageData: messageData)
+    }
+    
+    private func handleVedioMessageData(imageUrl: URL, videoUrl: URL, image: UIImage, compltion: @escaping () -> Void) {
+        let width = Float(image.size.width)
+        let height = Float(image.size.height)
+        
+        let messageData = [
+            FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
+            FirebaseConstants.toId: chatUser?.uid ?? "",
+            "imageUrl": imageUrl.absoluteString,
+            "videoUrl": videoUrl.absoluteString,
+            "imageWidth": CGFloat(200),
+            "imageHeight": CGFloat(height / width * 200),
+            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
+        ] as [String : Any]
+    
+        sendMessage(text: "", messageData: messageData)
+    }
+    
+    private func sendMessage(text: String, messageData: [String: Any]) {
         guard let fromId = FirebaseManager.shared.auth.currentUser?.uid else {
             return
         }
@@ -108,35 +201,17 @@ extension ChatLogViewModel {
             .document(toId)
             .collection(fromId)
             .document()
-
-        guard let image = image else {
-            return
-        }
         
-        let width = Float(image.size.width)
-        let height = Float(image.size.height)
-        
-        let messageData = [
-            FirebaseConstants.fromId : fromId,
-            FirebaseConstants.toId: toId,
-            "imageUrl": imageUrl,
-            "imageWidth": CGFloat(200),
-            "imageHeight": CGFloat(height / width * 200),
-            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
-        ] as [String : Any]
-    
         FirebaseManager.shared.handleSendMessage(
             fromDocument: document,
             toDocument: recipientMessageDocument,
             messageData: messageData
         ) {
-            self.persistRecentMessage(text: "이미지") {
-                print("persistRecentMessage ok")
-            }
+            self.persistRecentMessage(text: text.isEmpty ? "이미지" : text)
         }
     }
     
-    private func persistRecentMessage(text: String, compltion: @escaping () -> Void) {
+    private func persistRecentMessage(text: String) {
         guard let chatUser = chatUser else {
             return
         }
@@ -194,50 +269,6 @@ extension ChatLogViewModel {
                 if let error = error {
                     print("Failed to save recipient recent message: \(error)")
                     return
-                }
-            }
-    }
-    
-    private func fetchMessages() {
-        guard let fromId = FirebaseManager.shared.auth.currentUser?.uid else {
-            return
-        }
-        
-        guard let toId = chatUser?.uid else {
-            return
-        }
-        
-        firestoreListener?.remove()
-        chatMessages.removeAll()
-        
-        firestoreListener = FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.messages)
-            .document(fromId)
-            .collection(toId)
-            .order(by: FirebaseConstants.timestamp)
-            .addSnapshotListener { querySnapshot, error in
-                if let error = error {
-                    self.errorMessage = "Failed to listen for messages: \(error)"
-                    print(error)
-                    return
-                }
-                
-                querySnapshot?.documentChanges.forEach({ change in
-                    if change.type == .added {
-                        do {
-                            let data = try change.document.data(as: ChatMessage.self)
-                            
-                            self.chatMessages.append(data)
-                            print("Appending chatMessage in ChatLogView")
-                        } catch {
-                            print(error)
-                        }
-                    }
-                })
-                
-                // ScollViewProxy receiver
-                DispatchQueue.main.async {
-                    self.count += 1
                 }
             }
     }

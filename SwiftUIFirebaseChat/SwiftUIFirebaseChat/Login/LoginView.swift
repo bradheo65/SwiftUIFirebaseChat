@@ -97,7 +97,7 @@ struct LoginView: View {
                 MainMessageView()
             })
             .fullScreenCover(isPresented: $shouldShowImagePicker) {
-                ImagePicker(image: $image)
+                ImagePicker(image: $image, fileURL: .constant(nil))
             }
         }
     }

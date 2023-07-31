@@ -79,10 +79,52 @@ final class FirebaseManager: NSObject {
                         return
                     }
                     compltion(.success(url))
-                    }
                 }
             }
         }
+    }
+    
+    func uploadVideo(url: URL, storageReference: StorageReference, compltion: @escaping (Result<URL, Error>) -> Void) {
+        do {
+            let data = try Data(contentsOf: url)
+            
+            if let uploadData = data as Data? {
+                let metaData = StorageMetadata()
+                metaData.contentType = "video/mp4"
+                
+                let uploadTask = storageReference.putData(uploadData, metadata: metaData) { metadata, error in
+                    if let error = error {
+                        print(error.localizedDescription)
+                        compltion(.failure(error))
+                        return
+                    }
+                    
+                    storageReference.downloadURL { url, error in
+                        if let error = error {
+                            print(error.localizedDescription)
+                            return
+                        }
+                        
+                        guard let url = url else {
+                            return
+                        }
+                        print("Successfully stored video with url \(url.absoluteString)")
+                        compltion(.success(url))
+                    }
+                }
+                    
+                uploadTask.observe(.progress) { snapshot in
+                    print(snapshot.progress?.completedUnitCount)
+                }
+                
+                uploadTask.observe(.success) { snapshot in
+                    print(snapshot.status)
+                }
+            }
+        } catch let error {
+            print(error.localizedDescription)
+        }
+    }
     
     
 }
