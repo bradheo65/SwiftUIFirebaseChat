@@ -41,7 +41,7 @@ final class ChatLogViewModel: ObservableObject {
      
     func handleSendImage(image: UIImage) {
         let ref = FirebaseManager.shared.storage.reference()
-            .child("message_images")
+            .child(FirebaseConstants.storage.messageImages)
             .child(UUID().uuidString)
         
         FirebaseManager.shared.uploadImage(image: image, storageReference: ref) { result in
@@ -58,11 +58,11 @@ final class ChatLogViewModel: ObservableObject {
     
     func handleSendVideo(fileUrl: URL) {
         let imageRef = FirebaseManager.shared.storage.reference()
-            .child("message_images")
+            .child(FirebaseConstants.storage.messageImages)
             .child(UUID().uuidString)
         
         let videoRef = FirebaseManager.shared.storage.reference()
-            .child("message_videos")
+            .child(FirebaseConstants.storage.messageVideos)
             .child(UUID().uuidString)
         
         FirebaseManager.shared.uploadVideo(url: fileUrl, storageReference: videoRef) { [weak self] result in

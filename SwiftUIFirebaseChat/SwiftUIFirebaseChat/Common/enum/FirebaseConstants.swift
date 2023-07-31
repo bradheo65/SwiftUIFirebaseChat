@@ -16,4 +16,10 @@ enum FirebaseConstants {
     static let uid = "uid"
     static let messages = "messages"
     static let recentMessages = "recent_messages"
+    
+    enum storage {
+        static let userProfileImages = "user_profile_images"
+        static let messageImages = "message_images"
+        static let messageVideos = "message_videos"
+    }
 }

@@ -48,7 +48,7 @@ extension LoginViewModel {
             return
         }
         let ref = FirebaseManager.shared.storage.reference()
-            .child("user_profile_images")
+            .child(FirebaseConstants.storage.userProfileImages)
             .child(uid)
         
         FirebaseManager.shared.uploadImage(image: image, storageReference: ref) { result in
