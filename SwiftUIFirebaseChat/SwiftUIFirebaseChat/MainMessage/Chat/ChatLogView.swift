@@ -10,14 +10,18 @@ import SwiftUI
 struct ChatLogView: View {
     @StateObject private var viewModel: ChatLogViewModel
     
-    @State private var image: UIImage?
+    @State private var pickerImage: UIImage?
+    @State private var tapImage: UIImage?
     @State private var fileURL: URL?
 
     @State private var chatText = ""
-    @State private var imageURL = ""
+    
+    @State private var tapImageFrame: CGRect?
 
     @State private var shouldShowImagePicker = false
     @State private var shouldShowImageViewer = false
+    @State private var shouldHideImageViewer = true
+    @State private var isImageTap = false
 
     private let chatUser: ChatUser?
     
@@ -28,23 +32,59 @@ struct ChatLogView: View {
     }
     
     var body: some View {
-        ZStack {
-            messageView
-
-            Text(viewModel.errorMessage)
+        GeometryReader { reader in
+            
+            ZStack {
+                messageView
+                    .opacity(shouldShowImageViewer ? 0 : 1)
+                
+                ImageViewer(uIimage: $tapImage, show: $shouldShowImageViewer, end: $shouldHideImageViewer)
+                    .frame(
+                        width: shouldShowImageViewer ? reader.size.width : tapImageFrame?.width,
+                        height: shouldShowImageViewer ? reader.size.height : tapImageFrame?.height
+                    )
+                    .position(
+                        x: shouldShowImageViewer ? reader.frame(in: .global).midX : tapImageFrame?.midX ?? .zero,
+                        y: shouldShowImageViewer ? reader.frame(in: .global).midY : tapImageFrame?.midY ?? .zero
+                    )
+                    .if(shouldHideImageViewer, transform: { view in
+                        view.hidden()
+                    })
+                    .ignoresSafeArea()
+                        
+                Text(viewModel.errorMessage)
+            }
         }
-        .navigationTitle(chatUser?.email ?? "")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                if !shouldShowImageViewer {
+                    
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "chevron.backward")
+                    }
+                }
+            }
+            
+            ToolbarItem(placement: .principal) {
+                if !shouldShowImageViewer {
+                    
+                    VStack {
+                        Text(chatUser?.email ?? "")
+                    }
+                }
+            }
+                
+        }
         .onDisappear {
             viewModel.firestoreListener?.remove()
         }
         .fullScreenCover(isPresented: $shouldShowImagePicker) {
-            ImagePicker(image: $image, fileURL: $fileURL)
+            ImagePicker(image: $pickerImage, fileURL: $fileURL)
         }
-        .fullScreenCover(isPresented: $shouldShowImageViewer) {
-            ImageViewer(imageURL: $imageURL)
-        }
-        .onChange(of: image) { newValue in
+        .onChange(of: pickerImage) { newValue in
             viewModel.handleSendImage(image: newValue ?? UIImage())
         }
         .onChange(of: fileURL) { newValue in
@@ -52,6 +92,13 @@ struct ChatLogView: View {
                 viewModel.handleSendVideo(fileUrl: url)
             }
          }
+        .onChange(of: isImageTap, perform: { newValue in
+            shouldHideImageViewer.toggle()
+            
+            withAnimation(.easeOut(duration: 0.5)) {
+                shouldShowImageViewer.toggle()
+            }
+        })
     }
     
 }
@@ -129,15 +176,16 @@ extension ChatLogView {
     
     private func messageView(message: ChatMessage) -> some View {
         var imageMessageView: some View {
-            ProfileImageView(url: message.imageUrl ?? "")
-                .frame(
-                    width: message.imageWidth,
-                    height: message.imageHeight
-                )
-                .onTapGesture {
-                    shouldShowImageViewer.toggle()
-                    self.imageURL = message.imageUrl ?? ""
-                }
+            RemoteImage(
+                imageLoader: ImageLoader(url: message.imageUrl ?? ""),
+                tapImage: $tapImage,
+                imageFrame: $tapImageFrame,
+                isImageTap: $isImageTap
+            )
+            .frame(
+                width: message.imageWidth,
+                height: message.imageHeight
+            )
         }
         
         var body: some View {
@@ -180,7 +228,6 @@ extension ChatLogView {
         }
         return body
     }
-    
 }
 
 struct ChatLogVIew_Previews: PreviewProvider {

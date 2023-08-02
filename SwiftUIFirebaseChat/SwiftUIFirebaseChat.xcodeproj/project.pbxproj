@@ -21,6 +21,9 @@
 		A35736822A6F9D50007B0402 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = A35736812A6F9D50007B0402 /* FirebaseStorage */; };
 		A35736842A6F9D9D007B0402 /* RecentMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35736832A6F9D9D007B0402 /* RecentMessage.swift */; };
 		A35736862A6FAA51007B0402 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35736852A6FAA51007B0402 /* ChatMessage.swift */; };
+		A36EF84A2A79F3C400A7DEE2 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF8492A79F3C400A7DEE2 /* ImageCache.swift */; };
+		A36EF84C2A79F42000A7DEE2 /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF84B2A79F42000A7DEE2 /* RemoteImage.swift */; };
+		A36EF84F2A79F45100A7DEE2 /* Extention+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF84E2A79F45100A7DEE2 /* Extention+View.swift */; };
 		A375D0892A55BC720058C415 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A375D0882A55BC720058C415 /* GoogleService-Info.plist */; };
 		A3B029172A59AA9C008161CE /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B029162A59AA9C008161CE /* FirebaseManager.swift */; };
 		A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B029182A59AAF7008161CE /* LoginViewModel.swift */; };
@@ -46,6 +49,9 @@
 		A35736782A6F343C007B0402 /* ChatLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatLogView.swift; sourceTree = "<group>"; };
 		A35736832A6F9D9D007B0402 /* RecentMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentMessage.swift; sourceTree = "<group>"; };
 		A35736852A6FAA51007B0402 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		A36EF8492A79F3C400A7DEE2 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
+		A36EF84B2A79F42000A7DEE2 /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
+		A36EF84E2A79F45100A7DEE2 /* Extention+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extention+View.swift"; sourceTree = "<group>"; };
 		A375D0882A55BC720058C415 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A3B029162A59AA9C008161CE /* FirebaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
 		A3B029182A59AAF7008161CE /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
@@ -132,12 +138,30 @@
 			path = Chat;
 			sourceTree = "<group>";
 		};
-		A3B0291E2A59AD32008161CE /* Common */ = {
+		A36EF8482A79F3B700A7DEE2 /* Util */ = {
 			isa = PBXGroup;
 			children = (
 				A3B0291A2A59AD09008161CE /* ImagePicker.swift */,
+				A36EF8492A79F3C400A7DEE2 /* ImageCache.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		A36EF84D2A79F44000A7DEE2 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				A36EF84E2A79F45100A7DEE2 /* Extention+View.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		A3B0291E2A59AD32008161CE /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				A36EF8482A79F3B700A7DEE2 /* Util */,
 				A3CED4612A70B6A8001DD436 /* View */,
 				A3CED4642A70B6F1001DD436 /* enum */,
+				A36EF84D2A79F44000A7DEE2 /* Extension */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -186,6 +210,7 @@
 				A3CED4622A70B6B5001DD436 /* ProfileImageView.swift */,
 				A34A6E212A73829700440F93 /* ImageModifier.swift */,
 				A34A6E232A7382D300440F93 /* ImageViewer.swift */,
+				A36EF84B2A79F42000A7DEE2 /* RemoteImage.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -281,12 +306,15 @@
 				A3CED4662A70B6FE001DD436 /* FirebaseConstants.swift in Sources */,
 				A3B722522A6D682E005F713F /* ChatUser.swift in Sources */,
 				A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */,
+				A36EF84C2A79F42000A7DEE2 /* RemoteImage.swift in Sources */,
 				A34A6E222A73829700440F93 /* ImageModifier.swift in Sources */,
 				A35736842A6F9D9D007B0402 /* RecentMessage.swift in Sources */,
 				A3CED45E2A70AC42001DD436 /* CreateNewMessageViewModel.swift in Sources */,
+				A36EF84F2A79F45100A7DEE2 /* Extention+View.swift in Sources */,
 				A3B029172A59AA9C008161CE /* FirebaseManager.swift in Sources */,
 				A35736752A6EBFBA007B0402 /* CreateNewMessageView.swift in Sources */,
 				A35736862A6FAA51007B0402 /* ChatMessage.swift in Sources */,
+				A36EF84A2A79F3C400A7DEE2 /* ImageCache.swift in Sources */,
 				A3B0291B2A59AD09008161CE /* ImagePicker.swift in Sources */,
 				A354F6962A5460630063652A /* LoginView.swift in Sources */,
 				A3CED4602A70B2FE001DD436 /* MainMessageViewModel.swift in Sources */,

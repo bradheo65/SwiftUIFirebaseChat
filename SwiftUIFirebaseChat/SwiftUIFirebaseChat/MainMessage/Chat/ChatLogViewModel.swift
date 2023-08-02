@@ -16,6 +16,7 @@ final class ChatLogViewModel: ObservableObject {
     @Published var errorMessage = ""
 
     @Published var count = 0
+    @Published var image: UIImage?
 
     var firestoreListener = FirebaseManager.shared.firestoreListener
 
@@ -86,6 +87,18 @@ final class ChatLogViewModel: ObservableObject {
         }
     }
     
+    func imageData(url: String) {
+        
+        DispatchQueue.global().async { [weak self] in
+            if let data = try? Data(contentsOf: URL(string: url)!) {
+                if let image = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        self?.image = image
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension ChatLogViewModel {

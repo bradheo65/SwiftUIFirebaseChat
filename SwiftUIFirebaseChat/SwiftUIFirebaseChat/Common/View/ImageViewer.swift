@@ -10,15 +10,20 @@ import SwiftUI
 struct ImageViewer: View {
     @Environment(\.dismiss) private var dismiss
     
-    @Binding var imageURL: String
-        
+    @Binding var uIimage: UIImage?
+    @Binding var show: Bool
+    @Binding var end: Bool
+    @State private var imageURL2: String = ""
+
     var body: some View {
         ZStack {
             Color.black
                 .ignoresSafeArea()
             
             GeometryReader { proxy in
-                ProfileImageView(url: imageURL)
+                Image(uiImage: uIimage ?? UIImage())
+                    .resizable()
+                    .scaledToFit()
                     .frame(
                         width: proxy.size.width,
                         height: proxy.size.height
@@ -32,35 +37,16 @@ struct ImageViewer: View {
                             )
                         )
                     )
-            }
-            .overlay {
-                VStack {
-                    HStack {
-                        Spacer()
-                        
-                            Button {
-                                dismiss()
-                            } label: {
-                                Image(systemName: "x.circle")
-                                    .resizable()
-                                    .foregroundColor(.white)
-                                    .frame(width: 50, height: 50)
-                            }
-                            .padding()
-                        
+                    .onTapGesture {
+                        Task {
+                            await animate(duration: 0.5, {
+                                show.toggle()
+                            })
+                            end.toggle()
+                        }
                     }
-                    Spacer()
-                }
-                .padding()
             }
         }
         .ignoresSafeArea()
-    }
-}
-
-
-struct ImageViewer_Previews: PreviewProvider {
-    static var previews: some View {
-        ImageViewer(imageURL: .constant(""))
     }
 }
