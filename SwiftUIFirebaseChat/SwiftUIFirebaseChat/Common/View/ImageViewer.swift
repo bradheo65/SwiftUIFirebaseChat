@@ -39,7 +39,7 @@ struct ImageViewer: View {
                     )
                     .onTapGesture {
                         Task {
-                            await animate(duration: 0.5, {
+                            await animate(duration: 0.2, {
                                 show.toggle()
                             })
                             end.toggle()

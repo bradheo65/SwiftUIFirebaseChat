@@ -95,7 +95,7 @@ struct ChatLogView: View {
         .onChange(of: isImageTap, perform: { newValue in
             shouldHideImageViewer.toggle()
             
-            withAnimation(.easeOut(duration: 0.5)) {
+            withAnimation(.easeOut(duration: 0.2)) {
                 shouldShowImageViewer.toggle()
             }
         })
