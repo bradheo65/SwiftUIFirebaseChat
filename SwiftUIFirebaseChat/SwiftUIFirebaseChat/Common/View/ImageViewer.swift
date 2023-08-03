@@ -12,8 +12,7 @@ struct ImageViewer: View {
     
     @Binding var uIimage: UIImage?
     @Binding var show: Bool
-    @Binding var end: Bool
-    @State private var imageURL2: String = ""
+    @Binding var hide: Bool
 
     var body: some View {
         ZStack {
@@ -42,7 +41,7 @@ struct ImageViewer: View {
                             await animate(duration: 0.2, {
                                 show.toggle()
                             })
-                            end.toggle()
+                            hide.toggle()
                         }
                     }
             }

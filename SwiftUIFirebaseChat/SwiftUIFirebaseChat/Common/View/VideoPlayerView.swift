@@ -8,7 +8,7 @@
 import SwiftUI
 import AVKit
 
-struct VideoView: View {
+struct VideoPlayerView: View {
     @Binding var videoUrl: String
     @Binding var videoEnd: Bool
 

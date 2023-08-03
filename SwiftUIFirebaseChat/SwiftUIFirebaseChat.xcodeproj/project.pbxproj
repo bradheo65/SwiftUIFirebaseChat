@@ -24,7 +24,7 @@
 		A36EF84A2A79F3C400A7DEE2 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF8492A79F3C400A7DEE2 /* ImageCache.swift */; };
 		A36EF84C2A79F42000A7DEE2 /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF84B2A79F42000A7DEE2 /* RemoteImage.swift */; };
 		A36EF84F2A79F45100A7DEE2 /* Extention+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF84E2A79F45100A7DEE2 /* Extention+View.swift */; };
-		A36EF8512A7A4DAD00A7DEE2 /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF8502A7A4DAD00A7DEE2 /* VideoView.swift */; };
+		A36EF8512A7A4DAD00A7DEE2 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF8502A7A4DAD00A7DEE2 /* VideoPlayerView.swift */; };
 		A375D0892A55BC720058C415 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A375D0882A55BC720058C415 /* GoogleService-Info.plist */; };
 		A3B029172A59AA9C008161CE /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B029162A59AA9C008161CE /* FirebaseManager.swift */; };
 		A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B029182A59AAF7008161CE /* LoginViewModel.swift */; };
@@ -53,7 +53,7 @@
 		A36EF8492A79F3C400A7DEE2 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		A36EF84B2A79F42000A7DEE2 /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
 		A36EF84E2A79F45100A7DEE2 /* Extention+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extention+View.swift"; sourceTree = "<group>"; };
-		A36EF8502A7A4DAD00A7DEE2 /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
+		A36EF8502A7A4DAD00A7DEE2 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		A375D0882A55BC720058C415 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A3B029162A59AA9C008161CE /* FirebaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
 		A3B029182A59AAF7008161CE /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
@@ -212,7 +212,7 @@
 				A3CED4622A70B6B5001DD436 /* ProfileImageView.swift */,
 				A34A6E212A73829700440F93 /* ImageModifier.swift */,
 				A34A6E232A7382D300440F93 /* ImageViewer.swift */,
-				A36EF8502A7A4DAD00A7DEE2 /* VideoView.swift */,
+				A36EF8502A7A4DAD00A7DEE2 /* VideoPlayerView.swift */,
 				A36EF84B2A79F42000A7DEE2 /* RemoteImage.swift */,
 			);
 			path = View;
@@ -326,7 +326,7 @@
 				A3CED4632A70B6B5001DD436 /* ProfileImageView.swift in Sources */,
 				A34A6E242A7382D300440F93 /* ImageViewer.swift in Sources */,
 				A3B029242A5C41EB008161CE /* MainMessageView.swift in Sources */,
-				A36EF8512A7A4DAD00A7DEE2 /* VideoView.swift in Sources */,
+				A36EF8512A7A4DAD00A7DEE2 /* VideoPlayerView.swift in Sources */,
 				A3CED45C2A70A9A0001DD436 /* ChatLogViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

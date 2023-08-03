@@ -13,7 +13,7 @@ struct ChatLogView: View {
     @StateObject private var viewModel: ChatLogViewModel
     
     @State private var pickerImage: UIImage?
-    @State private var tapImage: UIImage?
+    @State private var imageData: UIImage?
     @State private var fileURL: URL?
     @State private var videoURL = ""
     
@@ -23,9 +23,10 @@ struct ChatLogView: View {
     
     @State private var shouldShowImagePicker = false
     @State private var shouldShowImageViewer = false
-    @State private var shouldHideImageViewer = true
     @State private var shouldShowVideoViewer = false
-    
+
+    @State private var shouldHideImageViewer = true
+
     @State private var isImageTap = false
     
     private let chatUser: ChatUser?
@@ -120,19 +121,23 @@ extension ChatLogView {
     
     private var imageViewer: some View {
         GeometryReader { reader in
-            ImageViewer(uIimage: $tapImage, show: $shouldShowImageViewer, end: $shouldHideImageViewer)
-                .frame(
-                    width: shouldShowImageViewer ? reader.size.width : tapImageFrame?.width,
-                    height: shouldShowImageViewer ? reader.size.height : tapImageFrame?.height
-                )
-                .position(
-                    x: shouldShowImageViewer ? reader.frame(in: .global).midX : tapImageFrame?.midX ?? .zero,
-                    y: shouldShowImageViewer ? reader.frame(in: .global).midY : tapImageFrame?.midY ?? .zero
-                )
-                .if(shouldHideImageViewer, transform: { view in
-                    view.hidden()
-                })
-                    .ignoresSafeArea()
+            ImageViewer(
+                uIimage: $imageData,
+                show: $shouldShowImageViewer,
+                hide: $shouldHideImageViewer
+            )
+            .frame(
+                width: shouldShowImageViewer ? reader.size.width : tapImageFrame?.width,
+                height: shouldShowImageViewer ? reader.size.height : tapImageFrame?.height
+            )
+            .position(
+                x: shouldShowImageViewer ? reader.frame(in: .global).midX : tapImageFrame?.midX ?? .zero,
+                y: shouldShowImageViewer ? reader.frame(in: .global).midY : tapImageFrame?.midY ?? .zero
+            )
+            .if(shouldHideImageViewer, transform: { view in
+                view.hidden()
+            })
+                .ignoresSafeArea()
         }
     }
     
@@ -186,7 +191,7 @@ extension ChatLogView {
             ZStack {
                 RemoteImage(
                     imageLoader: ImageLoader(url: message.imageUrl ?? ""),
-                    tapImage: $tapImage,
+                    imageData: $imageData,
                     imageFrame: $tapImageFrame,
                     isImageTap: $isImageTap
                 )
@@ -194,7 +199,7 @@ extension ChatLogView {
                 
                 if message.videoUrl != nil {
                     if shouldShowVideoViewer {
-                        VideoView(
+                        VideoPlayerView(
                             videoUrl: $videoURL,
                             videoEnd: $shouldShowVideoViewer
                         )
