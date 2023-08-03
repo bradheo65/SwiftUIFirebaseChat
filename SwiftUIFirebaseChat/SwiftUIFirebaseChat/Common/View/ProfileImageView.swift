@@ -29,27 +29,3 @@ struct ProfileImageView: View {
             .shadow(radius: 5)
     }
 }
-
-struct ProfileImageView2: View {
-    @Binding var image: Image
-    let url: String
-    
-    var body: some View {
-        AsyncImage(
-            url: URL(string: url)) { phase in
-                if let image = phase.image {
-                        image.resizable()
-                    } else if phase.error != nil {
-                        Color.red // Indicates an error.
-                    } else {
-                        Color.blue // Acts as a placeholder.
-                    }
-            }
-            .scaledToFit()
-            .shadow(radius: 5)
-    }
-    
-    func getImage() {
-        
-    }
-}

@@ -13,7 +13,7 @@ struct ChatMessage: Codable, Identifiable {
     @DocumentID var id: String?
     
     let fromId, toId: String
-    let text, imageUrl: String?
+    let text, imageUrl, videoUrl: String?
     let imageWidth, imageHeight: CGFloat?
     let timestamp: Date
 }

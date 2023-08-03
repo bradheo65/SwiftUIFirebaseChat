@@ -9,24 +9,25 @@ import SwiftUI
 
 struct RemoteImage: View {
     @ObservedObject var imageLoader: ImageLoader
-
+    
     @Binding var tapImage: UIImage?
     @Binding var imageFrame: CGRect?
     @Binding var isImageTap: Bool
-
+    
     var body: some View {
-        GeometryReader { reader in
-            if let image = imageLoader.image {
+        if let image = imageLoader.image {
+            GeometryReader { reader in
                 Image(uiImage: image)
                     .resizable()
+                    .scaledToFit()
                     .onTapGesture {
                         tapImage = image
                         imageFrame = reader.frame(in: .global)
                         isImageTap.toggle()
                     }
-            } else {
-                ProgressView()
             }
+        } else {
+            ProgressView()
         }
     }
 }

@@ -8,21 +8,26 @@
 import SwiftUI
 
 struct ChatLogView: View {
+    @Environment(\.dismiss) private var dismiss
+    
     @StateObject private var viewModel: ChatLogViewModel
     
     @State private var pickerImage: UIImage?
     @State private var tapImage: UIImage?
     @State private var fileURL: URL?
-
+    @State private var videoURL = ""
+    
     @State private var chatText = ""
     
     @State private var tapImageFrame: CGRect?
-
+    
     @State private var shouldShowImagePicker = false
     @State private var shouldShowImageViewer = false
     @State private var shouldHideImageViewer = true
+    @State private var shouldShowVideoViewer = false
+    
     @State private var isImageTap = false
-
+    
     private let chatUser: ChatUser?
     
     init(chatUser: ChatUser?) {
@@ -32,36 +37,21 @@ struct ChatLogView: View {
     }
     
     var body: some View {
-        GeometryReader { reader in
+        ZStack {
+            messageView
+                .opacity(shouldShowImageViewer ? 0 : 1)
             
-            ZStack {
-                messageView
-                    .opacity(shouldShowImageViewer ? 0 : 1)
-                
-                ImageViewer(uIimage: $tapImage, show: $shouldShowImageViewer, end: $shouldHideImageViewer)
-                    .frame(
-                        width: shouldShowImageViewer ? reader.size.width : tapImageFrame?.width,
-                        height: shouldShowImageViewer ? reader.size.height : tapImageFrame?.height
-                    )
-                    .position(
-                        x: shouldShowImageViewer ? reader.frame(in: .global).midX : tapImageFrame?.midX ?? .zero,
-                        y: shouldShowImageViewer ? reader.frame(in: .global).midY : tapImageFrame?.midY ?? .zero
-                    )
-                    .if(shouldHideImageViewer, transform: { view in
-                        view.hidden()
-                    })
-                    .ignoresSafeArea()
-                        
-                Text(viewModel.errorMessage)
-            }
+            imageViewer
+            
+            Text(viewModel.errorMessage)
         }
+        
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 if !shouldShowImageViewer {
-                    
                     Button {
-                        
+                        dismiss()
                     } label: {
                         Image(systemName: "chevron.backward")
                     }
@@ -70,19 +60,14 @@ struct ChatLogView: View {
             
             ToolbarItem(placement: .principal) {
                 if !shouldShowImageViewer {
-                    
                     VStack {
                         Text(chatUser?.email ?? "")
                     }
                 }
             }
-                
         }
         .onDisappear {
             viewModel.firestoreListener?.remove()
-        }
-        .fullScreenCover(isPresented: $shouldShowImagePicker) {
-            ImagePicker(image: $pickerImage, fileURL: $fileURL)
         }
         .onChange(of: pickerImage) { newValue in
             viewModel.handleSendImage(image: newValue ?? UIImage())
@@ -91,7 +76,7 @@ struct ChatLogView: View {
             if let url = fileURL {
                 viewModel.handleSendVideo(fileUrl: url)
             }
-         }
+        }
         .onChange(of: isImageTap, perform: { newValue in
             shouldHideImageViewer.toggle()
             
@@ -99,6 +84,9 @@ struct ChatLogView: View {
                 shouldShowImageViewer.toggle()
             }
         })
+        .fullScreenCover(isPresented: $shouldShowImagePicker) {
+            ImagePicker(image: $pickerImage, fileURL: $fileURL)
+        }
     }
     
 }
@@ -130,12 +118,31 @@ extension ChatLogView {
         }
     }
     
+    private var imageViewer: some View {
+        GeometryReader { reader in
+            ImageViewer(uIimage: $tapImage, show: $shouldShowImageViewer, end: $shouldHideImageViewer)
+                .frame(
+                    width: shouldShowImageViewer ? reader.size.width : tapImageFrame?.width,
+                    height: shouldShowImageViewer ? reader.size.height : tapImageFrame?.height
+                )
+                .position(
+                    x: shouldShowImageViewer ? reader.frame(in: .global).midX : tapImageFrame?.midX ?? .zero,
+                    y: shouldShowImageViewer ? reader.frame(in: .global).midY : tapImageFrame?.midY ?? .zero
+                )
+                .if(shouldHideImageViewer, transform: { view in
+                    view.hidden()
+                })
+                    .ignoresSafeArea()
+        }
+    }
+    
     private var chatBottomBar: some View {
         HStack(spacing: 8) {
             Button {
                 shouldShowImagePicker.toggle()
             } label: {
                 Image(systemName: "photo.on.rectangle")
+                    .foregroundColor(.black)
             }
             
             ZStack {
@@ -175,13 +182,34 @@ extension ChatLogView {
     }
     
     private func messageView(message: ChatMessage) -> some View {
-        var imageMessageView: some View {
-            RemoteImage(
-                imageLoader: ImageLoader(url: message.imageUrl ?? ""),
-                tapImage: $tapImage,
-                imageFrame: $tapImageFrame,
-                isImageTap: $isImageTap
-            )
+        var imageMessage: some View {
+            ZStack {
+                RemoteImage(
+                    imageLoader: ImageLoader(url: message.imageUrl ?? ""),
+                    tapImage: $tapImage,
+                    imageFrame: $tapImageFrame,
+                    isImageTap: $isImageTap
+                )
+                .disabled((message.videoUrl != nil))
+                
+                if message.videoUrl != nil {
+                    if shouldShowVideoViewer {
+                        VideoView(
+                            videoUrl: $videoURL,
+                            videoEnd: $shouldShowVideoViewer
+                        )
+                    } else {
+                        Button {
+                            videoURL = message.videoUrl ?? ""
+                            shouldShowVideoViewer.toggle()
+                        } label: {
+                            Image(systemName: "play.fill")
+                                .foregroundColor(.white)
+                                .imageScale(.large)
+                        }
+                    }
+                }
+            }
             .frame(
                 width: message.imageWidth,
                 height: message.imageHeight
@@ -200,7 +228,7 @@ extension ChatLogView {
                                     .padding()
                                     .background(Color.blue)
                             } else {
-                                imageMessageView
+                                imageMessage
                             }
                         }
                         .cornerRadius(8)
@@ -214,7 +242,7 @@ extension ChatLogView {
                                     .padding()
                                     .background(Color.white)
                             } else {
-                                imageMessageView
+                                imageMessage
                             }
                         }
                         .cornerRadius(8)
