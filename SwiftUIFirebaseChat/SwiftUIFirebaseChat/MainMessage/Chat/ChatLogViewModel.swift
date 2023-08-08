@@ -37,7 +37,7 @@ final class ChatLogViewModel: ObservableObject {
         ] as [String : Any]
         
         compltion()
-        sendMessage(text: "", messageData: messageData)
+        sendMessage(text: text, messageData: messageData)
     }
      
     func handleSendImage(image: UIImage) {

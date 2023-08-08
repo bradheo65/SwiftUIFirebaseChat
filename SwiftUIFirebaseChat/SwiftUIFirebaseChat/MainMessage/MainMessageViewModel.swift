@@ -7,6 +7,9 @@
 
 import Foundation
 
+import Firebase
+import FirebaseFirestoreSwift
+
 final class MainMessageViewModel: ObservableObject {
     @Published var recentMessages: [RecentMessage] = []
     @Published var users: [ChatUser] = []
@@ -16,11 +19,20 @@ final class MainMessageViewModel: ObservableObject {
     @Published var errorMessage = ""
     
     @Published var isUserCurrentlyLoggedOut = false
-    
-    init() {
+
+    private var documentListener: ListenerRegistration?
+
+    func fetch() {
         fetchAllUser()
         fetchCurrentUser()
-        fetchRecentMessages()
+    }
+    
+    func activeFirebaseListener() {
+        activeRecentMessagesListener()
+    }
+    
+    func removeFirebaseListener() {
+        documentListener?.remove()
     }
     
     func handleSignOut() {
@@ -31,6 +43,53 @@ final class MainMessageViewModel: ObservableObject {
             print(error)
         }
     }
+    
+    func deleteChat(toId: String, completion: @escaping () -> ()) {
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+            self.errorMessage = "Could not find firebase uid"
+            return
+        }
+        
+        FirebaseManager.shared.firestore
+            .collection(FirebaseConstants.messages)
+            .document(uid)
+            .collection(toId)
+            .getDocuments { querySnapshot, error in
+                if let error = error {
+                    print("Failed to get \(error)")
+                    return
+                }
+                querySnapshot?.documents.forEach({ snapshot in
+                    FirebaseManager.shared.firestore
+                        .collection(FirebaseConstants.messages)
+                        .document(uid)
+                        .collection(toId)
+                        .document(snapshot.documentID)
+                        .delete() { error in
+                            if let error = error {
+                                print("Failed to delete \(error)")
+                                return
+                            }
+                            print("Success to Delete Chat Log")
+                        }
+                })
+                FirebaseManager.shared.firestore
+                    .collection(FirebaseConstants.recentMessages)
+                    .document(uid)
+                    .collection(FirebaseConstants.messages)
+                    .document(toId)
+                    .delete() { error in
+                        if let error = error {
+                            print("Failed to delete \(error)")
+                            return
+                        }
+                        print(toId)
+                        print("Success to Delete Recent Message ")
+                        completion()
+                    }
+            }
+    }
+    
 }
 
 extension MainMessageViewModel {
@@ -96,16 +155,15 @@ extension MainMessageViewModel {
             }
     }
     
-    func fetchRecentMessages() {
+    func activeRecentMessagesListener() {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
             return
         }
         
-        FirebaseManager.shared.firestore
+        documentListener = FirebaseManager.shared.firestore
             .collection(FirebaseConstants.recentMessages)
             .document(uid)
             .collection(FirebaseConstants.messages)
-            .order(by: FirebaseConstants.timestamp)
             .addSnapshotListener { querySnapshot, error in
                 if let error = error {
                     self.errorMessage = "Failed to listen for recent messages: \(error)"
@@ -113,23 +171,19 @@ extension MainMessageViewModel {
                     return
                 }
                 
-                querySnapshot?.documentChanges.forEach({ change in
-                    let docId = change.document.documentID
-                    
-                    if let index = self.recentMessages.firstIndex(where: { recentMessage in
-                        return recentMessage.id == docId
-                    }) {
-                        self.recentMessages.remove(at: index)
-                    }
-                    
-                    do {
-                        let rm = try change.document.data(as: RecentMessage.self)
+                querySnapshot?.documentChanges.forEach { change in
+                    switch change.type {
+                    case .added, .modified:
+                        print("add..")
                         
-                        self.recentMessages.insert(rm, at: 0)
-                    } catch {
-                        print(error)
+                        if let rm = try? change.document.data(as: RecentMessage.self) {
+                            self.recentMessages.append(rm)
+                            self.recentMessages.sort()
+                        }
+                    case .removed:
+                        return
                     }
-                })
+                }
             }
     }
     

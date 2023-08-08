@@ -24,20 +24,44 @@ struct MainMessageView: View {
                 currentUserTitleView
                 
                 List {
-                    ForEach(viewModel.recentMessages) { recentMessage in
-                        messageListView(recentMessage: recentMessage)
-                            .listRowSeparator(.hidden)
+                    ForEach(viewModel.recentMessages, id: \.email) { recentMessage in
+                        Button {
+                            checkUser(recentMessage: recentMessage)
+                        } label: {
+                            HStack(spacing: 16) {
+                                ProfileImageView(url: recentMessage.profileImageURL)
+                                    .frame(width: 64, height: 64)
+                                    .cornerRadius(64)
+                                    .overlay(RoundedRectangle(cornerRadius: 64)
+                                        .stroke(Color(.label), lineWidth: 1))
+                                    .shadow(radius: 5)
+                                
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text(recentMessage.username)
+                                        .lineLimit(1)
+                                        .foregroundColor(.black)
+                                        .font(.system(size: 16, weight: .bold))
+                                    
+                                    Text(recentMessage.text)
+                                        .font(.system(size: 14))
+                                        .foregroundColor(Color(.lightGray))
+                                        .multilineTextAlignment(.leading)
+                                        .lineLimit(3)
+                                }
+                                
+                                Spacer()
+                                
+                                Text(recentMessage.timeAgo)
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.black)
+                            }
+                        }
                     }
                     .onDelete { indexSet in
-                        print(indexSet)
+                        deleteAction(indexSet: indexSet)
                     }
                 }
                 .listStyle(.plain)
-                .refreshable {
-                    withAnimation {
-                        viewModel.fetchRecentMessages()
-                    }
-                }
 
                 NavigationLink("", isActive: $shouldNavigatieToChatLogView) {
                     ChatLogView(chatUser: self.chatUser)
@@ -50,6 +74,13 @@ struct MainMessageView: View {
         .navigationBarHidden(true)
         .onChange(of: viewModel.isUserCurrentlyLoggedOut) { newValue in
             dismiss()
+        }
+        .onAppear {
+            viewModel.fetch()
+            viewModel.activeFirebaseListener()
+        }
+        .onDisappear {
+            viewModel.removeFirebaseListener()
         }
     }
     
@@ -136,51 +167,6 @@ extension MainMessageView {
         }
     }
     
-    private func messageListView(recentMessage: RecentMessage) -> some View {
-        var body: some View {
-            Button {
-                checkUser(recentMessage: recentMessage)
-            } label: {
-                VStack {
-                    Spacer()
-                    
-                    HStack(spacing: 16) {
-                        ProfileImageView(url: recentMessage.profileImageURL)
-                            .frame(width: 64, height: 64)
-                            .cornerRadius(64)
-                            .overlay(RoundedRectangle(cornerRadius: 64)
-                                .stroke(Color(.label), lineWidth: 1))
-                            .shadow(radius: 5)
-                        
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(recentMessage.username)
-                                .lineLimit(1)
-                                .foregroundColor(.black)
-                                .font(.system(size: 16, weight: .bold))
-                            
-                            Text(recentMessage.text)
-                                .font(.system(size: 14))
-                                .foregroundColor(Color(.lightGray))
-                                .multilineTextAlignment(.leading)
-                                .lineLimit(3)
-                        }
-                        
-                        Spacer()
-                        
-                        Text(recentMessage.timeAgo)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.black)
-                    }
-                    
-                    Spacer()
-                    Divider()
-                }
-            }
-        }
-        
-        return body
-    }
-    
 }
 
 extension MainMessageView {
@@ -194,13 +180,15 @@ extension MainMessageView {
         shouldNavigatieToChatLogView.toggle()
     }
     
+    private func deleteAction(indexSet: IndexSet) {
+        viewModel.deleteChat(toId: viewModel.recentMessages[indexSet.first!].toId) {
+            viewModel.recentMessages.remove(atOffsets: indexSet)
+        }
+    }
 }
 
 struct MainMessageView_Previews: PreviewProvider {
     static var previews: some View {
         MainMessageView()
-        
-        MainMessageView()
-            .preferredColorScheme(.dark)
     }
 }

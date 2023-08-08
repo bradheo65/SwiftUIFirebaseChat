@@ -9,7 +9,8 @@ import Foundation
 
 import FirebaseFirestoreSwift
 
-struct RecentMessage: Codable, Identifiable {
+struct RecentMessage: Codable, Identifiable, Comparable {
+
     @DocumentID var id: String?
     
     let text, email: String
@@ -26,4 +27,9 @@ struct RecentMessage: Codable, Identifiable {
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: timestamp, relativeTo: Date())
     }
+    
+    static func < (lhs: RecentMessage, rhs: RecentMessage) -> Bool {
+        return lhs.timestamp.timeIntervalSince1970 > rhs.timestamp.timeIntervalSince1970
+    }
+    
 }
