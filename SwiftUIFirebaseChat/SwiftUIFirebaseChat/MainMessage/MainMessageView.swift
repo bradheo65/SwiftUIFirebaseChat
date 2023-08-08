@@ -25,8 +25,14 @@ struct MainMessageView: View {
                 
                 List {
                     ForEach(viewModel.recentMessages, id: \.email) { recentMessage in
-                        Button {
-                            checkUser(recentMessage: recentMessage)
+                        NavigationLink {
+                            ChatLogView(
+                                chatUser: ChatUser(
+                                    uid: recentMessage.id ?? "",
+                                    email: recentMessage.email,
+                                    profileImageURL: recentMessage.profileImageURL
+                                )
+                            )
                         } label: {
                             HStack(spacing: 16) {
                                 ProfileImageView(url: recentMessage.profileImageURL)
@@ -62,10 +68,6 @@ struct MainMessageView: View {
                     }
                 }
                 .listStyle(.plain)
-
-                NavigationLink("", isActive: $shouldNavigatieToChatLogView) {
-                    ChatLogView(chatUser: self.chatUser)
-                }
             }
             .overlay(alignment: .bottom) {
                 newMessageButton
@@ -170,15 +172,6 @@ extension MainMessageView {
 }
 
 extension MainMessageView {
-    
-    private func checkUser(recentMessage: RecentMessage) {
-        viewModel.users.forEach({ user in
-            if recentMessage.email == user.email {
-                self.chatUser = user
-            }
-         })
-        shouldNavigatieToChatLogView.toggle()
-    }
     
     private func deleteAction(indexSet: IndexSet) {
         viewModel.deleteChat(toId: viewModel.recentMessages[indexSet.first!].toId) {

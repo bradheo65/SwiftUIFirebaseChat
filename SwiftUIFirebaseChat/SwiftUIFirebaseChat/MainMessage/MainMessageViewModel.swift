@@ -175,7 +175,13 @@ extension MainMessageViewModel {
                     switch change.type {
                     case .added, .modified:
                         print("add..")
-                        
+                        let docId = change.document.documentID
+                                       
+                                       if let index = self.recentMessages.firstIndex(where: { recentMessage in
+                                           return recentMessage.id == docId
+                                       }) {
+                                           self.recentMessages.remove(at: index)
+                                       }
                         if let rm = try? change.document.data(as: RecentMessage.self) {
                             self.recentMessages.append(rm)
                             self.recentMessages.sort()
