@@ -68,6 +68,10 @@ struct MainMessageView: View {
                     }
                 }
                 .listStyle(.plain)
+                
+                NavigationLink("", isActive: $shouldNavigatieToChatLogView) {
+                    ChatLogView(chatUser: chatUser)
+                }
             }
             .overlay(alignment: .bottom) {
                 newMessageButton
