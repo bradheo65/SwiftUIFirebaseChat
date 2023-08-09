@@ -14,24 +14,25 @@ struct ChatLogView: View {
     
     @State private var pickerImage: UIImage?
     @State private var imageData: UIImage?
-    @State private var fileURL: URL?
-    @State private var videoURL = ""
+    @State private var videoUrl: URL?
     
     @State private var chatText = ""
     
-    @State private var tapImageFrame: CGRect?
-    
-    @State private var shouldShowFirePicker = false
+    @State private var videoPlayUrl = ""
 
     @State private var shouldShowActionSheet = false
+    
     @State private var shouldShowImagePicker = false
+    @State private var shouldShowFilePicker = false
+    
     @State private var shouldShowImageViewer = false
     @State private var shouldShowVideoViewer = false
 
     @State private var shouldHideImageViewer = true
 
     @State private var isImageTap = false
-    
+    @State private var tapImageFrame: CGRect?
+
     private let chatUser: ChatUser?
     
     init(chatUser: ChatUser?) {
@@ -76,9 +77,9 @@ struct ChatLogView: View {
         .onChange(of: pickerImage) { newValue in
             viewModel.handleSendImage(image: newValue ?? UIImage())
         }
-        .onChange(of: fileURL) { newValue in
-            if let url = fileURL {
-                viewModel.handleSendVideo(fileUrl: url)
+        .onChange(of: videoUrl) { newValue in
+            if let url = videoUrl {
+                viewModel.handleSendVideo(videoUrl: url)
             }
         }
         .onChange(of: isImageTap, perform: { newValue in
@@ -89,13 +90,11 @@ struct ChatLogView: View {
             }
         })
         .fileImporter(
-            isPresented: $shouldShowFirePicker,
+            isPresented: $shouldShowFilePicker,
             allowedContentTypes: [.item],
             onCompletion: { result in
                 switch result {
                 case .success(let url):
-                    print(url.deletingPathExtension().lastPathComponent)
-                    
                     viewModel.handleSendFile(fileUrl: url)
                     
                 case .failure(let error):
@@ -103,14 +102,14 @@ struct ChatLogView: View {
                 }
         })
         .fullScreenCover(isPresented: $shouldShowImagePicker) {
-            ImagePicker(image: $pickerImage, fileURL: $fileURL)
+            ImagePicker(image: $pickerImage, videoUrl: $videoUrl)
         }
         .confirmationDialog("", isPresented: $shouldShowActionSheet) {
             Button("사진 및 비디오 선택") {
                 shouldShowImagePicker.toggle()
             }
             Button("파일 선택") {
-                shouldShowFirePicker.toggle()
+                shouldShowFilePicker.toggle()
             }
         }
     }
@@ -193,7 +192,7 @@ extension ChatLogView {
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(Color.blue)
+            .background(Color.purple)
             .cornerRadius(4)
         }
         .padding(.horizontal)
@@ -225,12 +224,12 @@ extension ChatLogView {
                 if message.videoUrl != nil {
                     if shouldShowVideoViewer {
                         VideoPlayerView(
-                            videoUrl: $videoURL,
+                            videoUrl: $videoPlayUrl,
                             videoEnd: $shouldShowVideoViewer
                         )
                     } else {
                         Button {
-                            videoURL = message.videoUrl ?? ""
+                            videoPlayUrl = message.videoUrl ?? ""
                             shouldShowVideoViewer.toggle()
                         } label: {
                             Image(systemName: "play.fill")
@@ -272,12 +271,13 @@ extension ChatLogView {
                 if message.fromId == FirebaseManager.shared.auth.currentUser?.uid {
                     HStack {
                         Spacer()
+                        
                         HStack {
                             if let text = message.text {
                                 Text(text)
                                     .foregroundColor(.white)
                                     .padding()
-                                    .background(Color.blue)
+                                    .background(Color.purple)
                             } else if message.fileUrl != nil {
                                 fileMessage
                             } else {
@@ -305,6 +305,7 @@ extension ChatLogView {
                         .cornerRadius(12, corners: .topRight)
                         .cornerRadius(12, corners: .bottomLeft)
                         .cornerRadius(12, corners: .bottomRight)
+                        
                         Spacer()
                     }
                 }

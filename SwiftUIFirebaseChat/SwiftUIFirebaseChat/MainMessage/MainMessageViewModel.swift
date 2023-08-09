@@ -44,11 +44,13 @@ final class MainMessageViewModel: ObservableObject {
         }
     }
     
-    func deleteChat(toId: String, completion: @escaping () -> ()) {
+    func deleteChat(indexSet: IndexSet) {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
             self.errorMessage = "Could not find firebase uid"
             return
         }
+        
+        let toId = recentMessages[indexSet.first ?? .zero].toId
         
         FirebaseManager.shared.firestore
             .collection(FirebaseConstants.messages)
@@ -83,9 +85,8 @@ final class MainMessageViewModel: ObservableObject {
                             print("Failed to delete \(error)")
                             return
                         }
-                        print(toId)
                         print("Success to Delete Recent Message ")
-                        completion()
+                        self.recentMessages.remove(atOffsets: indexSet)
                     }
             }
     }

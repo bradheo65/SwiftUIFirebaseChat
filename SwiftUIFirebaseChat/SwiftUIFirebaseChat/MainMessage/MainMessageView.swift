@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainMessageView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) private var dismiss
 
     @StateObject private var viewModel = MainMessageViewModel()
     
@@ -24,7 +24,7 @@ struct MainMessageView: View {
                 currentUserTitleView
                 
                 List {
-                    ForEach(viewModel.recentMessages, id: \.email) { recentMessage in
+                    ForEach(viewModel.recentMessages, id: \.id) { recentMessage in
                         NavigationLink {
                             ChatLogView(
                                 chatUser: ChatUser(
@@ -34,33 +34,7 @@ struct MainMessageView: View {
                                 )
                             )
                         } label: {
-                            HStack(spacing: 16) {
-                                ProfileImageView(url: recentMessage.profileImageURL)
-                                    .frame(width: 64, height: 64)
-                                    .cornerRadius(64)
-                                    .overlay(RoundedRectangle(cornerRadius: 64)
-                                        .stroke(Color(.label), lineWidth: 1))
-                                    .shadow(radius: 5)
-                                
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(recentMessage.username)
-                                        .lineLimit(1)
-                                        .foregroundColor(.black)
-                                        .font(.system(size: 16, weight: .bold))
-                                    
-                                    Text(recentMessage.text)
-                                        .font(.system(size: 14))
-                                        .foregroundColor(Color(.lightGray))
-                                        .multilineTextAlignment(.leading)
-                                        .lineLimit(3)
-                                }
-                                
-                                Spacer()
-                                
-                                Text(recentMessage.timeAgo)
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.black)
-                            }
+                            messageListCell(message: recentMessage)
                         }
                     }
                     .onDelete { indexSet in
@@ -137,7 +111,6 @@ extension MainMessageView {
                     .destructive(
                         Text("Sign out"),
                         action: {
-                            print("handle Sign out")
                             viewModel.handleSignOut()
                         }
                     ),
@@ -159,18 +132,50 @@ extension MainMessageView {
             }
             .foregroundColor(.white)
             .padding(.vertical)
-            .background(.blue)
+            .background(.purple)
             .cornerRadius(32)
             .padding(.horizontal)
             .shadow(radius: 15)
         }
         .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
             CreateNewMessageView { user in
-                print(user.email)
                 shouldNavigatieToChatLogView.toggle()
                 self.chatUser = user
             }
         }
+    }
+    
+    func messageListCell(message: RecentMessage) -> some View {
+        var body: some View {
+            HStack(spacing: 16) {
+                ProfileImageView(url: message.profileImageURL)
+                    .frame(width: 64, height: 64)
+                    .cornerRadius(64)
+                    .overlay(RoundedRectangle(cornerRadius: 64)
+                        .stroke(Color(.label), lineWidth: 1))
+                    .shadow(radius: 5)
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(message.username)
+                        .lineLimit(1)
+                        .foregroundColor(.black)
+                        .font(.system(size: 16, weight: .bold))
+                    
+                    Text(message.text)
+                        .font(.system(size: 14))
+                        .foregroundColor(Color(.lightGray))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(3)
+                }
+                
+                Spacer()
+                
+                Text(message.timeAgo)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.black)
+            }
+        }
+        return body
     }
     
 }
@@ -178,9 +183,7 @@ extension MainMessageView {
 extension MainMessageView {
     
     private func deleteAction(indexSet: IndexSet) {
-        viewModel.deleteChat(toId: viewModel.recentMessages[indexSet.first!].toId) {
-            viewModel.recentMessages.remove(atOffsets: indexSet)
-        }
+        viewModel.deleteChat(indexSet: indexSet) 
     }
 }
 

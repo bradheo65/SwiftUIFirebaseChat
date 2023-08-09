@@ -61,7 +61,7 @@ final class ChatLogViewModel: ObservableObject {
         }
     }
     
-    func handleSendVideo(fileUrl: URL) {
+    func handleSendVideo(videoUrl: URL) {
         let imageRef = FirebaseManager.shared.storage.reference()
             .child(FirebaseConstants.Storage.messageImages)
             .child(UUID().uuidString)
@@ -70,7 +70,7 @@ final class ChatLogViewModel: ObservableObject {
             .child(FirebaseConstants.Storage.messageVideos)
             .child(UUID().uuidString)
         
-        FirebaseManager.shared.uploadVideo(url: fileUrl, storageReference: videoRef) { [weak self] result in
+        FirebaseManager.shared.uploadVideo(url: videoUrl, storageReference: videoRef) { [weak self] result in
             switch result {
             case .success(let videoURL):
                 if let videoThumbnailImage = self?.thumbnailImageForVideoURL(fileURL: videoURL) {

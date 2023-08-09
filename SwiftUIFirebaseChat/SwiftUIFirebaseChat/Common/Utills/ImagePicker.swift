@@ -10,7 +10,7 @@ import UniformTypeIdentifiers
 
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
-    @Binding var fileURL: URL?
+    @Binding var videoUrl: URL?
 
     private let controller = UIImagePickerController()
     
@@ -27,7 +27,7 @@ struct ImagePicker: UIViewControllerRepresentable {
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let videoUrl = info[UIImagePickerController.InfoKey.mediaURL] as? URL {
-                self.parent.fileURL = videoUrl
+                self.parent.videoUrl = videoUrl
             }
             parent.image = info[.originalImage] as? UIImage
 
