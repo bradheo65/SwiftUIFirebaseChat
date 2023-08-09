@@ -126,5 +126,54 @@ final class FirebaseManager: NSObject {
         }
     }
     
+    func uploadFile(url: URL, storageReference: StorageReference, compltion: @escaping (Result<FileInfo, Error>) -> Void) {
+        
+        storageReference.putFile(from: url, metadata: nil) { _, error in
+            if let error = error {
+                print(error.localizedDescription)
+                compltion(.failure(error))
+                return
+            }
+            
+            print("uploadFile Success")
+            
+          
+            
+            storageReference.downloadURL { url, error in
+                if let error = error {
+                    print(error.localizedDescription)
+                    compltion(.failure(error))
+                    return
+                }
+                
+                guard let url = url else {
+                    return
+                }
+                storageReference.getMetadata { meta, error in
+                    if let error = error {
+                        print(error.localizedDescription)
+                        compltion(.failure(error))
+                        return
+                    }
+                    guard let contentType = meta?.contentType else {
+                        return
+                    }
+                    let fileSize = meta?.size ?? .zero
+                    
+                    let size = Float(fileSize) / 1000000
+                    
+                    print("Successfully stored File with url \(url.absoluteString)")
+                    
+                    let fileInfo = FileInfo(
+                        url: url,
+                        name: url.deletingPathExtension().lastPathComponent,
+                        contentType: contentType,
+                        size: String(format: "%.2f", size)
+                    )
+                    compltion(.success(fileInfo))
+                }
+            }
+        }
+    }
     
 }

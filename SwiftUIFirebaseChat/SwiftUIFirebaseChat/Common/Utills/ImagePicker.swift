@@ -6,12 +6,7 @@
 //
 
 import SwiftUI
-import MobileCoreServices
-
 import UniformTypeIdentifiers
-
-import Firebase
-import FirebaseStorage
 
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?

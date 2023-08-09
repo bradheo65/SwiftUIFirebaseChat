@@ -13,7 +13,17 @@ struct ChatMessage: Codable, Identifiable {
     @DocumentID var id: String?
     
     let fromId, toId: String
-    let text, imageUrl, videoUrl: String?
+    let text, imageUrl, videoUrl, fileUrl : String?
     let imageWidth, imageHeight: CGFloat?
     let timestamp: Date
+    
+    private let fileName, fileType, fileSize: String?
+    
+    var fileTitle: String {
+        return (fileName ?? "") + "." + (fileType?.suffix(3) ?? "")
+    }
+    
+    var fileSizes: String {
+        return (fileSize ?? "") + "MB"
+    }
 }

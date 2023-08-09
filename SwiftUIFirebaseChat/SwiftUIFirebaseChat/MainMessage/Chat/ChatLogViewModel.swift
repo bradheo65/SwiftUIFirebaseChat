@@ -18,7 +18,7 @@ final class ChatLogViewModel: ObservableObject {
     @Published var count = 0
     @Published var image: UIImage?
 
-    var firestoreListener = FirebaseManager.shared.firestoreListener
+    private var firestoreListener = FirebaseManager.shared.firestoreListener
 
     private let chatUser: ChatUser?
     
@@ -27,12 +27,16 @@ final class ChatLogViewModel: ObservableObject {
         
         fetchMessages()
     }
+    
+    func removeListener() {
+        firestoreListener?.remove()
+    }
         
     func handleSendText(text: String, compltion: @escaping () -> Void) {
         let messageData = [
             FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
             FirebaseConstants.toId: chatUser?.uid ?? "",
-            FirebaseConstants.text: text,
+            FirebaseConstants.Text.text: text,
             FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
         ] as [String : Any]
         
@@ -42,7 +46,7 @@ final class ChatLogViewModel: ObservableObject {
      
     func handleSendImage(image: UIImage) {
         let ref = FirebaseManager.shared.storage.reference()
-            .child(FirebaseConstants.storage.messageImages)
+            .child(FirebaseConstants.Storage.messageImages)
             .child(UUID().uuidString)
         
         FirebaseManager.shared.uploadImage(image: image, storageReference: ref) { result in
@@ -59,11 +63,11 @@ final class ChatLogViewModel: ObservableObject {
     
     func handleSendVideo(fileUrl: URL) {
         let imageRef = FirebaseManager.shared.storage.reference()
-            .child(FirebaseConstants.storage.messageImages)
+            .child(FirebaseConstants.Storage.messageImages)
             .child(UUID().uuidString)
         
         let videoRef = FirebaseManager.shared.storage.reference()
-            .child(FirebaseConstants.storage.messageVideos)
+            .child(FirebaseConstants.Storage.messageVideos)
             .child(UUID().uuidString)
         
         FirebaseManager.shared.uploadVideo(url: fileUrl, storageReference: videoRef) { [weak self] result in
@@ -87,18 +91,24 @@ final class ChatLogViewModel: ObservableObject {
         }
     }
     
-    func imageData(url: String) {
+    func handleSendFile(fileUrl: URL) {
+        let fileRef = FirebaseManager.shared.storage.reference()
+            .child(FirebaseConstants.Storage.messageFiles)
+            .child(fileUrl.deletingPathExtension().lastPathComponent)
         
-        DispatchQueue.global().async { [weak self] in
-            if let data = try? Data(contentsOf: URL(string: url)!) {
-                if let image = UIImage(data: data) {
-                    DispatchQueue.main.async {
-                        self?.image = image
-                    }
+        FirebaseManager.shared.uploadFile(url: fileUrl, storageReference: fileRef) { result in
+            switch result {
+            case .success(let fileInfo):
+                self.handleFileMessageData(fileInfo: fileInfo) {
+                    print("Send File Message Succuess")
                 }
+            case .failure(let error):
+                print(error)
             }
         }
+        
     }
+    
 }
 
 extension ChatLogViewModel {
@@ -168,9 +178,9 @@ extension ChatLogViewModel {
         let messageData = [
             FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
             FirebaseConstants.toId: chatUser?.uid ?? "",
-            "imageUrl": imageURL.absoluteString,
-            "imageWidth": CGFloat(200),
-            "imageHeight": CGFloat(height / width * 200),
+            FirebaseConstants.Image.url: imageURL.absoluteString,
+            FirebaseConstants.Image.width: CGFloat(200),
+            FirebaseConstants.Image.height: CGFloat(height / width * 200),
             FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
         ] as [String : Any]
     
@@ -184,10 +194,24 @@ extension ChatLogViewModel {
         let messageData = [
             FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
             FirebaseConstants.toId: chatUser?.uid ?? "",
-            "imageUrl": imageUrl.absoluteString,
-            "videoUrl": videoUrl.absoluteString,
-            "imageWidth": CGFloat(200),
-            "imageHeight": CGFloat(height / width * 200),
+            FirebaseConstants.Image.url: imageUrl.absoluteString,
+            FirebaseConstants.Video.url: videoUrl.absoluteString,
+            FirebaseConstants.Image.width: CGFloat(200),
+            FirebaseConstants.Image.height: CGFloat(height / width * 200),
+            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
+        ] as [String : Any]
+    
+        sendMessage(text: "", messageData: messageData)
+    }
+    
+    private func handleFileMessageData(fileInfo: FileInfo, compltion: @escaping () -> Void) {
+        let messageData = [
+            FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
+            FirebaseConstants.toId: chatUser?.uid ?? "",
+            FirebaseConstants.File.url: fileInfo.url.absoluteString,
+            FirebaseConstants.File.name: fileInfo.name,
+            FirebaseConstants.File.type: fileInfo.contentType,
+            FirebaseConstants.File.size: fileInfo.size,
             FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
         ] as [String : Any]
     
@@ -244,7 +268,7 @@ extension ChatLogViewModel {
             .document(toId)
         
         let data = [
-            FirebaseConstants.text: text,
+            FirebaseConstants.Text.text: text,
             FirebaseConstants.fromId: uid,
             FirebaseConstants.toId: toId,
             FirebaseConstants.profileImageURL: chatUser.profileImageURL,
@@ -265,7 +289,7 @@ extension ChatLogViewModel {
         }
         
         let recipientRecentMessageDictionary = [
-            FirebaseConstants.text: text,
+            FirebaseConstants.Text.text: text,
             FirebaseConstants.fromId: uid,
             FirebaseConstants.toId: toId,
             FirebaseConstants.profileImageURL: currentUser.profileImageURL,

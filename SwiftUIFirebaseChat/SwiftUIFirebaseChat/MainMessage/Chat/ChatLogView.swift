@@ -21,6 +21,9 @@ struct ChatLogView: View {
     
     @State private var tapImageFrame: CGRect?
     
+    @State private var shouldShowFirePicker = false
+
+    @State private var shouldShowActionSheet = false
     @State private var shouldShowImagePicker = false
     @State private var shouldShowImageViewer = false
     @State private var shouldShowVideoViewer = false
@@ -68,7 +71,7 @@ struct ChatLogView: View {
             }
         }
         .onDisappear {
-            viewModel.firestoreListener?.remove()
+            viewModel.removeListener()
         }
         .onChange(of: pickerImage) { newValue in
             viewModel.handleSendImage(image: newValue ?? UIImage())
@@ -85,8 +88,30 @@ struct ChatLogView: View {
                 shouldShowImageViewer.toggle()
             }
         })
+        .fileImporter(
+            isPresented: $shouldShowFirePicker,
+            allowedContentTypes: [.item],
+            onCompletion: { result in
+                switch result {
+                case .success(let url):
+                    print(url.deletingPathExtension().lastPathComponent)
+                    
+                    viewModel.handleSendFile(fileUrl: url)
+                    
+                case .failure(let error):
+                    print(error)
+                }
+        })
         .fullScreenCover(isPresented: $shouldShowImagePicker) {
             ImagePicker(image: $pickerImage, fileURL: $fileURL)
+        }
+        .confirmationDialog("", isPresented: $shouldShowActionSheet) {
+            Button("사진 및 비디오 선택") {
+                shouldShowImagePicker.toggle()
+            }
+            Button("파일 선택") {
+                shouldShowFirePicker.toggle()
+            }
         }
     }
     
@@ -144,9 +169,9 @@ extension ChatLogView {
     private var chatBottomBar: some View {
         HStack(spacing: 8) {
             Button {
-                shouldShowImagePicker.toggle()
+                shouldShowActionSheet.toggle()
             } label: {
-                Image(systemName: "photo.on.rectangle")
+                Image(systemName: "plus")
                     .foregroundColor(.black)
             }
             
@@ -221,6 +246,27 @@ extension ChatLogView {
             )
         }
         
+        var fileMessage: some View {
+            HStack {
+                Image(systemName: "folder.circle.fill")
+                    .foregroundColor(.purple)
+                    .font(.system(size: 40))
+
+                VStack(alignment: .leading) {
+                    Text(message.fileTitle)
+                        .font(.system(size: 14))
+                        .lineLimit(2)
+                    Text(message.fileSizes)
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 14))
+                }
+                Spacer()
+            }
+            .padding()
+            .frame(maxWidth: 250)
+            .background(.white)
+        }
+        
         var body: some View {
             VStack {
                 if message.fromId == FirebaseManager.shared.auth.currentUser?.uid {
@@ -232,11 +278,15 @@ extension ChatLogView {
                                     .foregroundColor(.white)
                                     .padding()
                                     .background(Color.blue)
+                            } else if message.fileUrl != nil {
+                                fileMessage
                             } else {
                                 imageMessage
                             }
                         }
-                        .cornerRadius(8)
+                        .cornerRadius(12, corners: .topLeft)
+                        .cornerRadius(12, corners: .bottomLeft)
+                        .cornerRadius(12, corners: .bottomRight)
                     }
                 } else {
                     HStack {
@@ -246,12 +296,15 @@ extension ChatLogView {
                                     .foregroundColor(.black)
                                     .padding()
                                     .background(Color.white)
+                            } else if message.fileUrl != nil {
+                                fileMessage
                             } else {
                                 imageMessage
                             }
                         }
-                        .cornerRadius(8)
-                        
+                        .cornerRadius(12, corners: .topRight)
+                        .cornerRadius(12, corners: .bottomLeft)
+                        .cornerRadius(12, corners: .bottomRight)
                         Spacer()
                     }
                 }
