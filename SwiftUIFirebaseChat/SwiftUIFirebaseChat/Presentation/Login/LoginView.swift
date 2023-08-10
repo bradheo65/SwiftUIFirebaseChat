@@ -10,7 +10,7 @@ import SwiftUI
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
     
-    @State private var image: UIImage?
+    @State private var profileImage: UIImage?
 
     @State private var email = ""
     @State private var password = ""
@@ -35,7 +35,7 @@ struct LoginView: View {
                             shouldShowImagePicker.toggle()
                         } label: {
                             VStack {
-                                if let image = self.image {
+                                if let image = self.profileImage {
                                     Image(uiImage: image)
                                         .resizable()
                                         .scaledToFill()
@@ -71,7 +71,8 @@ struct LoginView: View {
                                 isLoginMode: isLoginMode,
                                 email: email,
                                 password: password,
-                                image: image)
+                                profileImage: profileImage
+                            )
                         }
                     } label: {
                         HStack {
@@ -100,7 +101,7 @@ struct LoginView: View {
                 MainMessageView()
             })
             .fullScreenCover(isPresented: $shouldShowImagePicker) {
-                ImagePicker(image: $image, videoUrl: .constant(nil))
+                ImagePicker(image: $profileImage, videoUrl: .constant(nil))
             }
         }
     }

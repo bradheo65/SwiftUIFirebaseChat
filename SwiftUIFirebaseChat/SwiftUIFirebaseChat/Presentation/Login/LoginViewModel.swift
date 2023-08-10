@@ -13,13 +13,22 @@ final class LoginViewModel: ObservableObject {
     
     @Published var isLoginSuccess = false
 
-    private let createAccountUseCase = CreateAccountUseCase(repo: CreateAccountRepository())
-    
-    func handleAction(isLoginMode: Bool, email: String, password: String, image: UIImage?) async {
+    private let createAccountUseCase = CreateAccountUseCase()
+    private let loginAccountUseCase = LoginAccountUseCase()
+
+    func handleAction(isLoginMode: Bool, email: String, password: String, profileImage: UIImage?) async {
         if isLoginMode {
-            loginUser(email: email, password: password)
+            loginAccountUseCase.excute(email: email, password: password) { result in
+                switch result {
+                case .success(let message):
+                    self.loginStatusMessage = message
+                    self.isLoginSuccess = true
+                case .failure(let error):
+                    self.loginStatusMessage = error.localizedDescription
+                }
+            }
         } else {
-            createAccountUseCase.excute(email: email, password: password, image: image) { result in
+            createAccountUseCase.excute(email: email, password: password, image: profileImage) { result in
                 switch result {
                 case .success(let message):
                     self.loginStatusMessage = message
@@ -27,24 +36,6 @@ final class LoginViewModel: ObservableObject {
                     print(error.localizedDescription)
                 }
             }
-        }
-    }
-}
-
-extension LoginViewModel {
-    
-    private func loginUser(email: String, password: String) {
-        FirebaseManager.shared.auth.signIn(withEmail: email, password: password) { result, error in
-            if let error = error {
-                print(error.localizedDescription)
-                self.loginStatusMessage = error.localizedDescription
-                return
-            }
-            
-            self.loginStatusMessage = "Success \(result?.user.uid ?? "")"
-            print("Success \(result?.user.uid ?? "")")
-            
-            self.isLoginSuccess = true
         }
     }
     
