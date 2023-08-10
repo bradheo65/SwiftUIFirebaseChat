@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A310D6A22A84A9D700634DFE /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A310D6A12A84A9D700634DFE /* NetworkService.swift */; };
+		A310D6A42A84CD8000634DFE /* FileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A310D6A32A84CD8000634DFE /* FileService.swift */; };
+		A310D6A62A84CE5100634DFE /* ImageSaveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A310D6A52A84CE5100634DFE /* ImageSaveService.swift */; };
 		A34A6E222A73829700440F93 /* ImageModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34A6E212A73829700440F93 /* ImageModifier.swift */; };
 		A34A6E242A7382D300440F93 /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34A6E232A7382D300440F93 /* ImageViewer.swift */; };
 		A354F6942A5460630063652A /* SwiftUIFirebaseChatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A354F6932A5460630063652A /* SwiftUIFirebaseChatApp.swift */; };
@@ -28,6 +31,9 @@
 		A375D0892A55BC720058C415 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A375D0882A55BC720058C415 /* GoogleService-Info.plist */; };
 		A392147C2A83104600BF833D /* RoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A392147B2A83104600BF833D /* RoundedCorner.swift */; };
 		A392147E2A8319BE00BF833D /* FileInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A392147D2A8319BE00BF833D /* FileInfo.swift */; };
+		A39214852A832ED200BF833D /* CreateAccountUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A39214842A832ED200BF833D /* CreateAccountUseCase.swift */; };
+		A39214892A837B3900BF833D /* CreateAccountRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A39214882A837B3900BF833D /* CreateAccountRepositoryProtocol.swift */; };
+		A392148B2A837B8100BF833D /* CreateAccountRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A392148A2A837B8100BF833D /* CreateAccountRepository.swift */; };
 		A3B029172A59AA9C008161CE /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B029162A59AA9C008161CE /* FirebaseManager.swift */; };
 		A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B029182A59AAF7008161CE /* LoginViewModel.swift */; };
 		A3B0291B2A59AD09008161CE /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B0291A2A59AD09008161CE /* ImagePicker.swift */; };
@@ -41,6 +47,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A310D6A02A84890A00634DFE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A310D6A12A84A9D700634DFE /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		A310D6A32A84CD8000634DFE /* FileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileService.swift; sourceTree = "<group>"; };
+		A310D6A52A84CE5100634DFE /* ImageSaveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSaveService.swift; sourceTree = "<group>"; };
 		A34A6E212A73829700440F93 /* ImageModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModifier.swift; sourceTree = "<group>"; };
 		A34A6E232A7382D300440F93 /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
 		A354F6902A5460630063652A /* SwiftUIFirebaseChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUIFirebaseChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,6 +69,9 @@
 		A375D0882A55BC720058C415 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A392147B2A83104600BF833D /* RoundedCorner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedCorner.swift; sourceTree = "<group>"; };
 		A392147D2A8319BE00BF833D /* FileInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileInfo.swift; sourceTree = "<group>"; };
+		A39214842A832ED200BF833D /* CreateAccountUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccountUseCase.swift; sourceTree = "<group>"; };
+		A39214882A837B3900BF833D /* CreateAccountRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccountRepositoryProtocol.swift; sourceTree = "<group>"; };
+		A392148A2A837B8100BF833D /* CreateAccountRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccountRepository.swift; sourceTree = "<group>"; };
 		A3B029162A59AA9C008161CE /* FirebaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
 		A3B029182A59AAF7008161CE /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		A3B0291A2A59AD09008161CE /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
@@ -105,12 +118,13 @@
 		A354F6922A5460630063652A /* SwiftUIFirebaseChat */ = {
 			isa = PBXGroup;
 			children = (
+				A310D6A02A84890A00634DFE /* Info.plist */,
 				A354F6932A5460630063652A /* SwiftUIFirebaseChatApp.swift */,
 				A3B0291F2A59AD3E008161CE /* Manager */,
 				A3B0291E2A59AD32008161CE /* Common */,
-				A3B722502A6D6814005F713F /* Model */,
-				A3B029212A5C41D0008161CE /* MainMessage */,
-				A3B029202A5C4199008161CE /* Login */,
+				A39214862A837AA600BF833D /* Data */,
+				A39214802A832DE900BF833D /* Domain */,
+				A392148D2A837D1000BF833D /* Presentation */,
 				A375D0882A55BC720058C415 /* GoogleService-Info.plist */,
 				A354F6972A5460640063652A /* Assets.xcassets */,
 				A354F6992A5460640063652A /* Preview Content */,
@@ -162,6 +176,65 @@
 			path = Extension;
 			sourceTree = "<group>";
 		};
+		A39214802A832DE900BF833D /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				A3B722502A6D6814005F713F /* Model */,
+				A392148C2A837C2800BF833D /* Repository */,
+				A39214822A832E0700BF833D /* UseCases */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		A39214822A832E0700BF833D /* UseCases */ = {
+			isa = PBXGroup;
+			children = (
+				A39214832A832E5F00BF833D /* Login */,
+			);
+			path = UseCases;
+			sourceTree = "<group>";
+		};
+		A39214832A832E5F00BF833D /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				A39214842A832ED200BF833D /* CreateAccountUseCase.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		A39214862A837AA600BF833D /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				A39214872A837AFF00BF833D /* Repository */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		A39214872A837AFF00BF833D /* Repository */ = {
+			isa = PBXGroup;
+			children = (
+				A39214882A837B3900BF833D /* CreateAccountRepositoryProtocol.swift */,
+			);
+			path = Repository;
+			sourceTree = "<group>";
+		};
+		A392148C2A837C2800BF833D /* Repository */ = {
+			isa = PBXGroup;
+			children = (
+				A392148A2A837B8100BF833D /* CreateAccountRepository.swift */,
+			);
+			path = Repository;
+			sourceTree = "<group>";
+		};
+		A392148D2A837D1000BF833D /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				A3B029212A5C41D0008161CE /* MainMessage */,
+				A3B029202A5C4199008161CE /* Login */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
 		A3B0291E2A59AD32008161CE /* Common */ = {
 			isa = PBXGroup;
 			children = (
@@ -177,6 +250,9 @@
 			isa = PBXGroup;
 			children = (
 				A3B029162A59AA9C008161CE /* FirebaseManager.swift */,
+				A310D6A12A84A9D700634DFE /* NetworkService.swift */,
+				A310D6A32A84CD8000634DFE /* FileService.swift */,
+				A310D6A52A84CE5100634DFE /* ImageSaveService.swift */,
 			);
 			path = Manager;
 			sourceTree = "<group>";
@@ -313,21 +389,27 @@
 			buildActionMask = 2147483647;
 			files = (
 				A3CED4662A70B6FE001DD436 /* FirebaseConstants.swift in Sources */,
+				A39214892A837B3900BF833D /* CreateAccountRepositoryProtocol.swift in Sources */,
 				A3B722522A6D682E005F713F /* ChatUser.swift in Sources */,
 				A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */,
 				A36EF84C2A79F42000A7DEE2 /* RemoteImage.swift in Sources */,
 				A34A6E222A73829700440F93 /* ImageModifier.swift in Sources */,
+				A310D6A62A84CE5100634DFE /* ImageSaveService.swift in Sources */,
+				A310D6A22A84A9D700634DFE /* NetworkService.swift in Sources */,
 				A35736842A6F9D9D007B0402 /* RecentMessage.swift in Sources */,
 				A3CED45E2A70AC42001DD436 /* CreateNewMessageViewModel.swift in Sources */,
 				A392147C2A83104600BF833D /* RoundedCorner.swift in Sources */,
 				A36EF84F2A79F45100A7DEE2 /* Extention+View.swift in Sources */,
 				A3B029172A59AA9C008161CE /* FirebaseManager.swift in Sources */,
+				A392148B2A837B8100BF833D /* CreateAccountRepository.swift in Sources */,
 				A35736752A6EBFBA007B0402 /* CreateNewMessageView.swift in Sources */,
 				A35736862A6FAA51007B0402 /* ChatMessage.swift in Sources */,
 				A36EF84A2A79F3C400A7DEE2 /* ImageCache.swift in Sources */,
 				A3B0291B2A59AD09008161CE /* ImagePicker.swift in Sources */,
 				A354F6962A5460630063652A /* LoginView.swift in Sources */,
+				A39214852A832ED200BF833D /* CreateAccountUseCase.swift in Sources */,
 				A3CED4602A70B2FE001DD436 /* MainMessageViewModel.swift in Sources */,
+				A310D6A42A84CD8000634DFE /* FileService.swift in Sources */,
 				A35736792A6F343C007B0402 /* ChatLogView.swift in Sources */,
 				A354F6942A5460630063652A /* SwiftUIFirebaseChatApp.swift in Sources */,
 				A3CED4632A70B6B5001DD436 /* ProfileImageView.swift in Sources */,
@@ -467,6 +549,9 @@
 				DEVELOPMENT_TEAM = U2VE4R4QH9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SwiftUIFirebaseChat/Info.plist;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "앨범에 저장하려면 접근권한이 필요로 합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -501,6 +586,9 @@
 				DEVELOPMENT_TEAM = U2VE4R4QH9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SwiftUIFirebaseChat/Info.plist;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "앨범에 저장하려면 접근권한이 필요로 합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

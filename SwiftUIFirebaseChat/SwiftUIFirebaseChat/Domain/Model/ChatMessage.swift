@@ -17,7 +17,7 @@ struct ChatMessage: Codable, Identifiable {
     let imageWidth, imageHeight: CGFloat?
     let timestamp: Date
     
-    private let fileName, fileType, fileSize: String?
+    let fileName, fileType, fileSize: String?
     
     var fileTitle: String {
         return (fileName ?? "") + "." + (fileType?.suffix(3) ?? "")

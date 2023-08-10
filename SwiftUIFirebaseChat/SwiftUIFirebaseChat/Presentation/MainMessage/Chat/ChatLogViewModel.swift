@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 
+import Photos
+
 import AVFoundation
 
 final class ChatLogViewModel: ObservableObject {
@@ -17,6 +19,8 @@ final class ChatLogViewModel: ObservableObject {
 
     @Published var count = 0
     @Published var image: UIImage?
+    @Published var isSaveCompleted = false
+    @Published var isErrorAlert = false
 
     private var firestoreListener = FirebaseManager.shared.firestoreListener
 
@@ -44,7 +48,11 @@ final class ChatLogViewModel: ObservableObject {
         sendMessage(text: text, messageData: messageData)
     }
      
-    func handleSendImage(image: UIImage) {
+    func handleSendImage(image: UIImage?) {
+        guard let image = image else {
+            print("Fail to image load")
+            return
+        }
         let ref = FirebaseManager.shared.storage.reference()
             .child(FirebaseConstants.Storage.messageImages)
             .child(UUID().uuidString)
@@ -106,7 +114,46 @@ final class ChatLogViewModel: ObservableObject {
                 print(error)
             }
         }
+    }
+    
+    func handleImageSave(image: UIImage) {
+        ImageSaveService.shared.writeToPhotoAlbum(image: image)
         
+        ImageSaveService.shared.successHandler = {
+            self.isSaveCompleted.toggle()
+        }
+        
+        ImageSaveService.shared.errorHandler = {
+            self.isErrorAlert.toggle()
+            self.errorMessage = $0.localizedDescription
+        }
+    }
+    
+    func handleFileSave(fileInfo: FileInfo?) {
+        guard let fileInfo = fileInfo else {
+            print("Fail to file load")
+            return
+        }
+        
+        Task {
+            let result = try await NetworkService.shared.downloadFile(url: fileInfo.url)
+            
+            switch result {
+            case .success(let url):
+                let result = try await FileService.shared.saveFile(name: fileInfo.name, at: url)
+                
+                switch result {
+                case .success(_):
+                    DispatchQueue.main.sync {
+                        self.isSaveCompleted.toggle()
+                    }
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
     }
     
 }

@@ -12,6 +12,8 @@ struct ChatLogView: View {
     
     @StateObject private var viewModel: ChatLogViewModel
     
+    @State private var fileInfo: FileInfo?
+
     @State private var pickerImage: UIImage?
     @State private var imageData: UIImage?
     @State private var videoUrl: URL?
@@ -21,12 +23,14 @@ struct ChatLogView: View {
     @State private var videoPlayUrl = ""
 
     @State private var shouldShowActionSheet = false
-    
+    @State private var shouldShowFireSaveActionSheet = false
+
     @State private var shouldShowImagePicker = false
     @State private var shouldShowFilePicker = false
     
     @State private var shouldShowImageViewer = false
     @State private var shouldShowVideoViewer = false
+    @State private var savePhoto = false
 
     @State private var shouldHideImageViewer = true
 
@@ -75,7 +79,7 @@ struct ChatLogView: View {
             viewModel.removeListener()
         }
         .onChange(of: pickerImage) { newValue in
-            viewModel.handleSendImage(image: newValue ?? UIImage())
+            viewModel.handleSendImage(image: newValue)
         }
         .onChange(of: videoUrl) { newValue in
             if let url = videoUrl {
@@ -91,10 +95,11 @@ struct ChatLogView: View {
         })
         .fileImporter(
             isPresented: $shouldShowFilePicker,
-            allowedContentTypes: [.item],
+            allowedContentTypes: [.pdf],
             onCompletion: { result in
                 switch result {
                 case .success(let url):
+                    print(url)
                     viewModel.handleSendFile(fileUrl: url)
                     
                 case .failure(let error):
@@ -112,6 +117,34 @@ struct ChatLogView: View {
                 shouldShowFilePicker.toggle()
             }
         }
+        .confirmationDialog("", isPresented: $shouldShowFireSaveActionSheet) {
+            Button("파일 저장") {
+                viewModel.handleFileSave(fileInfo: fileInfo)
+            }
+        }
+        .alert("사진 앱에 저장하시겠습니까?", isPresented: $savePhoto) {
+            Button { } label: {
+                Text("Cancel")
+            }
+            Button {
+                viewModel.handleImageSave(image: imageData ?? UIImage())
+            } label: {
+                Text("OK")
+            }
+        }
+        .alert("저장이 완료되었습니다.", isPresented: $viewModel.isSaveCompleted) {
+            Button { } label: {
+                Text("OK")
+            }
+        }
+        .alert("Error", isPresented: $viewModel.isErrorAlert) {
+            Button { } label: {
+                Text("OK")
+            }
+        } message: {
+            Text(viewModel.errorMessage)
+        }
+
     }
     
 }
@@ -148,7 +181,8 @@ extension ChatLogView {
             ImageViewer(
                 uIimage: $imageData,
                 show: $shouldShowImageViewer,
-                hide: $shouldHideImageViewer
+                hide: $shouldHideImageViewer,
+                savePhoto: $savePhoto
             )
             .frame(
                 width: shouldShowImageViewer ? reader.size.width : tapImageFrame?.width,
@@ -264,6 +298,16 @@ extension ChatLogView {
             .padding()
             .frame(maxWidth: 250)
             .background(.white)
+            .onTapGesture {
+                shouldShowFireSaveActionSheet.toggle()
+                
+                fileInfo = FileInfo(
+                    url: URL(string: message.fileUrl ?? "")!,
+                    name: message.fileTitle,
+                    contentType: message.fileType ?? "",
+                    size: message.fileSizes
+                )
+            }
         }
         
         var body: some View {

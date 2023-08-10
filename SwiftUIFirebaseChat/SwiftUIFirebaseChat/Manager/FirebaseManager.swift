@@ -37,6 +37,19 @@ final class FirebaseManager: NSObject {
         super.init()
     }
     
+    func handleCreateAccount(email: String, password: String) async throws -> Result<String, Error> {
+        do {
+            let authResult = try await auth.createUser(withEmail: email, password: password)
+            let user = authResult.user
+            
+            return .success(user.email ?? "")
+        }
+        
+        catch let error {
+            return .failure(error)
+        }
+    }
+    
     func handleSendMessage(fromDocument: DocumentReference, toDocument: DocumentReference, messageData: [String: Any], compltion: @escaping () -> Void) {
         
         fromDocument.setData(messageData) { error in
@@ -114,7 +127,7 @@ final class FirebaseManager: NSObject {
                 }
                     
                 uploadTask.observe(.progress) { snapshot in
-                    print(snapshot.progress?.completedUnitCount)
+                    print(snapshot.progress?.completedUnitCount as Any)
                 }
                 
                 uploadTask.observe(.success) { snapshot in
