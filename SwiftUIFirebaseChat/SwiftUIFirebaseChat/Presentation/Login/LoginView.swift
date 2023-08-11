@@ -66,14 +66,12 @@ struct LoginView: View {
                     .background(.white)
                     
                     Button {
-                        Task {
-                            await viewModel.handleAction(
-                                isLoginMode: isLoginMode,
-                                email: email,
-                                password: password,
-                                profileImage: profileImage
-                            )
-                        }
+                        viewModel.handleAction(
+                            isLoginMode: isLoginMode,
+                            email: email,
+                            password: password,
+                            profileImage: profileImage
+                        )
                     } label: {
                         HStack {
                             Spacer()

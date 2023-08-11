@@ -37,16 +37,23 @@ final class FirebaseManager: NSObject {
         super.init()
     }
     
-    func handleCreateAccount(email: String, password: String) async throws -> Result<String, Error> {
-        do {
-            let authResult = try await auth.createUser(withEmail: email, password: password)
-            let user = authResult.user
-            
-            return .success(user.email ?? "")
+    func handleCreateAccount(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
+        auth.createUser(withEmail: email, password: password) { result, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            completion(.success(result?.user.email ?? ""))
         }
-        
-        catch let error {
-            return .failure(error)
+    }
+    
+    func handleLogin(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
+        auth.signIn(withEmail: email, password: password) { result, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            completion(.success("Success to Login \(result?.user.uid ?? "")"))
         }
     }
     
@@ -150,8 +157,6 @@ final class FirebaseManager: NSObject {
             
             print("uploadFile Success")
             
-          
-            
             storageReference.downloadURL { url, error in
                 if let error = error {
                     print(error.localizedDescription)
@@ -187,6 +192,22 @@ final class FirebaseManager: NSObject {
                 }
             }
         }
+    }
+    
+    func uploadDataToFirestore(documentName: String, data: [String: Any], completion: @escaping (Result<String, Error>) -> Void) {
+        guard let uid = auth.currentUser?.uid else {
+            return
+        }
+        
+        firestore.collection(documentName)
+            .document(uid)
+            .setData(data) { error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                completion(.success("Success upload data to Firestore"))
+            }
     }
     
 }

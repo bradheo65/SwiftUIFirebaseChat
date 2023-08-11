@@ -14,11 +14,11 @@ final class LoginViewModel: ObservableObject {
     @Published var isLoginSuccess = false
 
     private let createAccountUseCase = CreateAccountUseCase()
-    private let loginAccountUseCase = LoginAccountUseCase()
+    private let loginUseCase = LoginUseCase()
 
-    func handleAction(isLoginMode: Bool, email: String, password: String, profileImage: UIImage?) async {
+    func handleAction(isLoginMode: Bool, email: String, password: String, profileImage: UIImage?) {
         if isLoginMode {
-            loginAccountUseCase.excute(email: email, password: password) { result in
+            loginUseCase.excute(email: email, password: password) { result in
                 switch result {
                 case .success(let message):
                     self.loginStatusMessage = message

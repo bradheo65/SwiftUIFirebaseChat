@@ -1,5 +1,5 @@
 //
-//  LoginAccountUseCase.swift
+//  LoginUseCase.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by brad on 2023/08/10.
@@ -7,17 +7,17 @@
 
 import Foundation
 
-protocol LoginAccountUseCaseProtocol {
+protocol LoginUseCaseProtocol {
     
     func excute(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void)
     
 }
 
-struct LoginAccountUseCase: LoginAccountUseCaseProtocol {
-    private let repo = LoginAccountRepository()
+struct LoginUseCase: LoginUseCaseProtocol {
+    private let repo = LoginRepository()
     
     func excute(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
-        repo.requestLoginUser(email: email, password: password) { result in
+        repo.requestLogin(email: email, password: password) { result in
             switch result {
             case .success(let message):
                 completion(.success(message))

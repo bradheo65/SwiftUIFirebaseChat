@@ -21,12 +21,26 @@ struct CreateAccountUseCase: CreateAccountUseCaseProtocol {
             return
         }
         
-        repo.requestCreateUser(email: email, password: password, image: image) { result in
+        repo.requestCreateAccount(email: email, password: password, image: image) { result in
             switch result {
-            case .success(let message):
-                print(message)
+            case .success(_):
+                repo.requestUploadImage(image: image) { result in
+                    switch result {
+                    case .success(let url):
+                        repo.requestUploadAccountInfo(email: email, imageProfileURL: url) { result in
+                            switch result {
+                            case .success(let message):
+                                completion(.success(message))
+                            case .failure(let error):
+                                completion(.failure(error))
+                            }
+                        }
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
             case .failure(let error):
-                print(error)
+                completion(.failure(error))
             }
         }
     }
