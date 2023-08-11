@@ -50,7 +50,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A310D6A02A84890A00634DFE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A310D6A02A84890A00634DFE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A310D6A12A84A9D700634DFE /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		A310D6A32A84CD8000634DFE /* FileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileService.swift; sourceTree = "<group>"; };
 		A310D6A52A84CE5100634DFE /* ImageSaveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSaveService.swift; sourceTree = "<group>"; };
@@ -105,6 +105,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A310D6AD2A84D87D00634DFE /* ReSource */ = {
+			isa = PBXGroup;
+			children = (
+				A375D0882A55BC720058C415 /* GoogleService-Info.plist */,
+				A354F6972A5460640063652A /* Assets.xcassets */,
+			);
+			path = ReSource;
+			sourceTree = "<group>";
+		};
 		A354F6872A5460630063652A = {
 			isa = PBXGroup;
 			children = (
@@ -124,15 +133,14 @@
 		A354F6922A5460630063652A /* SwiftUIFirebaseChat */ = {
 			isa = PBXGroup;
 			children = (
-				A310D6A02A84890A00634DFE /* Info.plist */,
 				A354F6932A5460630063652A /* SwiftUIFirebaseChatApp.swift */,
+				A310D6A02A84890A00634DFE /* Info.plist */,
+				A310D6AD2A84D87D00634DFE /* ReSource */,
 				A3B0291F2A59AD3E008161CE /* Manager */,
 				A3B0291E2A59AD32008161CE /* Common */,
 				A39214862A837AA600BF833D /* Data */,
 				A39214802A832DE900BF833D /* Domain */,
 				A392148D2A837D1000BF833D /* Presentation */,
-				A375D0882A55BC720058C415 /* GoogleService-Info.plist */,
-				A354F6972A5460640063652A /* Assets.xcassets */,
 				A354F6992A5460640063652A /* Preview Content */,
 			);
 			path = SwiftUIFirebaseChat;
