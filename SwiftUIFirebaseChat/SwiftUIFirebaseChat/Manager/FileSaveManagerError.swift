@@ -1,5 +1,5 @@
 //
-//  FileService.swift
+//  FileSaveManagerError.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by brad on 2023/08/10.
@@ -7,19 +7,19 @@
 
 import Foundation
 
-enum FileServiceError: Error {
+enum FileSaveManagerError: Error {
     case noDocumentUrl
     case saveFail
 }
 
-final class FileService {
-    static let shared = FileService()
+final class FileSaveManager {
+    static let shared = FileSaveManager()
     
     private init() { }
     
     private let fileManager = FileManager.default
     
-    func saveFile(name: String, at: URL) async throws -> Result<String, FileServiceError> {
+    func save(name: String, at: URL) async throws -> Result<String, FileSaveManagerError> {
         guard let documentUrl = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
             return .failure(.noDocumentUrl)
         }

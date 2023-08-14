@@ -9,10 +9,10 @@ import Foundation
 
 struct DeleteMessageRepository: DeleteMessageRepositoryProtocol {
     
-    private let firebaseManager = FirebaseManager.shared
+    private let firebaseService = FirebaseService.shared
     
     func deleteChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseManager.deleteChatMessage(toId: toId) { result in
+        firebaseService.deleteChatMessage(toId: toId) { result in
             switch result {
             case .success(let message):
                 completion(.success(message))
@@ -23,7 +23,7 @@ struct DeleteMessageRepository: DeleteMessageRepositoryProtocol {
     }
     
     func deleteRecentChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseManager.deleteRecentMessage(toId: toId) { result in
+        firebaseService.deleteRecentMessage(toId: toId) { result in
             switch result {
             case .success(let message):
                 completion(.success(message))

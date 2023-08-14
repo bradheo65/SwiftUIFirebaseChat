@@ -9,10 +9,10 @@ import Foundation
 
 struct GetUserRepository: GetUserRepositoryProtocol {
     
-    private let firebaseManager = FirebaseManager.shared
+    private let firebaseService = FirebaseService.shared
     
     func requestAllUser(completion: @escaping (Result<ChatUser, Error>) -> Void) {
-        firebaseManager.getAllUsers { result in
+        firebaseService.getAllUsers { result in
             switch result {
             case .success(let user):
                 completion(.success(user))
@@ -23,7 +23,7 @@ struct GetUserRepository: GetUserRepositoryProtocol {
     }
     
     func requestCurrentUser(completion: @escaping (Result<ChatUser?, Error>) -> Void) {
-        firebaseManager.getCurrentUser { result in
+        firebaseService.getCurrentUser { result in
             switch result {
             case .success(let currentUser):
                 completion(.success(currentUser))

@@ -19,7 +19,7 @@ final class CreateNewMessageViewModel: ObservableObject {
 extension CreateNewMessageViewModel {
     
     private func fetchAllUser() {
-        FirebaseManager.shared.firestore
+        FirebaseService.shared.firestore
             .collection(FirebaseConstants.users)
             .getDocuments { documentsSnapshot, error in
                 if let error = error {
@@ -31,7 +31,7 @@ extension CreateNewMessageViewModel {
                 do {
                     let user = try snapshot.data(as: ChatUser.self)
                     
-                    if user.id != FirebaseManager.shared.auth.currentUser?.uid {
+                    if user.id != FirebaseService.shared.auth.currentUser?.uid {
                         self.users.append(user)
                     }
                 } catch {

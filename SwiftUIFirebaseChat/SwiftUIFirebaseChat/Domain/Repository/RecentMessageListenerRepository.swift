@@ -11,10 +11,10 @@ import Firebase
 
 struct RecentMessageListenerRepository: RecentMessageListenerRepositoryProtocol {
     
-    private let firebaseManager = FirebaseManager.shared
+    private let firebaseService = FirebaseService.shared
     
     func activeRecentMessageListener(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
-        firebaseManager.handleRecentMessageListener { result in
+        firebaseService.handleRecentMessageListener { result in
             switch result {
             case .success(let documentChange):
                 completion(.success(documentChange))
@@ -25,7 +25,7 @@ struct RecentMessageListenerRepository: RecentMessageListenerRepositoryProtocol 
     }
     
     func removeRecentMessageListener() {
-        firebaseManager.handleRemoveRecentMessageListener()
+        firebaseService.handleRemoveRecentMessageListener()
     }
     
 }

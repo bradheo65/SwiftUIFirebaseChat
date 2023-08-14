@@ -9,10 +9,10 @@ import Foundation
 
 struct LogoutRepository: LogoutRepositoryProtocol {
     
-    private let firebaseManager = FirebaseManager.shared
+    private let firebaseService = FirebaseService.shared
 
     func requestLogout(completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseManager.handleLogout() { result in
+        firebaseService.handleLogout() { result in
             switch result {
             case .success(let message):
                 completion(.success(message))

@@ -22,7 +22,7 @@ final class ChatLogViewModel: ObservableObject {
     @Published var isSaveCompleted = false
     @Published var isErrorAlert = false
 
-    private var firestoreListener = FirebaseManager.shared.firestoreListener
+    private var firestoreListener = FirebaseService.shared.firestoreListener
 
     private let chatUser: ChatUser?
     
@@ -38,10 +38,10 @@ final class ChatLogViewModel: ObservableObject {
         
     func handleSendText(text: String, compltion: @escaping () -> Void) {
         let messageData = [
-            FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
+            FirebaseConstants.fromId: FirebaseService.shared.auth.currentUser?.uid ?? "",
             FirebaseConstants.toId: chatUser?.uid ?? "",
             FirebaseConstants.Text.text: text,
-            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
+            FirebaseConstants.timestamp: FirebaseService.shared.timeStamp
         ] as [String : Any]
         
         compltion()
@@ -53,11 +53,11 @@ final class ChatLogViewModel: ObservableObject {
             print("Fail to image load")
             return
         }
-        let ref = FirebaseManager.shared.storage.reference()
+        let ref = FirebaseService.shared.storage.reference()
             .child(FirebaseConstants.Storage.messageImages)
             .child(UUID().uuidString)
         
-        FirebaseManager.shared.uploadImage(image: image, storageReference: ref) { result in
+        FirebaseService.shared.uploadImage(image: image, storageReference: ref) { result in
             switch result {
             case .success(let url):
                 self.handleImageMessageData(imageURL: url, image: image) {
@@ -70,19 +70,19 @@ final class ChatLogViewModel: ObservableObject {
     }
     
     func handleSendVideo(videoUrl: URL) {
-        let imageRef = FirebaseManager.shared.storage.reference()
+        let imageRef = FirebaseService.shared.storage.reference()
             .child(FirebaseConstants.Storage.messageImages)
             .child(UUID().uuidString)
         
-        let videoRef = FirebaseManager.shared.storage.reference()
+        let videoRef = FirebaseService.shared.storage.reference()
             .child(FirebaseConstants.Storage.messageVideos)
             .child(UUID().uuidString)
         
-        FirebaseManager.shared.uploadVideo(url: videoUrl, storageReference: videoRef) { [weak self] result in
+        FirebaseService.shared.uploadVideo(url: videoUrl, storageReference: videoRef) { [weak self] result in
             switch result {
             case .success(let videoURL):
                 if let videoThumbnailImage = self?.thumbnailImageForVideoURL(fileURL: videoURL) {
-                    FirebaseManager.shared.uploadImage(image: videoThumbnailImage, storageReference: imageRef) { [weak self] result in
+                    FirebaseService.shared.uploadImage(image: videoThumbnailImage, storageReference: imageRef) { [weak self] result in
                         switch result {
                         case .success(let imageUrl):
                             self?.handleVedioMessageData(imageUrl: imageUrl, videoUrl: videoURL, image: videoThumbnailImage) {
@@ -100,11 +100,11 @@ final class ChatLogViewModel: ObservableObject {
     }
     
     func handleSendFile(fileUrl: URL) {
-        let fileRef = FirebaseManager.shared.storage.reference()
+        let fileRef = FirebaseService.shared.storage.reference()
             .child(FirebaseConstants.Storage.messageFiles)
             .child(fileUrl.deletingPathExtension().lastPathComponent)
         
-        FirebaseManager.shared.uploadFile(url: fileUrl, storageReference: fileRef) { result in
+        FirebaseService.shared.uploadFile(url: fileUrl, storageReference: fileRef) { result in
             switch result {
             case .success(let fileInfo):
                 self.handleFileMessageData(fileInfo: fileInfo) {
@@ -117,13 +117,13 @@ final class ChatLogViewModel: ObservableObject {
     }
     
     func handleImageSave(image: UIImage) {
-        ImageSaveService.shared.writeToPhotoAlbum(image: image)
+        ImageSaveManager.shared.writeToPhotoAlbum(image: image)
         
-        ImageSaveService.shared.successHandler = {
+        ImageSaveManager.shared.successHandler = {
             self.isSaveCompleted.toggle()
         }
         
-        ImageSaveService.shared.errorHandler = {
+        ImageSaveManager.shared.errorHandler = {
             self.isErrorAlert.toggle()
             self.errorMessage = $0.localizedDescription
         }
@@ -140,7 +140,7 @@ final class ChatLogViewModel: ObservableObject {
             
             switch result {
             case .success(let url):
-                let result = try await FileService.shared.saveFile(name: fileInfo.name, at: url)
+                let result = try await FileSaveManager.shared.save(name: fileInfo.name, at: url)
                 
                 switch result {
                 case .success(_):
@@ -161,7 +161,7 @@ final class ChatLogViewModel: ObservableObject {
 extension ChatLogViewModel {
     
     private func fetchMessages() {
-        guard let fromId = FirebaseManager.shared.auth.currentUser?.uid else {
+        guard let fromId = FirebaseService.shared.auth.currentUser?.uid else {
             return
         }
         
@@ -172,7 +172,7 @@ extension ChatLogViewModel {
         firestoreListener?.remove()
         chatMessages.removeAll()
         
-        firestoreListener = FirebaseManager.shared.firestore
+        firestoreListener = FirebaseService.shared.firestore
             .collection(FirebaseConstants.messages)
             .document(fromId)
             .collection(toId)
@@ -223,12 +223,12 @@ extension ChatLogViewModel {
         let height = Float(image.size.height)
         
         let messageData = [
-            FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
+            FirebaseConstants.fromId: FirebaseService.shared.auth.currentUser?.uid ?? "",
             FirebaseConstants.toId: chatUser?.uid ?? "",
             FirebaseConstants.Image.url: imageURL.absoluteString,
             FirebaseConstants.Image.width: CGFloat(200),
             FirebaseConstants.Image.height: CGFloat(height / width * 200),
-            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
+            FirebaseConstants.timestamp: FirebaseService.shared.timeStamp
         ] as [String : Any]
     
         sendMessage(text: "", messageData: messageData)
@@ -239,13 +239,13 @@ extension ChatLogViewModel {
         let height = Float(image.size.height)
         
         let messageData = [
-            FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
+            FirebaseConstants.fromId: FirebaseService.shared.auth.currentUser?.uid ?? "",
             FirebaseConstants.toId: chatUser?.uid ?? "",
             FirebaseConstants.Image.url: imageUrl.absoluteString,
             FirebaseConstants.Video.url: videoUrl.absoluteString,
             FirebaseConstants.Image.width: CGFloat(200),
             FirebaseConstants.Image.height: CGFloat(height / width * 200),
-            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
+            FirebaseConstants.timestamp: FirebaseService.shared.timeStamp
         ] as [String : Any]
     
         sendMessage(text: "", messageData: messageData)
@@ -253,20 +253,20 @@ extension ChatLogViewModel {
     
     private func handleFileMessageData(fileInfo: FileInfo, compltion: @escaping () -> Void) {
         let messageData = [
-            FirebaseConstants.fromId: FirebaseManager.shared.auth.currentUser?.uid ?? "",
+            FirebaseConstants.fromId: FirebaseService.shared.auth.currentUser?.uid ?? "",
             FirebaseConstants.toId: chatUser?.uid ?? "",
             FirebaseConstants.File.url: fileInfo.url.absoluteString,
             FirebaseConstants.File.name: fileInfo.name,
             FirebaseConstants.File.type: fileInfo.contentType,
             FirebaseConstants.File.size: fileInfo.size,
-            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
+            FirebaseConstants.timestamp: FirebaseService.shared.timeStamp
         ] as [String : Any]
     
         sendMessage(text: "", messageData: messageData)
     }
     
     private func sendMessage(text: String, messageData: [String: Any]) {
-        guard let fromId = FirebaseManager.shared.auth.currentUser?.uid else {
+        guard let fromId = FirebaseService.shared.auth.currentUser?.uid else {
             return
         }
         
@@ -274,19 +274,19 @@ extension ChatLogViewModel {
             return
         }
         
-        let document = FirebaseManager.shared.firestore
+        let document = FirebaseService.shared.firestore
             .collection(FirebaseConstants.messages)
             .document(fromId)
             .collection(toId)
             .document()
         
-        let recipientMessageDocument = FirebaseManager.shared.firestore
+        let recipientMessageDocument = FirebaseService.shared.firestore
             .collection(FirebaseConstants.messages)
             .document(toId)
             .collection(fromId)
             .document()
         
-        FirebaseManager.shared.handleSendMessage(
+        FirebaseService.shared.handleSendMessage(
             fromDocument: document,
             toDocument: recipientMessageDocument,
             messageData: messageData
@@ -300,7 +300,7 @@ extension ChatLogViewModel {
             return
         }
         
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+        guard let uid = FirebaseService.shared.auth.currentUser?.uid else {
             return
         }
         
@@ -308,7 +308,7 @@ extension ChatLogViewModel {
             return
         }
         
-        let document = FirebaseManager.shared.firestore
+        let document = FirebaseService.shared.firestore
             .collection(FirebaseConstants.recentMessages)
             .document(uid)
             .collection(FirebaseConstants.messages)
@@ -320,7 +320,7 @@ extension ChatLogViewModel {
             FirebaseConstants.toId: toId,
             FirebaseConstants.profileImageURL: chatUser.profileImageURL,
             FirebaseConstants.email: chatUser.email,
-            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
+            FirebaseConstants.timestamp: FirebaseService.shared.timeStamp
         ] as [String : Any]
         
         document.setData(data) { error in
@@ -331,7 +331,7 @@ extension ChatLogViewModel {
             }
         }
         
-        guard let currentUser = FirebaseManager.shared.currentUser else {
+        guard let currentUser = FirebaseService.shared.currentUser else {
             return
         }
         
@@ -341,10 +341,10 @@ extension ChatLogViewModel {
             FirebaseConstants.toId: toId,
             FirebaseConstants.profileImageURL: currentUser.profileImageURL,
             FirebaseConstants.email: currentUser.email,
-            FirebaseConstants.timestamp: FirebaseManager.shared.timeStamp
+            FirebaseConstants.timestamp: FirebaseService.shared.timeStamp
         ] as [String : Any]
         
-        FirebaseManager.shared.firestore
+        FirebaseService.shared.firestore
             .collection(FirebaseConstants.recentMessages)
             .document(toId)
             .collection(FirebaseConstants.messages)

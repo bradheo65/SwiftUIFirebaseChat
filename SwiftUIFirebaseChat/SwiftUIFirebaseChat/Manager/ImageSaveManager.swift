@@ -1,5 +1,5 @@
 //
-//  ImageSaveService.swift
+//  ImageSaveManager.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by brad on 2023/08/10.
@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-final class ImageSaveService: NSObject {
-    static let shared = ImageSaveService()
+final class ImageSaveManager: NSObject {
+    static let shared = ImageSaveManager()
     
     private override init() { }
     
@@ -21,7 +21,7 @@ final class ImageSaveService: NSObject {
 
 }
 
-extension ImageSaveService {
+extension ImageSaveManager {
     
     @objc private func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         if let error = error {

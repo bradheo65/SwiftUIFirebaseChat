@@ -9,10 +9,10 @@ import Foundation
 
 struct LoginRepository: LoginRepositoryProtocol {
     
-    private let firebaseManager = FirebaseManager.shared
+    private let firebaseService = FirebaseService.shared
 
     func requestLogin(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseManager.handleLogin(email: email, password: password) { result in
+        firebaseService.handleLogin(email: email, password: password) { result in
             switch result {
             case .success(let message):
                 completion(.success(message))

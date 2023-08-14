@@ -1,8 +1,8 @@
 //
-//  FirebaseManager.swift
+//  FirebaseService.swift
 //  SwiftUIFirebaseChat
 //
-//  Created by brad on 2023/07/08.
+//  Created by brad on 2023/08/14.
 //
 
 import Foundation
@@ -10,7 +10,7 @@ import Foundation
 import Firebase
 import FirebaseStorage
 
-final class FirebaseManager: NSObject {
+final class FirebaseService: NSObject {
     let auth: Auth
     let storage: Storage
     let firestore: Firestore
@@ -23,11 +23,11 @@ final class FirebaseManager: NSObject {
 
     var firestoreListener: ListenerRegistration?
     private var recentMessageListener: ListenerRegistration?
-    
-    static let shared = FirebaseManager()
-    
+        
     var currentUser: ChatUser?
     
+    static let shared = FirebaseService()
+
     private override init() {
         FirebaseApp.configure()
         

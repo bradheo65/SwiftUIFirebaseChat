@@ -312,7 +312,7 @@ extension ChatLogView {
         
         var body: some View {
             VStack {
-                if message.fromId == FirebaseManager.shared.auth.currentUser?.uid {
+                if message.fromId == FirebaseService.shared.auth.currentUser?.uid {
                     HStack {
                         Spacer()
                         

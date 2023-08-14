@@ -9,10 +9,10 @@ import SwiftUI
 
 struct CreateAccountRepository: CreateAccountRepositoryProtocol {
     
-    private let firebaseManager = FirebaseManager.shared
+    private let firebaseService = FirebaseService.shared
     
     func requestCreateAccount(email: String, password: String, image: UIImage, completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseManager.handleCreateAccount(email: email, password: password) { result in
+        firebaseService.handleCreateAccount(email: email, password: password) { result in
             switch result {
             case .success(let message):
                 completion(.success(message))
@@ -23,15 +23,15 @@ struct CreateAccountRepository: CreateAccountRepositoryProtocol {
     }
     
     func requestUploadImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
-        guard let uid = firebaseManager.auth.currentUser?.uid else {
+        guard let uid = firebaseService.auth.currentUser?.uid else {
             return
         }
         
-        let ref = firebaseManager.storage.reference()
+        let ref = firebaseService.storage.reference()
             .child(FirebaseConstants.Storage.userProfileImages)
             .child(uid)
         
-        firebaseManager.uploadImage(image: image, storageReference: ref) { result in
+        firebaseService.uploadImage(image: image, storageReference: ref) { result in
             switch result {
             case .success(let url):
                 completion(.success(url))
@@ -42,7 +42,7 @@ struct CreateAccountRepository: CreateAccountRepositoryProtocol {
     }
     
     func requestUploadAccountInfo(email: String, imageProfileURL: URL, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let uid = firebaseManager.auth.currentUser?.uid else {
+        guard let uid = firebaseService.auth.currentUser?.uid else {
             return
         }
         
@@ -52,7 +52,7 @@ struct CreateAccountRepository: CreateAccountRepositoryProtocol {
             FirebaseConstants.profileImageURL: imageProfileURL.absoluteString
         ]
         
-        firebaseManager.uploadDataToFirestore(documentName: FirebaseConstants.users, data: userData) { result in
+        firebaseService.uploadDataToFirestore(documentName: FirebaseConstants.users, data: userData) { result in
             switch result {
             case .success(let message):
                 completion(.success(message))
