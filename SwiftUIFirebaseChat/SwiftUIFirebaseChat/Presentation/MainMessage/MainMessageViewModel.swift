@@ -21,7 +21,8 @@ final class MainMessageViewModel: ObservableObject {
     private let getCurrentUserUseCase = GetCurrentUserUseCase()
     private let activeRecentMessageListenerUseCase = ActiveRecentMessageListenerUseCase()
     private let removeRecentMessageListenerUseCase = RemoveRecentMessageListenerUseCase()
-    
+    private let logoutUseCase = LogoutUseCase()
+
     func fetchAllUser() {
         fetchFirebaseAllUser()
     }
@@ -38,13 +39,8 @@ final class MainMessageViewModel: ObservableObject {
         removeFirebaseRecentMessageListener()
     }
     
-    func handleSignOut() {
-        isUserCurrentlyLoggedOut.toggle()
-        do {
-            try FirebaseManager.shared.auth.signOut()
-        } catch {
-            print(error)
-        }
+    func handleLogout() {
+        logoutFirebaseCurrentUser()
     }
     
     func deleteChat(indexSet: IndexSet) {
@@ -149,6 +145,19 @@ extension MainMessageViewModel {
     
     private func removeFirebaseRecentMessageListener() {
         removeRecentMessageListenerUseCase.excute()
+    }
+    
+    private func logoutFirebaseCurrentUser() {
+        logoutUseCase.excute { result in
+            switch result {
+            case .success(let message):
+                print(message)
+                self.isUserCurrentlyLoggedOut.toggle()
+            case .failure(let error):
+                print(error)
+                self.errorMessage = error.localizedDescription
+            }
+        }
     }
     
 }

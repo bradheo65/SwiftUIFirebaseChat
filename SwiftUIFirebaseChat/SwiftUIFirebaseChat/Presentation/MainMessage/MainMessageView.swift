@@ -112,7 +112,7 @@ extension MainMessageView {
                     .destructive(
                         Text("Sign out"),
                         action: {
-                            viewModel.handleSignOut()
+                            viewModel.handleLogout()
                         }
                     ),
                     .cancel()

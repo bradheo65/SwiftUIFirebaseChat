@@ -58,6 +58,15 @@ final class FirebaseManager: NSObject {
         }
     }
     
+    func handleLogout(completion: @escaping (Result<String, Error>) -> Void) {
+        do {
+            try auth.signOut()
+            completion(.success("Success to Logout"))
+        } catch let error {
+            completion(.failure(error))
+        }
+    }
+    
     func handleSendMessage(fromDocument: DocumentReference, toDocument: DocumentReference, messageData: [String: Any], compltion: @escaping () -> Void) {
         
         fromDocument.setData(messageData) { error in
@@ -235,7 +244,7 @@ final class FirebaseManager: NSObject {
     }
     
     func getCurrentUser(completion: @escaping (Result<ChatUser?, Error>) -> Void) {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+        guard let uid = auth.currentUser?.uid else {
             return
         }
         
@@ -260,7 +269,7 @@ final class FirebaseManager: NSObject {
     }
     
     func handleRecentMessageListener(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+        guard let uid = auth.currentUser?.uid else {
             return
         }
         
