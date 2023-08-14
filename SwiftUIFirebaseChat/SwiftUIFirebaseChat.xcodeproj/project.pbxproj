@@ -24,6 +24,9 @@
 		A348F3602A89C6BB0017DD72 /* LogoutUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F35F2A89C6BB0017DD72 /* LogoutUseCase.swift */; };
 		A348F3622A89C8CF0017DD72 /* LogoutRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3612A89C8CF0017DD72 /* LogoutRepositoryProtocol.swift */; };
 		A348F3642A89C8E40017DD72 /* LogoutRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3632A89C8E40017DD72 /* LogoutRepository.swift */; };
+		A348F3662A89D4590017DD72 /* DeleteMessageRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3652A89D4590017DD72 /* DeleteMessageRepositoryProtocol.swift */; };
+		A348F3682A89D4770017DD72 /* DeleteMessageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3672A89D4770017DD72 /* DeleteMessageRepository.swift */; };
+		A348F36A2A89D4910017DD72 /* DeleteRecentMessageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3692A89D4910017DD72 /* DeleteRecentMessageUseCase.swift */; };
 		A34A6E222A73829700440F93 /* ImageModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34A6E212A73829700440F93 /* ImageModifier.swift */; };
 		A34A6E242A7382D300440F93 /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34A6E232A7382D300440F93 /* ImageViewer.swift */; };
 		A354F6942A5460630063652A /* SwiftUIFirebaseChatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A354F6932A5460630063652A /* SwiftUIFirebaseChatApp.swift */; };
@@ -79,6 +82,9 @@
 		A348F35F2A89C6BB0017DD72 /* LogoutUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoutUseCase.swift; sourceTree = "<group>"; };
 		A348F3612A89C8CF0017DD72 /* LogoutRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoutRepositoryProtocol.swift; sourceTree = "<group>"; };
 		A348F3632A89C8E40017DD72 /* LogoutRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoutRepository.swift; sourceTree = "<group>"; };
+		A348F3652A89D4590017DD72 /* DeleteMessageRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMessageRepositoryProtocol.swift; sourceTree = "<group>"; };
+		A348F3672A89D4770017DD72 /* DeleteMessageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMessageRepository.swift; sourceTree = "<group>"; };
+		A348F3692A89D4910017DD72 /* DeleteRecentMessageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteRecentMessageUseCase.swift; sourceTree = "<group>"; };
 		A34A6E212A73829700440F93 /* ImageModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModifier.swift; sourceTree = "<group>"; };
 		A34A6E232A7382D300440F93 /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
 		A354F6902A5460630063652A /* SwiftUIFirebaseChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUIFirebaseChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -144,6 +150,7 @@
 				A348F3502A89AA080017DD72 /* GetCurrentUserUseCase.swift */,
 				A348F3522A89B2BA0017DD72 /* ActiveRecentMessageListenerUseCase.swift */,
 				A348F35D2A89C0640017DD72 /* RemoveRecentMessageListenerUseCase.swift */,
+				A348F3692A89D4910017DD72 /* DeleteRecentMessageUseCase.swift */,
 			);
 			path = Message;
 			sourceTree = "<group>";
@@ -268,6 +275,7 @@
 				A348F3612A89C8CF0017DD72 /* LogoutRepositoryProtocol.swift */,
 				A348F3542A89B3CE0017DD72 /* GetUserRepositoryProtocol.swift */,
 				A348F3592A89B4240017DD72 /* RecentMessageListenerRepositoryProtocol.swift */,
+				A348F3652A89D4590017DD72 /* DeleteMessageRepositoryProtocol.swift */,
 			);
 			path = Repository;
 			sourceTree = "<group>";
@@ -280,6 +288,7 @@
 				A348F3632A89C8E40017DD72 /* LogoutRepository.swift */,
 				A348F3572A89B3EC0017DD72 /* GetUserRepository.swift */,
 				A348F35B2A89B4410017DD72 /* RecentMessageListenerRepository.swift */,
+				A348F3672A89D4770017DD72 /* DeleteMessageRepository.swift */,
 			);
 			path = Repository;
 			sourceTree = "<group>";
@@ -452,6 +461,7 @@
 				A3B722522A6D682E005F713F /* ChatUser.swift in Sources */,
 				A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */,
 				A36EF84C2A79F42000A7DEE2 /* RemoteImage.swift in Sources */,
+				A348F3682A89D4770017DD72 /* DeleteMessageRepository.swift in Sources */,
 				A34A6E222A73829700440F93 /* ImageModifier.swift in Sources */,
 				A310D6A62A84CE5100634DFE /* ImageSaveService.swift in Sources */,
 				A310D6AC2A84D58600634DFE /* LoginUseCase.swift in Sources */,
@@ -459,6 +469,7 @@
 				A348F3512A89AA080017DD72 /* GetCurrentUserUseCase.swift in Sources */,
 				A310D6A22A84A9D700634DFE /* NetworkService.swift in Sources */,
 				A35736842A6F9D9D007B0402 /* RecentMessage.swift in Sources */,
+				A348F36A2A89D4910017DD72 /* DeleteRecentMessageUseCase.swift in Sources */,
 				A3CED45E2A70AC42001DD436 /* CreateNewMessageViewModel.swift in Sources */,
 				A392147C2A83104600BF833D /* RoundedCorner.swift in Sources */,
 				A36EF84F2A79F45100A7DEE2 /* Extention+View.swift in Sources */,
@@ -486,6 +497,7 @@
 				A392147E2A8319BE00BF833D /* FileInfo.swift in Sources */,
 				A310D6A82A84D2FF00634DFE /* LoginRepository.swift in Sources */,
 				A36EF8512A7A4DAD00A7DEE2 /* VideoPlayerView.swift in Sources */,
+				A348F3662A89D4590017DD72 /* DeleteMessageRepositoryProtocol.swift in Sources */,
 				A348F3532A89B2BA0017DD72 /* ActiveRecentMessageListenerUseCase.swift in Sources */,
 				A348F3622A89C8CF0017DD72 /* LogoutRepositoryProtocol.swift in Sources */,
 				A3CED45C2A70A9A0001DD436 /* ChatLogViewModel.swift in Sources */,

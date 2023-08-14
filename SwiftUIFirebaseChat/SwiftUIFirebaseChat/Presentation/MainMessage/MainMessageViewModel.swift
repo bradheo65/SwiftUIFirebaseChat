@@ -22,7 +22,8 @@ final class MainMessageViewModel: ObservableObject {
     private let activeRecentMessageListenerUseCase = ActiveRecentMessageListenerUseCase()
     private let removeRecentMessageListenerUseCase = RemoveRecentMessageListenerUseCase()
     private let logoutUseCase = LogoutUseCase()
-
+    private let deleteRecentMessageUseCase = DeleteRecentMessageUseCase()
+    
     func fetchAllUser() {
         fetchFirebaseAllUser()
     }
@@ -43,51 +44,8 @@ final class MainMessageViewModel: ObservableObject {
         logoutFirebaseCurrentUser()
     }
     
-    func deleteChat(indexSet: IndexSet) {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
-            self.errorMessage = "Could not find firebase uid"
-            return
-        }
-        
-        let toId = recentMessages[indexSet.first ?? .zero].toId
-        
-        FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.messages)
-            .document(uid)
-            .collection(toId)
-            .getDocuments { querySnapshot, error in
-                if let error = error {
-                    print("Failed to get \(error)")
-                    return
-                }
-                querySnapshot?.documents.forEach({ snapshot in
-                    FirebaseManager.shared.firestore
-                        .collection(FirebaseConstants.messages)
-                        .document(uid)
-                        .collection(toId)
-                        .document(snapshot.documentID)
-                        .delete() { error in
-                            if let error = error {
-                                print("Failed to delete \(error)")
-                                return
-                            }
-                            print("Success to Delete Chat Log")
-                        }
-                })
-                FirebaseManager.shared.firestore
-                    .collection(FirebaseConstants.recentMessages)
-                    .document(uid)
-                    .collection(FirebaseConstants.messages)
-                    .document(toId)
-                    .delete() { error in
-                        if let error = error {
-                            print("Failed to delete \(error)")
-                            return
-                        }
-                        print("Success to Delete Recent Message ")
-                        self.recentMessages.remove(atOffsets: indexSet)
-                    }
-            }
+    func deleteRecentChatMessage(indexSet: IndexSet) {
+        deleteFirebaseRecentMessage(indexSet: indexSet)
     }
     
 }
@@ -136,7 +94,6 @@ extension MainMessageViewModel {
                 case .removed:
                     return
                 }
-                
             case .failure(let error):
                 print(error)
             }
@@ -156,6 +113,24 @@ extension MainMessageViewModel {
             case .failure(let error):
                 print(error)
                 self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    private func deleteFirebaseRecentMessage(indexSet: IndexSet) {
+        guard let firestIndex = indexSet.first else {
+            print("Fail to Load first data")
+            return
+        }
+        let toId = recentMessages[firestIndex].toId
+        
+        deleteRecentMessageUseCase.excute(toId: toId) { result in
+            switch result {
+            case .success(let message):
+                print(message)
+                self.recentMessages.remove(atOffsets: indexSet)
+            case .failure(let error):
+                print(error)
             }
         }
     }

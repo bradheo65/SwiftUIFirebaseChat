@@ -184,7 +184,7 @@ extension MainMessageView {
 extension MainMessageView {
     
     private func deleteAction(indexSet: IndexSet) {
-        viewModel.deleteChat(indexSet: indexSet) 
+        viewModel.deleteRecentChatMessage(indexSet: indexSet) 
     }
 }
 
