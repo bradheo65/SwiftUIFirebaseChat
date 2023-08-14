@@ -84,7 +84,7 @@ final class FirebaseService: NSObject {
                 return
             }
             compltion()
-            print("Successfully saved current user sending message")
+            print("Successfully saved to user sending message")
         }
     }
     
@@ -259,9 +259,9 @@ final class FirebaseService: NSObject {
                 
                 do {
                     let currentUser = try snapshot?.data(as: ChatUser.self)
-                    
+
+                    self.currentUser = currentUser
                     completion(.success(currentUser))
-                    self.currentUser = self.currentUser
                 } catch let error {
                     print(error)
                 }
