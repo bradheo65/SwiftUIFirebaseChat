@@ -52,6 +52,9 @@ struct CreateNewMessageView: View {
                 }
             }
         }
+        .onAppear {
+            viewModel.fetchAllUser()
+        }
     }
 }
 

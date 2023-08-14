@@ -8,38 +8,28 @@
 import Foundation
 
 final class CreateNewMessageViewModel: ObservableObject {
+    
     @Published var users: [ChatUser] = []
     @Published var errorMessage = ""
     
-    init() {
-        fetchAllUser()
+    private let getAllUsersUseCase = GetAllUsersUseCase()
+    
+    func fetchAllUser() {
+        fetchFirebaseAllUser()
     }
+    
 }
 
 extension CreateNewMessageViewModel {
     
-    private func fetchAllUser() {
-        FirebaseService.shared.firestore
-            .collection(FirebaseConstants.users)
-            .getDocuments { documentsSnapshot, error in
-                if let error = error {
-                    print("Failed to fetch users: \(error)")
-                    return
-                }
-                
-            documentsSnapshot?.documents.forEach({ snapshot in
-                do {
-                    let user = try snapshot.data(as: ChatUser.self)
-                    
-                    if user.id != FirebaseService.shared.auth.currentUser?.uid {
-                        self.users.append(user)
-                    }
-                } catch {
-                    print(error)
-                }
-            })
-                
-            self.errorMessage = "Fetched users successfully"
+    private func fetchFirebaseAllUser() {
+        getAllUsersUseCase.excute { result in
+            switch result {
+            case .success(let user):
+                self.users.append(user)
+            case .failure(let error):
+                print(error)
+            }
         }
     }
     
