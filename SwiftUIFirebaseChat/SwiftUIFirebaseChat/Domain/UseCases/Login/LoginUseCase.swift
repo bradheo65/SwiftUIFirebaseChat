@@ -14,6 +14,7 @@ protocol LoginUseCaseProtocol {
 }
 
 struct LoginUseCase: LoginUseCaseProtocol {
+    
     private let repo = LoginRepository()
     
     func excute(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {

@@ -7,32 +7,35 @@
 
 import Foundation
 
-import Firebase
-import FirebaseFirestoreSwift
-
 final class MainMessageViewModel: ObservableObject {
     @Published var recentMessages: [RecentMessage] = []
     @Published var users: [ChatUser] = []
     
-    @Published var chatUser: ChatUser?
+    @Published var currentUser: ChatUser?
     
     @Published var errorMessage = ""
     
     @Published var isUserCurrentlyLoggedOut = false
 
-    private var documentListener: ListenerRegistration?
-
-    func fetch() {
-        fetchAllUser()
-        fetchCurrentUser()
+    private let getAllUserUseCase = GetAllUsersUseCase()
+    private let getCurrentUserUseCase = GetCurrentUserUseCase()
+    private let activeRecentMessageListenerUseCase = ActiveRecentMessageListenerUseCase()
+    private let removeRecentMessageListenerUseCase = RemoveRecentMessageListenerUseCase()
+    
+    func fetchAllUser() {
+        fetchFirebaseAllUser()
     }
     
-    func activeFirebaseListener() {
-        activeRecentMessagesListener()
+    func fetchCurrentUser() {
+        fetchFirebaseCurrentUser()
     }
     
-    func removeFirebaseListener() {
-        documentListener?.remove()
+    func addRecentMessageListener() {
+        activeFirebaseRecentMessagesListener()
+    }
+    
+    func removeRecentMessageListener() {
+        removeFirebaseRecentMessageListener()
     }
     
     func handleSignOut() {
@@ -95,103 +98,57 @@ final class MainMessageViewModel: ObservableObject {
 
 extension MainMessageViewModel {
     
-    private func fetchAllUser() {
-        FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.users)
-            .getDocuments { documentsSnapshot, error in
-                if let error = error {
-                    print("Failed to fetch users: \(error)")
-                    return
-                }
-                
-                documentsSnapshot?.documents.forEach({ snapshot in
-                    do {
-                        let user = try snapshot.data(as: ChatUser.self)
-                        
-                        if user.id != FirebaseManager.shared.auth.currentUser?.uid {
-                            self.users.append(user)
-                        }
-                    } catch {
-                        print(error)
-                    }
-                })
-                
-                self.errorMessage = "Fetched users successfully"
+    private func fetchFirebaseAllUser() {
+        getAllUserUseCase.excute { result in
+            switch result {
+            case .success(let user):
+                self.users.append(user)
+            case .failure(let error):
+                print(error)
             }
+        }
     }
     
-    private func fetchCurrentUser() {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
-            self.errorMessage = "Could not find firebase uid"
-            return
+    private func fetchFirebaseCurrentUser() {
+        getCurrentUserUseCase.excute { result in
+            switch result {
+            case .success(let currentUser):
+                self.currentUser = currentUser
+            case .failure(let error):
+                print(error)
+            }
         }
-        
-        errorMessage = "Fetching current user \(uid)"
-        
-        FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.users)
-            .document(uid)
-            .getDocument { snapshot, error in
-                if let error = error {
-                    self.errorMessage = "Failed to fetch current user \(error)"
-                    print("Failed to fetch current user:", error)
-                    return
-                }
-                
-                guard let data = snapshot?.data() else {
-                    self.errorMessage = "No data found"
-                    return
-                }
-                
-                self.errorMessage = "Data \(data.description)"
-                
-                do {
-                    let chatUser = try snapshot?.data(as: ChatUser.self)
+    }
+    
+    private func activeFirebaseRecentMessagesListener() {
+        activeRecentMessageListenerUseCase.excute { result in
+            switch result {
+            case .success(let documentChange):
+                switch documentChange.type {
+                case .added, .modified:
+                    let docId = documentChange.document.documentID
                     
-                    self.chatUser = chatUser
-                    FirebaseManager.shared.currentUser = self.chatUser
-                } catch {
-                    print(error)
-                }
-            }
-    }
-    
-    func activeRecentMessagesListener() {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
-            return
-        }
-        
-        documentListener = FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.recentMessages)
-            .document(uid)
-            .collection(FirebaseConstants.messages)
-            .addSnapshotListener { querySnapshot, error in
-                if let error = error {
-                    self.errorMessage = "Failed to listen for recent messages: \(error)"
-                    print(error)
+                    if let index = self.recentMessages.firstIndex(where: { recentMessage in
+                        return recentMessage.id == docId
+                    }) {
+                        self.recentMessages.remove(at: index)
+                    }
+                    if let rm = try? documentChange.document.data(as: RecentMessage.self) {
+                        self.recentMessages.append(rm)
+                        self.recentMessages.sort()
+                    }
+                case .removed:
                     return
                 }
                 
-                querySnapshot?.documentChanges.forEach { change in
-                    switch change.type {
-                    case .added, .modified:
-                        print("add..")
-                        let docId = change.document.documentID
-                                       
-                                       if let index = self.recentMessages.firstIndex(where: { recentMessage in
-                                           return recentMessage.id == docId
-                                       }) {
-                                           self.recentMessages.remove(at: index)
-                                       }
-                        if let rm = try? change.document.data(as: RecentMessage.self) {
-                            self.recentMessages.append(rm)
-                            self.recentMessages.sort()
-                        }
-                    case .removed:
-                        return
-                    }
-                }
+            case .failure(let error):
+                print(error)
             }
+        }
+    }
+    
+    private func removeFirebaseRecentMessageListener() {
+        removeRecentMessageListenerUseCase.excute()
     }
     
 }

@@ -22,7 +22,8 @@ final class FirebaseManager: NSObject {
     }
 
     var firestoreListener: ListenerRegistration?
-
+    private var recentMessageListener: ListenerRegistration?
+    
     static let shared = FirebaseManager()
     
     var currentUser: ChatUser?
@@ -208,6 +209,79 @@ final class FirebaseManager: NSObject {
                 }
                 completion(.success("Success upload data to Firestore"))
             }
+    }
+    
+    func getAllUsers(completion: @escaping (Result<ChatUser, Error>) -> Void) {
+        firestore
+            .collection(FirebaseConstants.users)
+            .getDocuments { documentsSnapshot, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                documentsSnapshot?.documents.forEach({ snapshot in
+                    do {
+                        let user = try snapshot.data(as: ChatUser.self)
+                        
+                        if user.id != self.auth.currentUser?.uid {
+                            completion(.success(user))
+                        }
+                    } catch {
+                        completion(.failure(error))
+                    }
+                })
+            }
+    }
+    
+    func getCurrentUser(completion: @escaping (Result<ChatUser?, Error>) -> Void) {
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+            return
+        }
+        
+        firestore
+            .collection(FirebaseConstants.users)
+            .document(uid)
+            .getDocument { snapshot, error in
+                if let error = error {
+                    print("Failed to fetch current user:", error)
+                    return
+                }
+                
+                do {
+                    let currentUser = try snapshot?.data(as: ChatUser.self)
+                    
+                    completion(.success(currentUser))
+                    self.currentUser = self.currentUser
+                } catch let error {
+                    print(error)
+                }
+            }
+    }
+    
+    func handleRecentMessageListener(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+            return
+        }
+        
+        recentMessageListener = firestore
+            .collection(FirebaseConstants.recentMessages)
+            .document(uid)
+            .collection(FirebaseConstants.messages)
+            .addSnapshotListener { querySnapshot, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                querySnapshot?.documentChanges.forEach { change in
+                    completion(.success(change))
+                }
+            }
+    }
+    
+    func handleRemoveRecentMessageListener() {
+        recentMessageListener?.remove()
     }
     
 }

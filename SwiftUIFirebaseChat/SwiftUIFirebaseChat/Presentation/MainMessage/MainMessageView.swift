@@ -56,11 +56,12 @@ struct MainMessageView: View {
             dismiss()
         }
         .onAppear {
-            viewModel.fetch()
-            viewModel.activeFirebaseListener()
+            viewModel.fetchAllUser()
+            viewModel.fetchCurrentUser()
+            viewModel.addRecentMessageListener()
         }
         .onDisappear {
-            viewModel.removeFirebaseListener()
+            viewModel.removeRecentMessageListener()
         }
     }
     
@@ -70,7 +71,7 @@ extension MainMessageView {
     
     private var currentUserTitleView: some View {
         HStack {
-            ProfileImageView(url: viewModel.chatUser?.profileImageURL ?? "")
+            ProfileImageView(url: viewModel.currentUser?.profileImageURL ?? "")
                 .frame(width: 50, height: 50)
                 .cornerRadius(50)
                 .overlay(RoundedRectangle(cornerRadius: 50)
@@ -78,7 +79,7 @@ extension MainMessageView {
                 .shadow(radius: 5)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text("\(viewModel.chatUser?.username ?? "")")
+                Text("\(viewModel.currentUser?.username ?? "")")
                     .font(.system(size: 24, weight: .bold))
                 
                 HStack {
