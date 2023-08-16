@@ -19,7 +19,7 @@ final class MainMessageViewModel: ObservableObject {
 
     private let getAllUserUseCase = GetAllUsersUseCase()
     private let getCurrentUserUseCase = GetCurrentUserUseCase()
-    private let activeRecentMessageListenerUseCase = ActiveRecentMessageListenerUseCase()
+    private let activeRecentMessageListenerUseCase = AddRecentMessageListenerUseCase()
     private let removeRecentMessageListenerUseCase = RemoveRecentMessageListenerUseCase()
     private let logoutUseCase = LogoutUseCase()
     private let deleteRecentMessageUseCase = DeleteRecentMessageUseCase()

@@ -75,6 +75,9 @@ struct ChatLogView: View {
                 }
             }
         }
+        .onAppear {
+            viewModel.addListener()
+        }
         .onDisappear {
             viewModel.removeListener()
         }
@@ -312,7 +315,7 @@ extension ChatLogView {
         
         var body: some View {
             VStack {
-                if message.fromId == FirebaseService.shared.auth.currentUser?.uid {
+                if message.toId == chatUser?.uid {
                     HStack {
                         Spacer()
                         

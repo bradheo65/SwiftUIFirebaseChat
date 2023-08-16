@@ -15,7 +15,7 @@
 		A310D6AC2A84D58600634DFE /* LoginUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A310D6AB2A84D58600634DFE /* LoginUseCase.swift */; };
 		A326FB972A85D67C00794C27 /* GetAllUsersUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A326FB962A85D67C00794C27 /* GetAllUsersUseCase.swift */; };
 		A348F3512A89AA080017DD72 /* GetCurrentUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3502A89AA080017DD72 /* GetCurrentUserUseCase.swift */; };
-		A348F3532A89B2BA0017DD72 /* ActiveRecentMessageListenerUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3522A89B2BA0017DD72 /* ActiveRecentMessageListenerUseCase.swift */; };
+		A348F3532A89B2BA0017DD72 /* AddRecentMessageListenerUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3522A89B2BA0017DD72 /* AddRecentMessageListenerUseCase.swift */; };
 		A348F3552A89B3CE0017DD72 /* GetUserRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3542A89B3CE0017DD72 /* GetUserRepositoryProtocol.swift */; };
 		A348F3582A89B3EC0017DD72 /* GetUserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3572A89B3EC0017DD72 /* GetUserRepository.swift */; };
 		A348F35A2A89B4240017DD72 /* RecentMessageListenerRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3592A89B4240017DD72 /* RecentMessageListenerRepositoryProtocol.swift */; };
@@ -28,6 +28,17 @@
 		A348F3682A89D4770017DD72 /* DeleteMessageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3672A89D4770017DD72 /* DeleteMessageRepository.swift */; };
 		A348F36A2A89D4910017DD72 /* DeleteRecentMessageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3692A89D4910017DD72 /* DeleteRecentMessageUseCase.swift */; };
 		A348F3702A89EC8D0017DD72 /* FirebaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F36F2A89EC8D0017DD72 /* FirebaseService.swift */; };
+		A348F3742A89F14E0017DD72 /* SendTextMessageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3732A89F14E0017DD72 /* SendTextMessageUseCase.swift */; };
+		A348F3762A8C5E9B0017DD72 /* ChatMessageListenerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3752A8C5E9B0017DD72 /* ChatMessageListenerRepository.swift */; };
+		A348F3782A8C5EB10017DD72 /* SendMessageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3772A8C5EB10017DD72 /* SendMessageRepository.swift */; };
+		A348F37A2A8C5EF80017DD72 /* SendImageMessageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3792A8C5EF80017DD72 /* SendImageMessageUseCase.swift */; };
+		A348F37C2A8C5F1E0017DD72 /* SendVideoMessageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F37B2A8C5F1E0017DD72 /* SendVideoMessageUseCase.swift */; };
+		A348F37E2A8C5F3C0017DD72 /* SendFileMessageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F37D2A8C5F3C0017DD72 /* SendFileMessageUseCase.swift */; };
+		A348F3802A8C5F790017DD72 /* AddChatMessageListenerUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F37F2A8C5F790017DD72 /* AddChatMessageListenerUseCase.swift */; };
+		A348F3822A8C5F8C0017DD72 /* RemoveChatMessageListenerUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3812A8C5F8C0017DD72 /* RemoveChatMessageListenerUseCase.swift */; };
+		A348F3852A8C65EE0017DD72 /* ChatMessageListenerRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3842A8C65EE0017DD72 /* ChatMessageListenerRepositoryProtocol.swift */; };
+		A348F3872A8C66740017DD72 /* SendMessageRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3862A8C66740017DD72 /* SendMessageRepositoryProtocol.swift */; };
+		A348F3892A8C67100017DD72 /* UploadFileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3882A8C67100017DD72 /* UploadFileRepository.swift */; };
 		A34A6E222A73829700440F93 /* ImageModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34A6E212A73829700440F93 /* ImageModifier.swift */; };
 		A34A6E242A7382D300440F93 /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34A6E232A7382D300440F93 /* ImageViewer.swift */; };
 		A354F6942A5460630063652A /* SwiftUIFirebaseChatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A354F6932A5460630063652A /* SwiftUIFirebaseChatApp.swift */; };
@@ -73,7 +84,7 @@
 		A310D6AB2A84D58600634DFE /* LoginUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginUseCase.swift; sourceTree = "<group>"; };
 		A326FB962A85D67C00794C27 /* GetAllUsersUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetAllUsersUseCase.swift; sourceTree = "<group>"; };
 		A348F3502A89AA080017DD72 /* GetCurrentUserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetCurrentUserUseCase.swift; sourceTree = "<group>"; };
-		A348F3522A89B2BA0017DD72 /* ActiveRecentMessageListenerUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveRecentMessageListenerUseCase.swift; sourceTree = "<group>"; };
+		A348F3522A89B2BA0017DD72 /* AddRecentMessageListenerUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecentMessageListenerUseCase.swift; sourceTree = "<group>"; };
 		A348F3542A89B3CE0017DD72 /* GetUserRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetUserRepositoryProtocol.swift; sourceTree = "<group>"; };
 		A348F3572A89B3EC0017DD72 /* GetUserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetUserRepository.swift; sourceTree = "<group>"; };
 		A348F3592A89B4240017DD72 /* RecentMessageListenerRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentMessageListenerRepositoryProtocol.swift; sourceTree = "<group>"; };
@@ -86,6 +97,17 @@
 		A348F3672A89D4770017DD72 /* DeleteMessageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteMessageRepository.swift; sourceTree = "<group>"; };
 		A348F3692A89D4910017DD72 /* DeleteRecentMessageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteRecentMessageUseCase.swift; sourceTree = "<group>"; };
 		A348F36F2A89EC8D0017DD72 /* FirebaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseService.swift; sourceTree = "<group>"; };
+		A348F3732A89F14E0017DD72 /* SendTextMessageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTextMessageUseCase.swift; sourceTree = "<group>"; };
+		A348F3752A8C5E9B0017DD72 /* ChatMessageListenerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageListenerRepository.swift; sourceTree = "<group>"; };
+		A348F3772A8C5EB10017DD72 /* SendMessageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMessageRepository.swift; sourceTree = "<group>"; };
+		A348F3792A8C5EF80017DD72 /* SendImageMessageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendImageMessageUseCase.swift; sourceTree = "<group>"; };
+		A348F37B2A8C5F1E0017DD72 /* SendVideoMessageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendVideoMessageUseCase.swift; sourceTree = "<group>"; };
+		A348F37D2A8C5F3C0017DD72 /* SendFileMessageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFileMessageUseCase.swift; sourceTree = "<group>"; };
+		A348F37F2A8C5F790017DD72 /* AddChatMessageListenerUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddChatMessageListenerUseCase.swift; sourceTree = "<group>"; };
+		A348F3812A8C5F8C0017DD72 /* RemoveChatMessageListenerUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoveChatMessageListenerUseCase.swift; sourceTree = "<group>"; };
+		A348F3842A8C65EE0017DD72 /* ChatMessageListenerRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageListenerRepositoryProtocol.swift; sourceTree = "<group>"; };
+		A348F3862A8C66740017DD72 /* SendMessageRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMessageRepositoryProtocol.swift; sourceTree = "<group>"; };
+		A348F3882A8C67100017DD72 /* UploadFileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadFileRepository.swift; sourceTree = "<group>"; };
 		A34A6E212A73829700440F93 /* ImageModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModifier.swift; sourceTree = "<group>"; };
 		A34A6E232A7382D300440F93 /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
 		A354F6902A5460630063652A /* SwiftUIFirebaseChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUIFirebaseChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -145,12 +167,12 @@
 		A326FB952A85D60500794C27 /* Message */ = {
 			isa = PBXGroup;
 			children = (
-				A348F35F2A89C6BB0017DD72 /* LogoutUseCase.swift */,
+				A348F3522A89B2BA0017DD72 /* AddRecentMessageListenerUseCase.swift */,
+				A348F35D2A89C0640017DD72 /* RemoveRecentMessageListenerUseCase.swift */,
 				A326FB962A85D67C00794C27 /* GetAllUsersUseCase.swift */,
 				A348F3502A89AA080017DD72 /* GetCurrentUserUseCase.swift */,
-				A348F3522A89B2BA0017DD72 /* ActiveRecentMessageListenerUseCase.swift */,
-				A348F35D2A89C0640017DD72 /* RemoveRecentMessageListenerUseCase.swift */,
 				A348F3692A89D4910017DD72 /* DeleteRecentMessageUseCase.swift */,
+				A348F35F2A89C6BB0017DD72 /* LogoutUseCase.swift */,
 			);
 			path = Message;
 			sourceTree = "<group>";
@@ -195,6 +217,19 @@
 				A3CED4652A70B6FE001DD436 /* FirebaseConstants.swift */,
 			);
 			path = Enum;
+			sourceTree = "<group>";
+		};
+		A348F3832A8C5F9B0017DD72 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				A348F37F2A8C5F790017DD72 /* AddChatMessageListenerUseCase.swift */,
+				A348F3812A8C5F8C0017DD72 /* RemoveChatMessageListenerUseCase.swift */,
+				A348F3732A89F14E0017DD72 /* SendTextMessageUseCase.swift */,
+				A348F3792A8C5EF80017DD72 /* SendImageMessageUseCase.swift */,
+				A348F37B2A8C5F1E0017DD72 /* SendVideoMessageUseCase.swift */,
+				A348F37D2A8C5F3C0017DD72 /* SendFileMessageUseCase.swift */,
+			);
+			path = Chat;
 			sourceTree = "<group>";
 		};
 		A354F6872A5460630063652A = {
@@ -275,7 +310,7 @@
 			isa = PBXGroup;
 			children = (
 				A3B722502A6D6814005F713F /* Entity */,
-				A392148C2A837C2800BF833D /* Repository */,
+				A39214872A837AFF00BF833D /* Repository */,
 				A39214822A832E0700BF833D /* UseCases */,
 			);
 			path = Domain;
@@ -286,6 +321,7 @@
 			children = (
 				A39214832A832E5F00BF833D /* Login */,
 				A326FB952A85D60500794C27 /* Message */,
+				A348F3832A8C5F9B0017DD72 /* Chat */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -304,7 +340,7 @@
 			children = (
 				A348F36D2A89EA7C0017DD72 /* Network */,
 				A348F36E2A89EC7C0017DD72 /* Firebase */,
-				A39214872A837AFF00BF833D /* Repository */,
+				A392148C2A837C2800BF833D /* Repository */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -316,10 +352,13 @@
 				A310D6A92A84D55800634DFE /* LoginRepositoryProtocol.swift */,
 				A348F3612A89C8CF0017DD72 /* LogoutRepositoryProtocol.swift */,
 				A348F3542A89B3CE0017DD72 /* GetUserRepositoryProtocol.swift */,
+				A348F3842A8C65EE0017DD72 /* ChatMessageListenerRepositoryProtocol.swift */,
 				A348F3592A89B4240017DD72 /* RecentMessageListenerRepositoryProtocol.swift */,
 				A348F3652A89D4590017DD72 /* DeleteMessageRepositoryProtocol.swift */,
+				A348F3862A8C66740017DD72 /* SendMessageRepositoryProtocol.swift */,
 			);
-			path = Repository;
+			name = Repository;
+			path = Entity/Repository;
 			sourceTree = "<group>";
 		};
 		A392148C2A837C2800BF833D /* Repository */ = {
@@ -329,10 +368,14 @@
 				A310D6A72A84D2FF00634DFE /* LoginRepository.swift */,
 				A348F3632A89C8E40017DD72 /* LogoutRepository.swift */,
 				A348F3572A89B3EC0017DD72 /* GetUserRepository.swift */,
-				A348F35B2A89B4410017DD72 /* RecentMessageListenerRepository.swift */,
+				A348F3772A8C5EB10017DD72 /* SendMessageRepository.swift */,
+				A348F3882A8C67100017DD72 /* UploadFileRepository.swift */,
 				A348F3672A89D4770017DD72 /* DeleteMessageRepository.swift */,
+				A348F3752A8C5E9B0017DD72 /* ChatMessageListenerRepository.swift */,
+				A348F35B2A89B4410017DD72 /* RecentMessageListenerRepository.swift */,
 			);
-			path = Repository;
+			name = Repository;
+			path = ../Domain/Repository;
 			sourceTree = "<group>";
 		};
 		A392148D2A837D1000BF833D /* Presentation */ = {
@@ -481,6 +524,7 @@
 			files = (
 				A348F35E2A89C0640017DD72 /* RemoveRecentMessageListenerUseCase.swift in Sources */,
 				A3CED4662A70B6FE001DD436 /* FirebaseConstants.swift in Sources */,
+				A348F3802A8C5F790017DD72 /* AddChatMessageListenerUseCase.swift in Sources */,
 				A39214892A837B3900BF833D /* CreateAccountRepositoryProtocol.swift in Sources */,
 				A3B722522A6D682E005F713F /* ChatUser.swift in Sources */,
 				A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */,
@@ -505,10 +549,16 @@
 				A36EF84A2A79F3C400A7DEE2 /* ImageCache.swift in Sources */,
 				A3B0291B2A59AD09008161CE /* ImagePicker.swift in Sources */,
 				A354F6962A5460630063652A /* LoginView.swift in Sources */,
+				A348F3852A8C65EE0017DD72 /* ChatMessageListenerRepositoryProtocol.swift in Sources */,
 				A348F3582A89B3EC0017DD72 /* GetUserRepository.swift in Sources */,
+				A348F37C2A8C5F1E0017DD72 /* SendVideoMessageUseCase.swift in Sources */,
+				A348F3742A89F14E0017DD72 /* SendTextMessageUseCase.swift in Sources */,
 				A39214852A832ED200BF833D /* CreateAccountUseCase.swift in Sources */,
+				A348F3822A8C5F8C0017DD72 /* RemoveChatMessageListenerUseCase.swift in Sources */,
 				A3CED4602A70B2FE001DD436 /* MainMessageViewModel.swift in Sources */,
+				A348F3892A8C67100017DD72 /* UploadFileRepository.swift in Sources */,
 				A310D6A42A84CD8000634DFE /* FileSaveManagerError.swift in Sources */,
+				A348F3872A8C66740017DD72 /* SendMessageRepositoryProtocol.swift in Sources */,
 				A348F3552A89B3CE0017DD72 /* GetUserRepositoryProtocol.swift in Sources */,
 				A348F35C2A89B4410017DD72 /* RecentMessageListenerRepository.swift in Sources */,
 				A35736792A6F343C007B0402 /* ChatLogView.swift in Sources */,
@@ -517,14 +567,18 @@
 				A3CED4632A70B6B5001DD436 /* ProfileImageView.swift in Sources */,
 				A34A6E242A7382D300440F93 /* ImageViewer.swift in Sources */,
 				A3B029242A5C41EB008161CE /* MainMessageView.swift in Sources */,
+				A348F3762A8C5E9B0017DD72 /* ChatMessageListenerRepository.swift in Sources */,
 				A348F3602A89C6BB0017DD72 /* LogoutUseCase.swift in Sources */,
 				A392147E2A8319BE00BF833D /* FileInfo.swift in Sources */,
 				A310D6A82A84D2FF00634DFE /* LoginRepository.swift in Sources */,
+				A348F37E2A8C5F3C0017DD72 /* SendFileMessageUseCase.swift in Sources */,
 				A36EF8512A7A4DAD00A7DEE2 /* VideoPlayerView.swift in Sources */,
 				A348F3662A89D4590017DD72 /* DeleteMessageRepositoryProtocol.swift in Sources */,
-				A348F3532A89B2BA0017DD72 /* ActiveRecentMessageListenerUseCase.swift in Sources */,
+				A348F3782A8C5EB10017DD72 /* SendMessageRepository.swift in Sources */,
+				A348F3532A89B2BA0017DD72 /* AddRecentMessageListenerUseCase.swift in Sources */,
 				A348F3622A89C8CF0017DD72 /* LogoutRepositoryProtocol.swift in Sources */,
 				A3CED45C2A70A9A0001DD436 /* ChatLogViewModel.swift in Sources */,
+				A348F37A2A8C5EF80017DD72 /* SendImageMessageUseCase.swift in Sources */,
 				A348F35A2A89B4240017DD72 /* RecentMessageListenerRepositoryProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

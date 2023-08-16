@@ -11,6 +11,6 @@ protocol CreateAccountRepositoryProtocol {
     
     func requestCreateAccount(email: String, password: String, image: UIImage, completion: @escaping (Result<String, Error>) -> Void)
     func requestUploadImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void)
-    func requestUploadAccountInfo(email: String, imageProfileURL: URL, completion: @escaping (Result<String, Error>) -> Void)
+    func requestUploadAccountInfo(email: String, profileImageUrl: URL, completion: @escaping (Result<String, Error>) -> Void)
     
 }

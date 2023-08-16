@@ -28,7 +28,7 @@ struct CreateAccountUseCase: CreateAccountUseCaseProtocol {
                 repo.requestUploadImage(image: image) { result in
                     switch result {
                     case .success(let url):
-                        repo.requestUploadAccountInfo(email: email, imageProfileURL: url) { result in
+                        repo.requestUploadAccountInfo(email: email, profileImageUrl: url) { result in
                             switch result {
                             case .success(let message):
                                 completion(.success(message))

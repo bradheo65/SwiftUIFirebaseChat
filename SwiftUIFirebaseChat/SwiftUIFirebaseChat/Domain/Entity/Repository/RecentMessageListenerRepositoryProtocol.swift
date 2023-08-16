@@ -11,7 +11,7 @@ import Firebase
 
 protocol RecentMessageListenerRepositoryProtocol {
     
-    func activeRecentMessageListener(completion: @escaping (Result<DocumentChange, Error>) -> Void)
+    func addRecentMessageListener(completion: @escaping (Result<DocumentChange, Error>) -> Void)
     func removeRecentMessageListener()
     
 }

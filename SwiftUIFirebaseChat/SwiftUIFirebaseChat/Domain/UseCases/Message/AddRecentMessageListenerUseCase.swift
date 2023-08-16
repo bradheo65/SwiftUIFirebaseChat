@@ -9,18 +9,18 @@ import Foundation
 
 import Firebase
 
-protocol ActiveRecentMessageListenerUseCaseProtocol {
+protocol AddRecentMessageListenerUseCaseProtocol {
     
     func excute(completion: @escaping (Result<DocumentChange, Error>) -> Void)
     
 }
 
-struct ActiveRecentMessageListenerUseCase: ActiveRecentMessageListenerUseCaseProtocol {
+struct AddRecentMessageListenerUseCase: AddRecentMessageListenerUseCaseProtocol {
     
     private let repo = RecentMessageListenerRepository()
     
     func excute(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
-        repo.activeRecentMessageListener { result in
+        repo.addRecentMessageListener { result in
             switch result {
             case .success(let documentChange):
                 completion(.success(documentChange))

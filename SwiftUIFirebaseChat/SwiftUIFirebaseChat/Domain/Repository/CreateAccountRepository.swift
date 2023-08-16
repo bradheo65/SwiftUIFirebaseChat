@@ -23,15 +23,7 @@ struct CreateAccountRepository: CreateAccountRepositoryProtocol {
     }
     
     func requestUploadImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
-        guard let uid = firebaseService.auth.currentUser?.uid else {
-            return
-        }
-        
-        let ref = firebaseService.storage.reference()
-            .child(FirebaseConstants.Storage.userProfileImages)
-            .child(uid)
-        
-        firebaseService.uploadImage(image: image, storageReference: ref) { result in
+        firebaseService.uploadImage(image: image) { result in
             switch result {
             case .success(let url):
                 completion(.success(url))
@@ -41,18 +33,8 @@ struct CreateAccountRepository: CreateAccountRepositoryProtocol {
         }
     }
     
-    func requestUploadAccountInfo(email: String, imageProfileURL: URL, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let uid = firebaseService.auth.currentUser?.uid else {
-            return
-        }
-        
-        let userData = [
-            FirebaseConstants.email: email,
-            FirebaseConstants.uid: uid,
-            FirebaseConstants.profileImageURL: imageProfileURL.absoluteString
-        ]
-        
-        firebaseService.uploadDataToFirestore(documentName: FirebaseConstants.users, data: userData) { result in
+    func requestUploadAccountInfo(email: String, profileImageUrl: URL, completion: @escaping (Result<String, Error>) -> Void) {
+        firebaseService.uploadAccountInfo(email: email, profileImageUrl: profileImageUrl) { result in
             switch result {
             case .success(let message):
                 completion(.success(message))

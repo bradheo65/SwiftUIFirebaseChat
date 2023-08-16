@@ -13,8 +13,8 @@ struct RecentMessageListenerRepository: RecentMessageListenerRepositoryProtocol 
     
     private let firebaseService = FirebaseService.shared
     
-    func activeRecentMessageListener(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
-        firebaseService.handleRecentMessageListener { result in
+    func addRecentMessageListener(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
+        firebaseService.addRecentMessageListener { result in
             switch result {
             case .success(let documentChange):
                 completion(.success(documentChange))
@@ -25,7 +25,7 @@ struct RecentMessageListenerRepository: RecentMessageListenerRepositoryProtocol 
     }
     
     func removeRecentMessageListener() {
-        firebaseService.handleRemoveRecentMessageListener()
+        firebaseService.removeRecentMessageListener()
     }
     
 }
