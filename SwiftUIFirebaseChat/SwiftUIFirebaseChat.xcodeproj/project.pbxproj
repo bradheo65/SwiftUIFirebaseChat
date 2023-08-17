@@ -168,7 +168,6 @@
 		A310D6AD2A84D87D00634DFE /* ReSource */ = {
 			isa = PBXGroup;
 			children = (
-				A375D0882A55BC720058C415 /* GoogleService-Info.plist */,
 				A354F6972A5460640063652A /* Assets.xcassets */,
 			);
 			path = ReSource;
@@ -253,6 +252,16 @@
 			path = DI;
 			sourceTree = "<group>";
 		};
+		A348F3982A8DEA120017DD72 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				A392148D2A837D1000BF833D /* Presentation */,
+				A39214802A832DE900BF833D /* Domain */,
+				A39214862A837AA600BF833D /* Data */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
 		A354F6872A5460630063652A = {
 			isa = PBXGroup;
 			children = (
@@ -274,11 +283,10 @@
 			children = (
 				A354F6932A5460630063652A /* SwiftUIFirebaseChatApp.swift */,
 				A310D6A02A84890A00634DFE /* Info.plist */,
-				A310D6AD2A84D87D00634DFE /* ReSource */,
-				A392148D2A837D1000BF833D /* Presentation */,
-				A39214802A832DE900BF833D /* Domain */,
-				A39214862A837AA600BF833D /* Data */,
+				A375D0882A55BC720058C415 /* GoogleService-Info.plist */,
 				A354F6992A5460640063652A /* Preview Content */,
+				A310D6AD2A84D87D00634DFE /* ReSource */,
+				A348F3982A8DEA120017DD72 /* Source */,
 			);
 			path = SwiftUIFirebaseChat;
 			sourceTree = "<group>";
