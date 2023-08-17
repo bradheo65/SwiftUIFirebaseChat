@@ -10,7 +10,10 @@ import SwiftUI
 struct MainMessageView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @StateObject private var viewModel = MainMessageViewModel()
+    @StateObject private var viewModel = MainMessageViewModel(
+        addRecentMessageListenerUseCase: Reslover.shared.resolve(AddRecentMessageListenerUseCaseProtocol.self),
+        removeRecentMessageListenerUseCase: Reslover.shared.resolve(RemoveRecentMessageListenerUseCaseProtocol.self)
+    )
     
     @State private var chatUser: ChatUser?
 

@@ -17,6 +17,10 @@ struct RemoveChatMessageListenerUseCase: RemoveChatMessageListenerUseCaseProtoco
     
     private let chatMessageListenerRepo = ChatMessageListenerRepository()
     
+    init() {
+        
+    }
+    
     func excute() {
         chatMessageListenerRepo.removeChatMessageListener()
     }

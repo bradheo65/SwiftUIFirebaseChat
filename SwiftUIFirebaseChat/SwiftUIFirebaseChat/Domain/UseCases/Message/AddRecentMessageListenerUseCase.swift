@@ -15,9 +15,13 @@ protocol AddRecentMessageListenerUseCaseProtocol {
     
 }
 
-struct AddRecentMessageListenerUseCase: AddRecentMessageListenerUseCaseProtocol {
+final class AddRecentMessageListenerUseCase: AddRecentMessageListenerUseCaseProtocol {
     
-    private let repo = RecentMessageListenerRepository()
+    private let repo: RecentMessageListenerRepositoryProtocol
+    
+    init(repo: RecentMessageListenerRepositoryProtocol) {
+        self.repo = repo
+    }
     
     func excute(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
         repo.addRecentMessageListener { result in

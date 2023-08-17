@@ -15,7 +15,11 @@ protocol RemoveRecentMessageListenerUseCaseProtocol {
 
 struct RemoveRecentMessageListenerUseCase: RemoveRecentMessageListenerUseCaseProtocol {
     
-    private let repo = RecentMessageListenerRepository()
+    private let repo: RecentMessageListenerRepositoryProtocol
+    
+    init(repo: RecentMessageListenerRepositoryProtocol) {
+        self.repo = repo
+    }
     
     func excute() {
         repo.removeRecentMessageListener()

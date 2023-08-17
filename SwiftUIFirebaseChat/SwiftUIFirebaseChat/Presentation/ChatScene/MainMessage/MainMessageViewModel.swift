@@ -8,6 +8,7 @@
 import Foundation
 
 final class MainMessageViewModel: ObservableObject {
+    
     @Published var recentMessages: [RecentMessage] = []
     @Published var users: [ChatUser] = []
     
@@ -19,10 +20,18 @@ final class MainMessageViewModel: ObservableObject {
 
     private let getAllUserUseCase = GetAllUsersUseCase()
     private let getCurrentUserUseCase = GetCurrentUserUseCase()
-    private let activeRecentMessageListenerUseCase = AddRecentMessageListenerUseCase()
-    private let removeRecentMessageListenerUseCase = RemoveRecentMessageListenerUseCase()
+    
+    private let addRecentMessageListenerUseCase: AddRecentMessageListenerUseCaseProtocol
+    private let removeRecentMessageListenerUseCase: RemoveRecentMessageListenerUseCaseProtocol
     private let logoutUseCase = LogoutUseCase()
     private let deleteRecentMessageUseCase = DeleteRecentMessageUseCase()
+    
+    init(addRecentMessageListenerUseCase: AddRecentMessageListenerUseCaseProtocol,
+         removeRecentMessageListenerUseCase: RemoveRecentMessageListenerUseCaseProtocol
+    ) {
+        self.addRecentMessageListenerUseCase = addRecentMessageListenerUseCase
+        self.removeRecentMessageListenerUseCase = removeRecentMessageListenerUseCase
+    }
     
     func fetchAllUser() {
         fetchFirebaseAllUser()
@@ -75,7 +84,7 @@ extension MainMessageViewModel {
     }
     
     private func activeFirebaseRecentMessagesListener() {
-        activeRecentMessageListenerUseCase.excute { result in
+        addRecentMessageListenerUseCase.excute { result in
             switch result {
             case .success(let documentChange):
                 switch documentChange.type {

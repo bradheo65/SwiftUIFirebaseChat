@@ -9,7 +9,7 @@ import Foundation
 
 import Firebase
 
-struct RecentMessageListenerRepository: RecentMessageListenerRepositoryProtocol {
+final class RecentMessageListenerRepository: RecentMessageListenerRepositoryProtocol {
     
     private let firebaseService = FirebaseService.shared
     
