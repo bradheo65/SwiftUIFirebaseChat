@@ -18,17 +18,25 @@ final class MainMessageViewModel: ObservableObject {
     
     @Published var isUserCurrentlyLoggedOut = false
 
-    private let getAllUserUseCase = GetAllUsersUseCase()
-    private let getCurrentUserUseCase = GetCurrentUserUseCase()
-    
+    private let logoutUseCase: LogoutUseCaseProtocol
+    private let deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol
+    private let getAllUserUseCase: GetAllUserUseCaseProtocol
+    private let getCurrentUserUseCase: GetCurrentUserUseCaseProtocol
     private let addRecentMessageListenerUseCase: AddRecentMessageListenerUseCaseProtocol
     private let removeRecentMessageListenerUseCase: RemoveRecentMessageListenerUseCaseProtocol
-    private let logoutUseCase = LogoutUseCase()
-    private let deleteRecentMessageUseCase = DeleteRecentMessageUseCase()
     
-    init(addRecentMessageListenerUseCase: AddRecentMessageListenerUseCaseProtocol,
-         removeRecentMessageListenerUseCase: RemoveRecentMessageListenerUseCaseProtocol
+    init(
+        logoutUseCase: LogoutUseCaseProtocol,
+        deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol,
+        getAllUserUseCase: GetAllUserUseCaseProtocol,
+        getCurrentUserUseCase: GetCurrentUserUseCaseProtocol,
+        addRecentMessageListenerUseCase: AddRecentMessageListenerUseCaseProtocol,
+        removeRecentMessageListenerUseCase: RemoveRecentMessageListenerUseCaseProtocol
     ) {
+        self.logoutUseCase = logoutUseCase
+        self.deleteRecentMessageUseCase = deleteRecentMessageUseCase
+        self.getAllUserUseCase = getAllUserUseCase
+        self.getCurrentUserUseCase = getCurrentUserUseCase
         self.addRecentMessageListenerUseCase = addRecentMessageListenerUseCase
         self.removeRecentMessageListenerUseCase = removeRecentMessageListenerUseCase
     }

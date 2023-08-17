@@ -1,5 +1,5 @@
 //
-//  GetAllUsersUseCase.swift
+//  GetAllUserUseCase.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by brad on 2023/08/11.
@@ -7,15 +7,19 @@
 
 import Foundation
 
-protocol GetAllUsersUseCaseProtocol {
+protocol GetAllUserUseCaseProtocol {
     
     func excute(completion: @escaping (Result<ChatUser, Error>) -> Void)
     
 }
 
-struct GetAllUsersUseCase: GetAllUsersUseCaseProtocol {
+final class GetAllUserUseCase: GetAllUserUseCaseProtocol {
     
-    private let repo = GetUserRepository()
+    private let repo: GetUserRepositoryProtocol
+    
+    init(repo: GetUserRepositoryProtocol) {
+        self.repo = repo
+    }
     
     func excute(completion: @escaping (Result<ChatUser, Error>) -> Void) {
         repo.requestAllUser { result in

@@ -12,7 +12,9 @@ struct CreateNewMessageView: View {
 
     @Environment(\.dismiss) private var dismiss
     
-    @StateObject private var viewModel = CreateNewMessageViewModel()
+    @StateObject private var viewModel = CreateNewMessageViewModel(
+        getAllUserUseCase: Reslover.shared.resolve(GetAllUserUseCaseProtocol.self)
+    )
 
     var body: some View {
         NavigationView {

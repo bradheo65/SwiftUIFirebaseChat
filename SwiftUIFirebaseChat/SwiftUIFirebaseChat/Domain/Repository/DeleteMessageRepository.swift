@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DeleteMessageRepository: DeleteMessageRepositoryProtocol {
+final class DeleteMessageRepository: DeleteMessageRepositoryProtocol {
     
     private let firebaseService = FirebaseService.shared
     

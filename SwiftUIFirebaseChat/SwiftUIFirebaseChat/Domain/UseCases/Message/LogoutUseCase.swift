@@ -13,9 +13,13 @@ protocol LogoutUseCaseProtocol {
     
 }
 
-struct LogoutUseCase: LogoutUseCaseProtocol {
+final class LogoutUseCase: LogoutUseCaseProtocol {
     
-    private let repo = LogoutRepository()
+    private let repo: LogoutRepositoryProtocol
+    
+    init(repo: LogoutRepositoryProtocol) {
+        self.repo = repo
+    }
     
     func excute(completion: @escaping ((Result<String, Error>) -> Void)) {
         repo.requestLogout { result in

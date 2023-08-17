@@ -8,24 +8,29 @@
 import SwiftUI
 
 struct MainMessageView: View {
+    
     @Environment(\.dismiss) private var dismiss
 
     @StateObject private var viewModel = MainMessageViewModel(
+        logoutUseCase: Reslover.shared.resolve(LogoutUseCaseProtocol.self),
+        deleteRecentMessageUseCase: Reslover.shared.resolve(DeleteRecentMessageUseCaseProtocol.self),
+        getAllUserUseCase: Reslover.shared.resolve(GetAllUserUseCaseProtocol.self),
+        getCurrentUserUseCase: Reslover.shared.resolve(GetCurrentUserUseCaseProtocol.self),
         addRecentMessageListenerUseCase: Reslover.shared.resolve(AddRecentMessageListenerUseCaseProtocol.self),
         removeRecentMessageListenerUseCase: Reslover.shared.resolve(RemoveRecentMessageListenerUseCaseProtocol.self)
     )
     
-    @State private var chatUser: ChatUser?
-
     @State private var shouldNavigatieToChatLogView = false
     @State private var shouldShowNewMessageScreen = false
     @State private var shouldShowLogoutOptions = false
+
+    @State private var chatUser: ChatUser?
 
     var body: some View {
         NavigationView {
             VStack {
                 currentUserTitleView
-                
+                 
                 List {
                     ForEach(viewModel.recentMessages, id: \.id) { recentMessage in
                         NavigationLink {

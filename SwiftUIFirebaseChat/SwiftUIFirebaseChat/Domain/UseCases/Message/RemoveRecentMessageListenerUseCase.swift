@@ -13,7 +13,7 @@ protocol RemoveRecentMessageListenerUseCaseProtocol {
     
 }
 
-struct RemoveRecentMessageListenerUseCase: RemoveRecentMessageListenerUseCaseProtocol {
+final class RemoveRecentMessageListenerUseCase: RemoveRecentMessageListenerUseCaseProtocol {
     
     private let repo: RecentMessageListenerRepositoryProtocol
     
