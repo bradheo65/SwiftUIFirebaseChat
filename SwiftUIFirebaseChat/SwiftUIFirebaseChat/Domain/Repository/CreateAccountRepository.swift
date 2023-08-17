@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CreateAccountRepository: CreateAccountRepositoryProtocol {
+final class CreateAccountRepository: CreateAccountRepositoryProtocol {
     
     private let firebaseService = FirebaseService.shared
     

@@ -13,9 +13,13 @@ protocol CreateAccountUseCaseProtocol {
     
 }
 
-struct CreateAccountUseCase: CreateAccountUseCaseProtocol {
+final class CreateAccountUseCase: CreateAccountUseCaseProtocol {
     
-    var repo = CreateAccountRepository()
+    private let repo: CreateAccountRepositoryProtocol
+    
+    init(repo: CreateAccountRepositoryProtocol) {
+        self.repo = repo
+    }
     
     func excute(email: String, password: String, image: UIImage?, completion: @escaping (Result<String, Error>) -> Void) {
         guard let image = image else {
@@ -25,10 +29,10 @@ struct CreateAccountUseCase: CreateAccountUseCaseProtocol {
         repo.requestCreateAccount(email: email, password: password, image: image) { result in
             switch result {
             case .success(_):
-                repo.requestUploadImage(image: image) { result in
+                self.repo.requestUploadImage(image: image) { result in
                     switch result {
                     case .success(let url):
-                        repo.requestUploadAccountInfo(email: email, profileImageUrl: url) { result in
+                        self.repo.requestUploadAccountInfo(email: email, profileImageUrl: url) { result in
                             switch result {
                             case .success(let message):
                                 completion(.success(message))

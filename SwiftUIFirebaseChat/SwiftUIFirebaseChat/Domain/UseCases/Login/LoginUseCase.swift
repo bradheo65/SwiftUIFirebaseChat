@@ -13,9 +13,13 @@ protocol LoginUseCaseProtocol {
     
 }
 
-struct LoginUseCase: LoginUseCaseProtocol {
+final class LoginUseCase: LoginUseCaseProtocol {
     
-    private let repo = LoginRepository()
+    private let repo: LoginRepositoryProtocol
+    
+    init(repo: LoginRepositoryProtocol) {
+        self.repo = repo
+    }
     
     func excute(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
         repo.requestLogin(email: email, password: password) { result in

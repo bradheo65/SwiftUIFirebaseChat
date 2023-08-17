@@ -10,6 +10,7 @@ import Foundation
 import Swinject
 
 // MARK: - Dependency Injection Singleton
+
 final class Reslover {
 
     static let shared = Reslover()
@@ -33,6 +34,16 @@ final class Reslover {
 func buildContatier() -> Container {
     let container = Container()
     
+    // MARK: - Login DI Repository
+    
+    container.register(CreateAccountRepositoryProtocol.self) { _ in
+        return CreateAccountRepository()
+    }
+    
+    container.register(LoginRepositoryProtocol.self) { _ in
+        return LoginRepository()
+    }
+    
     // MARK: - Chat DI Repository
 
     container.register(LogoutRepositoryProtocol.self) { _ in
@@ -50,6 +61,16 @@ func buildContatier() -> Container {
     container.register(RecentMessageListenerRepositoryProtocol.self) { _ in
         return RecentMessageListenerRepository()
     }
+    
+    // MARK: - Login DI UseCase
+    
+    container.register(CreateAccountUseCaseProtocol.self) { _ in
+        return CreateAccountUseCase(repo: container.resolve(CreateAccountRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+
+    container.register(LoginUseCaseProtocol.self) { _ in
+        return LoginUseCase(repo: container.resolve(LoginRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
     
     // MARK: - Chat DI UseCase
     

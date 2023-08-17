@@ -9,12 +9,21 @@ import Foundation
 import SwiftUI
 
 final class LoginViewModel: ObservableObject {
+    
     @Published var loginStatusMessage = ""
     
     @Published var isLoginSuccess = false
 
-    private let createAccountUseCase = CreateAccountUseCase()
-    private let loginUseCase = LoginUseCase()
+    private let createAccountUseCase: CreateAccountUseCaseProtocol
+    private let loginUseCase: LoginUseCaseProtocol
+    
+    init(
+        createAccountUseCase: CreateAccountUseCaseProtocol,
+        loginUseCase: LoginUseCaseProtocol
+    ) {
+        self.createAccountUseCase = createAccountUseCase
+        self.loginUseCase = loginUseCase
+    }
 
     func handleAction(isLoginMode: Bool, email: String, password: String, profileImage: UIImage?) {
         if isLoginMode {

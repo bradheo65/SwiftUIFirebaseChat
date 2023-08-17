@@ -8,7 +8,11 @@
 import SwiftUI
 
 struct LoginView: View {
-    @StateObject private var viewModel = LoginViewModel()
+    
+    @StateObject private var viewModel = LoginViewModel(
+        createAccountUseCase: Reslover.shared.resolve(CreateAccountUseCaseProtocol.self),
+        loginUseCase: Reslover.shared.resolve(LoginUseCaseProtocol.self)
+    )
     
     @State private var profileImage: UIImage?
 
@@ -103,6 +107,7 @@ struct LoginView: View {
             }
         }
     }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {

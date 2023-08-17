@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct LoginRepository: LoginRepositoryProtocol {
+final class LoginRepository: LoginRepositoryProtocol {
     
     private let firebaseService = FirebaseService.shared
 

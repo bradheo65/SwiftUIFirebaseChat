@@ -186,6 +186,8 @@
 			children = (
 				A3B029202A5C4199008161CE /* Login */,
 				A3B029212A5C41D0008161CE /* MainMessage */,
+				A35736732A6EBF9C007B0402 /* NewMessage */,
+				A35736762A6F3422007B0402 /* Chat */,
 			);
 			path = ChatScene;
 			sourceTree = "<group>";
@@ -423,8 +425,6 @@
 			children = (
 				A3CED45F2A70B2FE001DD436 /* MainMessageViewModel.swift */,
 				A3B029232A5C41EB008161CE /* MainMessageView.swift */,
-				A35736732A6EBF9C007B0402 /* NewMessage */,
-				A35736762A6F3422007B0402 /* Chat */,
 			);
 			path = MainMessage;
 			sourceTree = "<group>";
