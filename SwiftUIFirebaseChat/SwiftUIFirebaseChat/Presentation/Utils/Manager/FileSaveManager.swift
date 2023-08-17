@@ -1,5 +1,5 @@
 //
-//  FileSaveManagerError.swift
+//  FileSaveManager.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by brad on 2023/08/10.
@@ -13,24 +13,26 @@ enum FileSaveManagerError: Error {
 }
 
 final class FileSaveManager {
+    
     static let shared = FileSaveManager()
     
     private init() { }
     
     private let fileManager = FileManager.default
     
-    func save(name: String, at: URL) async throws -> Result<String, FileSaveManagerError> {
+    func save(name: String, at: URL, completion: @escaping (Result<String, FileSaveManagerError>) -> Void) {
         guard let documentUrl = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            return .failure(.noDocumentUrl)
+            completion(.failure(.noDocumentUrl))
+            return
         }
         
         let directoryUrl = documentUrl.appendingPathComponent(name)
         
         do {
             try fileManager.copyItem(at: at, to: directoryUrl)
-            return .success("Success to file save")
+            completion(.success("Success to file save"))
         } catch {
-            return .failure(.saveFail)
+            completion(.failure(.saveFail))
         }
     }
     

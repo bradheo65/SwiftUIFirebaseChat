@@ -8,6 +8,7 @@
 import SwiftUI
 
 final class ImageSaveManager: NSObject {
+    
     static let shared = ImageSaveManager()
     
     private override init() { }

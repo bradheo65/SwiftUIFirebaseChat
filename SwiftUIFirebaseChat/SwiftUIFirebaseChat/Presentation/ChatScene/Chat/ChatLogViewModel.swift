@@ -27,7 +27,8 @@ final class ChatLogViewModel: ObservableObject {
     private let sendFileMessageUseCase: SendFileMessageUseCaseProtocol
     private let addChatMessageListener: AddChatMessageListenerUseCaseProtocol
     private let removeChatMessageListenerUseCase: RemoveChatMessageListenerUseCaseProtocol
-    
+    private let fileSave: FileSaveUseCaseProtocol
+
     init(
         chatUser: ChatUser?,
         sendTextMessage: SendTextMessageUseCaseProtocol,
@@ -35,7 +36,8 @@ final class ChatLogViewModel: ObservableObject {
         sendVideoMessage: SendVideoMessageUseCaseProtocol,
         sendFileMessage: SendFileMessageUseCaseProtocol,
         addChatMessageListner: AddChatMessageListenerUseCaseProtocol,
-        removeChatMessageListener: RemoveChatMessageListenerUseCaseProtocol
+        removeChatMessageListener: RemoveChatMessageListenerUseCaseProtocol,
+        fileSave: FileSaveUseCaseProtocol
     ) {
         self.chatUser = chatUser
         self.sendMessageUseCase = sendTextMessage
@@ -44,6 +46,7 @@ final class ChatLogViewModel: ObservableObject {
         self.sendFileMessageUseCase = sendFileMessage
         self.addChatMessageListener = addChatMessageListner
         self.removeChatMessageListenerUseCase = removeChatMessageListener
+        self.fileSave = fileSave
     }
     
     func addListener() {
@@ -160,23 +163,22 @@ final class ChatLogViewModel: ObservableObject {
             return
         }
         
-        Task {
-            let result = try await NetworkService.shared.downloadFile(url: fileInfo.url)
-            
+        fileSave.excute(url: fileInfo.url) { result in
             switch result {
             case .success(let url):
-                let result = try await FileSaveManager.shared.save(name: fileInfo.name, at: url)
-                
-                switch result {
-                case .success(_):
-                    DispatchQueue.main.sync {
-                        self.isSaveCompleted.toggle()
+                FileSaveManager.shared.save(name: fileInfo.name, at: url) { result in
+                    switch result {
+                    case .success(let message):
+                        print(message)
+                        DispatchQueue.main.sync {
+                            self.isSaveCompleted.toggle()
+                        }
+                    case .failure(let error):
+                        print(error.localizedDescription)
                     }
-                case .failure(let error):
-                    print(error.localizedDescription)
                 }
             case .failure(let error):
-                print(error)
+                print(error.localizedDescription)
             }
         }
     }

@@ -76,6 +76,10 @@ func buildContatier() -> Container {
         return UploadFileRepository()
     }
     
+    container.register(FileSaveRepositoryProtocol.self) { _ in
+        return FileSaveRepository()
+    }
+    
     // MARK: - Login DI UseCase
     
     container.register(CreateAccountUseCaseProtocol.self) { _ in
@@ -147,5 +151,9 @@ func buildContatier() -> Container {
         )
     }.inObjectScope(.container)
 
+    container.register(FileSaveUseCaseProtocol.self) { _ in
+        return FileSaveUseCase(repo: container.resolve(FileSaveRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+    
     return container
 }

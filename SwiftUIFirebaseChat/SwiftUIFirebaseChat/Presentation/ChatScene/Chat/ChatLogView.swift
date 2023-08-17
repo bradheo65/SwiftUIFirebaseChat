@@ -49,7 +49,8 @@ struct ChatLogView: View {
                 sendVideoMessage: Reslover.shared.resolve(SendVideoMessageUseCaseProtocol.self),
                 sendFileMessage: Reslover.shared.resolve(SendFileMessageUseCaseProtocol.self),
                 addChatMessageListner: Reslover.shared.resolve(AddChatMessageListenerUseCaseProtocol.self),
-                removeChatMessageListener: Reslover.shared.resolve(RemoveChatMessageListenerUseCaseProtocol.self)
+                removeChatMessageListener: Reslover.shared.resolve(RemoveChatMessageListenerUseCaseProtocol.self),
+                fileSave: Reslover.shared.resolve(FileSaveUseCaseProtocol.self)
             )
         )
     }

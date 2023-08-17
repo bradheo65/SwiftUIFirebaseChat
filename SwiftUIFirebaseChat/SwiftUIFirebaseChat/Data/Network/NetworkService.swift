@@ -15,15 +15,19 @@ final class NetworkService {
     
     private let sessionConfig = URLSessionConfiguration.default
     
-    func downloadFile(url: URL) async throws -> Result<URL, Error> {
-        do {
-            let (data, _) = try await URLSession.shared.download(from: url)
+    func downloadFile(url: URL, completion: @escaping (Result<URL, Error>) -> Void) {
+        let request = URLRequest(url: url)
+        
+        let task = URLSession(configuration: sessionConfig).downloadTask(with: request) { url, response, error in
+            if let error = error {
+                completion(.failure(error))
+            }
             
-            return .success(data)
+            if let url = url {
+                completion(.success(url))
+            }
         }
-        catch let error {
-            return .failure(error)
-        }
+        task.resume()
     }
     
 }
