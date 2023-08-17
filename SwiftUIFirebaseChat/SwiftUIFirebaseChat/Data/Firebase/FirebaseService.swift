@@ -283,9 +283,9 @@ extension FirebaseService {
 
 extension FirebaseService {
     
-    func uploadImage(image: UIImage, compltion: @escaping (Result<URL, Error>) -> Void) {
+    func uploadImage(image: UIImage, store: String, compltion: @escaping (Result<URL, Error>) -> Void) {
         let ref = storage.reference()
-            .child(FirebaseConstants.Storage.messageImages)
+            .child(store)
             .child(UUID().uuidString)
         
         if let uploadData = image.jpegData(compressionQuality: 0.5) {
@@ -313,9 +313,9 @@ extension FirebaseService {
         }
     }
     
-    func uploadVideo(url: URL, compltion: @escaping (Result<URL, Error>) -> Void) {
+    func uploadVideo(url: URL, store: String, compltion: @escaping (Result<URL, Error>) -> Void) {
         let videoRef = storage.reference()
-            .child(FirebaseConstants.Storage.messageVideos)
+            .child(store)
             .child(UUID().uuidString)
         
         do {
@@ -358,9 +358,10 @@ extension FirebaseService {
             print(error.localizedDescription)
         }
     }
-    func uploadFile(url: URL, compltion: @escaping (Result<FileInfo, Error>) -> Void) {
+    
+    func uploadFile(url: URL, store: String, compltion: @escaping (Result<FileInfo, Error>) -> Void) {
         let fileRef = storage.reference()
-            .child(FirebaseConstants.Storage.messageFiles)
+            .child(store)
             .child(url.deletingPathExtension().lastPathComponent)
         
         fileRef.putFile(from: url, metadata: nil) { _, error in
@@ -409,7 +410,7 @@ extension FirebaseService {
         }
     }
     
-    func uploadAccountInfo(email: String, profileImageUrl: URL, completion: @escaping (Result<String, Error>) -> Void) {
+    func uploadAccountInfo(email: String, profileImageUrl: URL, store: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let uid = auth.currentUser?.uid else {
             return
         }
@@ -420,7 +421,7 @@ extension FirebaseService {
             FirebaseConstants.profileImageURL: profileImageUrl.absoluteString
         ]
         
-        firestore.collection(FirebaseConstants.users)
+        firestore.collection(store)
             .document(uid)
             .setData(userData) { error in
                 if let error = error {

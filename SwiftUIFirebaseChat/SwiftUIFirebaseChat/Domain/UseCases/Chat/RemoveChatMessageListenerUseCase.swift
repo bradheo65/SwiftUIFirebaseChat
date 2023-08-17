@@ -13,12 +13,12 @@ protocol RemoveChatMessageListenerUseCaseProtocol {
     
 }
 
-struct RemoveChatMessageListenerUseCase: RemoveChatMessageListenerUseCaseProtocol {
+final class RemoveChatMessageListenerUseCase: RemoveChatMessageListenerUseCaseProtocol {
     
-    private let chatMessageListenerRepo = ChatMessageListenerRepository()
+    private let chatMessageListenerRepo: ChatMessageListenerRepositoryProtocol
     
-    init() {
-        
+    init(chatMessageListenerRepo: ChatMessageListenerRepositoryProtocol) {
+        self.chatMessageListenerRepo = chatMessageListenerRepo
     }
     
     func excute() {

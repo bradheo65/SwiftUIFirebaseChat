@@ -13,16 +13,20 @@ protocol SendTextMessageUseCaseProtocol {
     
 }
 
-struct SendTextMessageUseCase: SendTextMessageUseCaseProtocol {
+final class SendTextMessageUseCase: SendTextMessageUseCaseProtocol {
     
-    private let sendMessageRepo = SendMessageRepository()
+    private let sendMessageRepo: SendMessageRepositoryProtocol
+    
+    init(sendMessageRepo: SendMessageRepositoryProtocol) {
+        self.sendMessageRepo = sendMessageRepo
+    }
     
     func excute(text: String, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
         sendMessageRepo.sendText(text: text, chatUser: chatUser) { result in
             switch result {
             case .success(let message):
                 completion(.success(message))
-                sendMessageRepo.sendRecentMessage(text: text, chatUser: chatUser) { result in
+                self.sendMessageRepo.sendRecentMessage(text: text, chatUser: chatUser) { result in
                     switch result {
                     case .success(let message):
                         completion(.success(message))

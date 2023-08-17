@@ -13,9 +13,13 @@ protocol AddChatMessageListenerUseCaseProtocol {
     
 }
 
-struct AddChatMessageListenerUseCase: AddChatMessageListenerUseCaseProtocol {
+final class AddChatMessageListenerUseCase: AddChatMessageListenerUseCaseProtocol {
     
-    private let chatMessageListenerRepo = ChatMessageListenerRepository()
+    private let chatMessageListenerRepo: ChatMessageListenerRepositoryProtocol
+    
+    init(chatMessageListenerRepo: ChatMessageListenerRepositoryProtocol) {
+        self.chatMessageListenerRepo = chatMessageListenerRepo
+    }
     
     func excute(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void) {
         chatMessageListenerRepo.addChatMessageListener(chatUser: chatUser) { result in

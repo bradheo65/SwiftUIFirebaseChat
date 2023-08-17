@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ChatMessageListenerRepository: ChatMessageListenerRepositoryProtocol {
+final class ChatMessageListenerRepository: ChatMessageListenerRepositoryProtocol {
     
     private let firebaseService = FirebaseService.shared
     

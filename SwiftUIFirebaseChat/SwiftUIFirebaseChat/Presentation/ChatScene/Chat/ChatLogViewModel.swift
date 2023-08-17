@@ -8,11 +8,8 @@
 import Foundation
 import SwiftUI
 
-import Photos
-
-import AVFoundation
-
 final class ChatLogViewModel: ObservableObject {
+    
     @Published var chatMessages: [ChatMessage] = []
     
     @Published var errorMessage = ""
@@ -24,15 +21,29 @@ final class ChatLogViewModel: ObservableObject {
 
     private let chatUser: ChatUser?
     
-    private let addChatMessageListener = AddChatMessageListenerUseCase()
-    private let removeChatMessageListenerUseCase = RemoveChatMessageListenerUseCase()
-    private let sendMessageUseCase = SendTextMessageUseCase()
-    private let sendImageMessageUseCase = SendImageMessageUseCase()
-    private let sendVideoMessageUseCase = SendVideoMessageUseCase()
-    private let sendFileMessageUseCase = SendFileMessageUseCase()
-
-    init(chatUser: ChatUser?) {
+    private let sendMessageUseCase: SendTextMessageUseCaseProtocol
+    private let sendImageMessageUseCase: SendImageMessageUseCaseProtocol
+    private let sendVideoMessageUseCase: SendVideoMessageUseCaseProtocol
+    private let sendFileMessageUseCase: SendFileMessageUseCaseProtocol
+    private let addChatMessageListener: AddChatMessageListenerUseCaseProtocol
+    private let removeChatMessageListenerUseCase: RemoveChatMessageListenerUseCaseProtocol
+    
+    init(
+        chatUser: ChatUser?,
+        sendTextMessage: SendTextMessageUseCaseProtocol,
+        sendImageMessage: SendImageMessageUseCaseProtocol,
+        sendVideoMessage: SendVideoMessageUseCaseProtocol,
+        sendFileMessage: SendFileMessageUseCaseProtocol,
+        addChatMessageListner: AddChatMessageListenerUseCaseProtocol,
+        removeChatMessageListener: RemoveChatMessageListenerUseCaseProtocol
+    ) {
         self.chatUser = chatUser
+        self.sendMessageUseCase = sendTextMessage
+        self.sendImageMessageUseCase = sendImageMessage
+        self.sendVideoMessageUseCase = sendVideoMessage
+        self.sendFileMessageUseCase = sendFileMessage
+        self.addChatMessageListener = addChatMessageListner
+        self.removeChatMessageListenerUseCase = removeChatMessageListener
     }
     
     func addListener() {
@@ -66,16 +77,16 @@ final class ChatLogViewModel: ObservableObject {
             print("no Chat User")
             return
         }
-        
+
         sendMessageUseCase.excute(text: text, chatUser: chatUser) { result in
             switch result {
             case .success(let message):
                 print(message)
-                compltion()
             case .failure(let error):
                 print(error)
             }
         }
+        compltion()
     }
      
     func handleSendImage(image: UIImage?) {

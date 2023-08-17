@@ -8,12 +8,20 @@
 import Foundation
 import SwiftUI
 
-struct UploadFileRepository {
+protocol UploadFileRepositoryProtocol {
+    
+    func uploadImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void)
+    func uploadVideo(url: URL, completion: @escaping (Result<URL, Error>) -> Void)
+    func uploadFile(url: URL, compltion: @escaping (Result<FileInfo, Error>) -> Void)
+    
+}
+
+final class UploadFileRepository: UploadFileRepositoryProtocol {
     
     private let firebaseService = FirebaseService.shared
     
     func uploadImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
-        firebaseService.uploadImage(image: image) { result in
+        firebaseService.uploadImage(image: image, store: FirebaseConstants.Storage.messageImages) { result in
             switch result {
             case .success(let url):
                 completion(.success(url))
@@ -24,7 +32,7 @@ struct UploadFileRepository {
     }
     
     func uploadVideo(url: URL, completion: @escaping (Result<URL, Error>) -> Void) {
-        firebaseService.uploadVideo(url: url) { result in
+        firebaseService.uploadVideo(url: url, store: FirebaseConstants.Storage.messageVideos) { result in
             switch result {
             case .success(let url):
                 completion(.success(url))
@@ -36,7 +44,7 @@ struct UploadFileRepository {
     
     
     func uploadFile(url: URL, compltion: @escaping (Result<FileInfo, Error>) -> Void) {
-        firebaseService.uploadFile(url: url) { result in
+        firebaseService.uploadFile(url: url, store: FirebaseConstants.Storage.messageFiles) { result in
             switch result {
             case .success(let fileInfo):
                 compltion(.success(fileInfo))

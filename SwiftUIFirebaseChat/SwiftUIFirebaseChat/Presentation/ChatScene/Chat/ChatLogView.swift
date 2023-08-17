@@ -42,7 +42,16 @@ struct ChatLogView: View {
     init(chatUser: ChatUser?) {
         self.chatUser = chatUser
         self._viewModel = .init(
-            wrappedValue: .init(chatUser: chatUser))
+            wrappedValue: .init(
+                chatUser: chatUser,
+                sendTextMessage: Reslover.shared.resolve(SendTextMessageUseCaseProtocol.self),
+                sendImageMessage: Reslover.shared.resolve(SendImageMessageUseCaseProtocol.self),
+                sendVideoMessage: Reslover.shared.resolve(SendVideoMessageUseCaseProtocol.self),
+                sendFileMessage: Reslover.shared.resolve(SendFileMessageUseCaseProtocol.self),
+                addChatMessageListner: Reslover.shared.resolve(AddChatMessageListenerUseCaseProtocol.self),
+                removeChatMessageListener: Reslover.shared.resolve(RemoveChatMessageListenerUseCaseProtocol.self)
+            )
+        )
     }
     
     var body: some View {

@@ -23,7 +23,7 @@ final class CreateAccountRepository: CreateAccountRepositoryProtocol {
     }
     
     func requestUploadImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
-        firebaseService.uploadImage(image: image) { result in
+        firebaseService.uploadImage(image: image, store: FirebaseConstants.Storage.userProfileImages) { result in
             switch result {
             case .success(let url):
                 completion(.success(url))
@@ -34,7 +34,7 @@ final class CreateAccountRepository: CreateAccountRepositoryProtocol {
     }
     
     func requestUploadAccountInfo(email: String, profileImageUrl: URL, completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseService.uploadAccountInfo(email: email, profileImageUrl: profileImageUrl) { result in
+        firebaseService.uploadAccountInfo(email: email, profileImageUrl: profileImageUrl, store: FirebaseConstants.users) { result in
             switch result {
             case .success(let message):
                 completion(.success(message))

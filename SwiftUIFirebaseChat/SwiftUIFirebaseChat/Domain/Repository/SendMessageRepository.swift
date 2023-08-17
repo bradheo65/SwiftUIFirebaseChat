@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import AVFoundation
 
-struct SendMessageRepository: SendMessageRepositoryProtocol {
+final class SendMessageRepository: SendMessageRepositoryProtocol {
     
     private let firebaseService = FirebaseService.shared
     
@@ -81,11 +81,5 @@ struct SendMessageRepository: SendMessageRepositoryProtocol {
             }
         }
     }
-    
-}
-
-extension SendMessageRepository {
-    
-    
     
 }
