@@ -1,5 +1,5 @@
 //
-//  CreateAccountUseCase.swift
+//  RegisterUserUseCase.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by brad on 2023/08/09.
@@ -7,18 +7,20 @@
 
 import SwiftUI
 
-protocol CreateAccountUseCaseProtocol {
+protocol RegisterUserUseCaseProtocol {
     
     func excute(email: String, password: String, image: UIImage?, completion: @escaping (Result<String, Error>) -> Void)
     
 }
 
-final class CreateAccountUseCase: CreateAccountUseCaseProtocol {
+final class RegisterUserUseCase: RegisterUserUseCaseProtocol {
     
-    private let repo: CreateAccountRepositoryProtocol
-    
-    init(repo: CreateAccountRepositoryProtocol) {
-        self.repo = repo
+    private let userRepo: UserRepositoryProtocol
+    private let fileUploadRepo: FileUploadRepositoryProtocol
+
+    init(userRepo: UserRepositoryProtocol, fileUploadRepo: FileUploadRepositoryProtocol) {
+        self.userRepo = userRepo
+        self.fileUploadRepo = fileUploadRepo
     }
     
     func excute(email: String, password: String, image: UIImage?, completion: @escaping (Result<String, Error>) -> Void) {
@@ -26,13 +28,13 @@ final class CreateAccountUseCase: CreateAccountUseCaseProtocol {
             return
         }
         
-        repo.requestCreateAccount(email: email, password: password, image: image) { result in
+        userRepo.registerUser(email: email, password: password) { result in
             switch result {
             case .success(_):
-                self.repo.requestUploadImage(image: image) { result in
+                self.fileUploadRepo.uploadImage(image: image) { result in
                     switch result {
                     case .success(let url):
-                        self.repo.requestUploadAccountInfo(email: email, profileImageUrl: url) { result in
+                        self.userRepo.saveUserInfo(email: email, profileImageUrl: url) { result in
                             switch result {
                             case .success(let message):
                                 completion(.success(message))

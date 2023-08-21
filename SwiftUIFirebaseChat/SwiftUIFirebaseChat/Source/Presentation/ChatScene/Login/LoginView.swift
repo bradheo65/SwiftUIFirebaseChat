@@ -10,8 +10,8 @@ import SwiftUI
 struct LoginView: View {
     
     @StateObject private var viewModel = LoginViewModel(
-        createAccountUseCase: Reslover.shared.resolve(CreateAccountUseCaseProtocol.self),
-        loginUseCase: Reslover.shared.resolve(LoginUseCaseProtocol.self)
+        createAccountUseCase: Reslover.shared.resolve(RegisterUserUseCaseProtocol.self),
+        loginUseCase: Reslover.shared.resolve(LoginUserUseCaseProtocol.self)
     )
     
     @State private var profileImage: UIImage?
@@ -20,8 +20,8 @@ struct LoginView: View {
     @State private var password = ""
 
     @State private var isLoginMode = false
-    @State private var shouldShowImagePicker = false
     
+    @State private var shouldShowImagePicker = false
     var body: some View {
         NavigationView {
             ScrollView {

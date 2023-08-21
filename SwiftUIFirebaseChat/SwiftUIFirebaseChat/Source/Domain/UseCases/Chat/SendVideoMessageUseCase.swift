@@ -16,9 +16,9 @@ protocol SendVideoMessageUseCaseProtocol {
 final class SendVideoMessageUseCase: SendVideoMessageUseCaseProtocol {
     
     private let sendMessageRepo: SendMessageRepositoryProtocol
-    private let uploadFileRepo: UploadFileRepositoryProtocol
+    private let uploadFileRepo: FileUploadRepositoryProtocol
     
-    init(sendMessageRepo: SendMessageRepositoryProtocol, uploadFileRepo: UploadFileRepositoryProtocol) {
+    init(sendMessageRepo: SendMessageRepositoryProtocol, uploadFileRepo: FileUploadRepositoryProtocol) {
         self.sendMessageRepo = sendMessageRepo
         self.uploadFileRepo = uploadFileRepo
     }

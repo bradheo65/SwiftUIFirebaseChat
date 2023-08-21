@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "BE4E8E7C-F6D0-4E43-9460-BA3FCCE8EAD1",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:SwiftUIFirebaseChat.xcodeproj",
+      "identifier" : "A354F68F2A5460630063652A",
+      "name" : "SwiftUIFirebaseChat"
+    }
+  },
+  "testTargets" : [
+    {
+      "enabled" : false,
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:SwiftUIFirebaseChat.xcodeproj",
+        "identifier" : "A348F3B02A8DEF480017DD72",
+        "name" : "SwiftUIFirebaseChatTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:SwiftUIFirebaseChat.xcodeproj",
+        "identifier" : "A37674782A8DFDF100BDC235",
+        "name" : "SwiftUIFirebaseChatTest"
+      }
+    }
+  ],
+  "version" : 1
+}

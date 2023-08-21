@@ -14,20 +14,20 @@ final class LoginViewModel: ObservableObject {
     
     @Published var isLoginSuccess = false
 
-    private let createAccountUseCase: CreateAccountUseCaseProtocol
-    private let loginUseCase: LoginUseCaseProtocol
+    private let registerUserUseCase: RegisterUserUseCaseProtocol
+    private let loginUserUseCase: LoginUserUseCaseProtocol
     
     init(
-        createAccountUseCase: CreateAccountUseCaseProtocol,
-        loginUseCase: LoginUseCaseProtocol
+        createAccountUseCase: RegisterUserUseCaseProtocol,
+        loginUseCase: LoginUserUseCaseProtocol
     ) {
-        self.createAccountUseCase = createAccountUseCase
-        self.loginUseCase = loginUseCase
+        self.registerUserUseCase = createAccountUseCase
+        self.loginUserUseCase = loginUseCase
     }
 
     func handleAction(isLoginMode: Bool, email: String, password: String, profileImage: UIImage?) {
         if isLoginMode {
-            loginUseCase.excute(email: email, password: password) { result in
+            loginUserUseCase.excute(email: email, password: password) { result in
                 switch result {
                 case .success(let message):
                     self.loginStatusMessage = message
@@ -37,7 +37,7 @@ final class LoginViewModel: ObservableObject {
                 }
             }
         } else {
-            createAccountUseCase.excute(email: email, password: password, image: profileImage) { result in
+            registerUserUseCase.excute(email: email, password: password, image: profileImage) { result in
                 switch result {
                 case .success(let message):
                     self.loginStatusMessage = message

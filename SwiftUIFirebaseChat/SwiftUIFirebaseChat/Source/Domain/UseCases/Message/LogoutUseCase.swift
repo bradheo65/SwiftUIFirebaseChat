@@ -15,14 +15,14 @@ protocol LogoutUseCaseProtocol {
 
 final class LogoutUseCase: LogoutUseCaseProtocol {
     
-    private let repo: LogoutRepositoryProtocol
-    
-    init(repo: LogoutRepositoryProtocol) {
-        self.repo = repo
+    private let userRepo: UserRepositoryProtocol
+
+    init(userRepo: UserRepositoryProtocol) {
+        self.userRepo = userRepo
     }
     
     func excute(completion: @escaping ((Result<String, Error>) -> Void)) {
-        repo.requestLogout { result in
+        userRepo.logoutUser { result in
             switch result {
             case .success(let message):
                 completion(.success(message))

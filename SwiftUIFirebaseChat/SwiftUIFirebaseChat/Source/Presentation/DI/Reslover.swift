@@ -34,28 +34,32 @@ final class Reslover {
 func buildContatier() -> Container {
     let container = Container()
     
-    // MARK: - Login DI Repository
+    // MARK: - Firebase Service DI
+
+    container.register(FirebaseUserServiceProtocol.self) { _ in
+        return FirebaseService.shared
+    }.inObjectScope(.container)
     
-    container.register(CreateAccountRepositoryProtocol.self) { _ in
-        return CreateAccountRepository()
+    container.register(FirebaseFileUploadServiceProtocol.self) { _ in
+        return FirebaseService.shared
+    }.inObjectScope(.container)
+    
+    // MARK: - UserRepository DI
+    
+    container.register(UserRepositoryProtocol.self) { _ in
+        return UserRepository(firebaseService: container.resolve(FirebaseUserServiceProtocol.self)!)
     }
     
-    container.register(LoginRepositoryProtocol.self) { _ in
-        return LoginRepository()
+    // MARK: - FileUploadRepository DI
+    
+    container.register(FileUploadRepositoryProtocol.self) { _ in
+        return FileUploadRepository(firebaseService: container.resolve(FirebaseFileUploadServiceProtocol.self)!)
     }
     
     // MARK: - Message DI Repository
 
-    container.register(LogoutRepositoryProtocol.self) { _ in
-        return LogoutRepository()
-    }
-    
     container.register(DeleteMessageRepositoryProtocol.self) { _ in
         return DeleteMessageRepository()
-    }
-    
-    container.register(GetUserRepositoryProtocol.self) { _ in
-        return GetUserRepository()
     }
     
     container.register(RecentMessageListenerRepositoryProtocol.self) { _ in
@@ -72,28 +76,27 @@ func buildContatier() -> Container {
         return SendMessageRepository()
     }
     
-    container.register(UploadFileRepositoryProtocol.self) { _ in
-        return UploadFileRepository()
-    }
-    
     container.register(FileSaveRepositoryProtocol.self) { _ in
         return FileSaveRepository()
     }
     
     // MARK: - Login DI UseCase
     
-    container.register(CreateAccountUseCaseProtocol.self) { _ in
-        return CreateAccountUseCase(repo: container.resolve(CreateAccountRepositoryProtocol.self)!)
+    container.register(RegisterUserUseCaseProtocol.self) { _ in
+        return RegisterUserUseCase(
+            userRepo: container.resolve(UserRepositoryProtocol.self)!,
+            fileUploadRepo: container.resolve(FileUploadRepositoryProtocol.self)!
+        )
     }.inObjectScope(.container)
 
-    container.register(LoginUseCaseProtocol.self) { _ in
-        return LoginUseCase(repo: container.resolve(LoginRepositoryProtocol.self)!)
+    container.register(LoginUserUseCaseProtocol.self) { _ in
+        return LoginUserUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
     // MARK: - Message DI UseCase
     
     container.register(LogoutUseCaseProtocol.self) { _ in
-        return LogoutUseCase(repo: container.resolve(LogoutRepositoryProtocol.self)!)
+        return LogoutUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
     container.register(DeleteRecentMessageUseCaseProtocol.self) { _ in
@@ -101,11 +104,11 @@ func buildContatier() -> Container {
     }.inObjectScope(.container)
     
     container.register(GetAllUserUseCaseProtocol.self) { _ in
-        return GetAllUserUseCase(repo: container.resolve(GetUserRepositoryProtocol.self)!)
+        return GetAllUserUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
     container.register(GetCurrentUserUseCaseProtocol.self) { _ in
-        return GetCurrentUserUseCase(repo: container.resolve(GetUserRepositoryProtocol.self)!)
+        return GetCurrentUserUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
     container.register(AddRecentMessageListenerUseCaseProtocol.self) { _ in
@@ -133,21 +136,21 @@ func buildContatier() -> Container {
     container.register(SendImageMessageUseCaseProtocol.self) { _ in
         return SendImageMessageUseCase(
             sendMessageRepo: container.resolve(SendMessageRepositoryProtocol.self)!,
-            uploadFileRepo: container.resolve(UploadFileRepositoryProtocol.self)!
+            uploadFileRepo: container.resolve(FileUploadRepositoryProtocol.self)!
         )
     }.inObjectScope(.container)
     
     container.register(SendVideoMessageUseCaseProtocol.self) { _ in
         return SendVideoMessageUseCase(
             sendMessageRepo: container.resolve(SendMessageRepositoryProtocol.self)!,
-            uploadFileRepo: container.resolve(UploadFileRepositoryProtocol.self)!
+            uploadFileRepo: container.resolve(FileUploadRepositoryProtocol.self)!
         )
     }.inObjectScope(.container)
     
     container.register(SendFileMessageUseCaseProtocol.self) { _ in
         return SendFileMessageUseCase(
             sendMessageRepo: container.resolve(SendMessageRepositoryProtocol.self)!,
-            uploadFileRepo: container.resolve(UploadFileRepositoryProtocol.self)!
+            uploadFileRepo: container.resolve(FileUploadRepositoryProtocol.self)!
         )
     }.inObjectScope(.container)
 

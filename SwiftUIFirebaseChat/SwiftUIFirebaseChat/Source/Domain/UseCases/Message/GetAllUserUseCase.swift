@@ -15,14 +15,14 @@ protocol GetAllUserUseCaseProtocol {
 
 final class GetAllUserUseCase: GetAllUserUseCaseProtocol {
     
-    private let repo: GetUserRepositoryProtocol
-    
-    init(repo: GetUserRepositoryProtocol) {
-        self.repo = repo
+    private let userRepo: UserRepositoryProtocol
+
+    init(userRepo: UserRepositoryProtocol) {
+        self.userRepo = userRepo
     }
     
     func excute(completion: @escaping (Result<ChatUser, Error>) -> Void) {
-        repo.requestAllUser { result in
+        userRepo.fetchAllUser { result in
             switch result {
             case .success(let user):
                 completion(.success(user))

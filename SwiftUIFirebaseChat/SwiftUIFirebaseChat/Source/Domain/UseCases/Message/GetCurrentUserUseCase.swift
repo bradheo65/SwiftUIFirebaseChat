@@ -15,14 +15,14 @@ protocol GetCurrentUserUseCaseProtocol {
 
 final class GetCurrentUserUseCase: GetCurrentUserUseCaseProtocol {
     
-    private let repo: GetUserRepositoryProtocol
-    
-    init(repo: GetUserRepositoryProtocol) {
-        self.repo = repo
+    private let userRepo: UserRepositoryProtocol
+
+    init(userRepo: UserRepositoryProtocol) {
+        self.userRepo = userRepo
     }
     
     func excute(completion: @escaping (Result<ChatUser?, Error>) -> Void) {
-        repo.requestCurrentUser { result in
+        userRepo.fetchCurrentUser { result in
             switch result {
             case .success(let user):
                 completion(.success(user))

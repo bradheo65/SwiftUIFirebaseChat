@@ -1,5 +1,5 @@
 //
-//  UploadFileRepository.swift
+//  FileUploadRepository.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by brad on 2023/08/16.
@@ -8,17 +8,13 @@
 import Foundation
 import SwiftUI
 
-protocol UploadFileRepositoryProtocol {
+final class FileUploadRepository: FileUploadRepositoryProtocol {
     
-    func uploadImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void)
-    func uploadVideo(url: URL, completion: @escaping (Result<URL, Error>) -> Void)
-    func uploadFile(url: URL, compltion: @escaping (Result<FileInfo, Error>) -> Void)
+    private let firebaseService: FirebaseFileUploadServiceProtocol
     
-}
-
-final class UploadFileRepository: UploadFileRepositoryProtocol {
-    
-    private let firebaseService = FirebaseService.shared
+    init(firebaseService: FirebaseFileUploadServiceProtocol) {
+        self.firebaseService = firebaseService
+    }
     
     func uploadImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
         firebaseService.uploadImage(image: image, store: FirebaseConstants.Storage.messageImages) { result in

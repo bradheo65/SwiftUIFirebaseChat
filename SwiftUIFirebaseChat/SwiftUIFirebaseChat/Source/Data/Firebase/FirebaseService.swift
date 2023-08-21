@@ -40,9 +40,60 @@ final class FirebaseService: NSObject {
     
 }
  
-extension FirebaseService {
+extension FirebaseService: FirebaseUserServiceProtocol {
+    
+    func registerUser(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
+        auth.createUser(withEmail: email, password: password) { result, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            completion(.success(result?.user.email ?? ""))
+        }
+    }
+    
+    func saveUserInfo(email: String, profileImageUrl: URL, store: String, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let uid = auth.currentUser?.uid else {
+            return
+        }
         
-    func getAllUsers(completion: @escaping (Result<ChatUser, Error>) -> Void) {
+        let userData = [
+            FirebaseConstants.email: email,
+            FirebaseConstants.uid: uid,
+            FirebaseConstants.profileImageURL: profileImageUrl.absoluteString
+        ]
+        
+        firestore.collection(store)
+            .document(uid)
+            .setData(userData) { error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                completion(.success("Success upload data to Firestore"))
+            }
+    }
+    
+    func loginUser(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
+        auth.signIn(withEmail: email, password: password) { result, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            completion(.success("Success to Login \(result?.user.uid ?? "")"))
+        }
+    }
+    
+    func logoutUser(completion: @escaping (Result<String, Error>) -> Void) {
+        do {
+            try auth.signOut()
+            completion(.success("Success to Logout"))
+        } catch let error {
+            completion(.failure(error))
+        }
+    }
+    
+    func fetchAllUser(completion: @escaping (Result<ChatUser, Error>) -> Void) {
         firestore
             .collection(FirebaseConstants.users)
             .getDocuments { documentsSnapshot, error in
@@ -65,7 +116,7 @@ extension FirebaseService {
             }
     }
     
-    func getCurrentUser(completion: @escaping (Result<ChatUser?, Error>) -> Void) {
+    func fetchCurrentUser(completion: @escaping (Result<ChatUser?, Error>) -> Void) {
         guard let uid = auth.currentUser?.uid else {
             return
         }
@@ -281,7 +332,7 @@ extension FirebaseService {
     
 }
 
-extension FirebaseService {
+extension FirebaseService: FirebaseFileUploadServiceProtocol {
     
     func uploadImage(image: UIImage, store: String, compltion: @escaping (Result<URL, Error>) -> Void) {
         let ref = storage.reference()
@@ -430,39 +481,6 @@ extension FirebaseService {
                 }
                 completion(.success("Success upload data to Firestore"))
             }
-    }
-    
-}
-
-extension FirebaseService {
-    
-    func handleCreateAccount(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
-        auth.createUser(withEmail: email, password: password) { result, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            completion(.success(result?.user.email ?? ""))
-        }
-    }
-    
-    func handleLogin(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
-        auth.signIn(withEmail: email, password: password) { result, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            completion(.success("Success to Login \(result?.user.uid ?? "")"))
-        }
-    }
-    
-    func handleLogout(completion: @escaping (Result<String, Error>) -> Void) {
-        do {
-            try auth.signOut()
-            completion(.success("Success to Logout"))
-        } catch let error {
-            completion(.failure(error))
-        }
     }
     
 }
