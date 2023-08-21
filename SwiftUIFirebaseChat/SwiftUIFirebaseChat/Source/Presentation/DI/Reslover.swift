@@ -66,9 +66,6 @@ func buildContatier() -> Container {
     
     // MARK: - Message DI Repository
 
-    container.register(DeleteMessageRepositoryProtocol.self) { _ in
-        return DeleteMessageRepository()
-    }
     
     // MARK: - Chat DI Repository
 
@@ -104,7 +101,7 @@ func buildContatier() -> Container {
     }.inObjectScope(.container)
     
     container.register(DeleteRecentMessageUseCaseProtocol.self) { _ in
-        return DeleteRecentMessageUseCase(repo: container.resolve(DeleteMessageRepositoryProtocol.self)!)
+        return DeleteRecentMessageUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
     container.register(GetAllUserUseCaseProtocol.self) { _ in

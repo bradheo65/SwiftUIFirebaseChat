@@ -192,4 +192,57 @@ final class UserRepositoryTests: XCTestCase {
         }
     }
     
+    func testDeleteChatMessage_Success() {
+        let mockMessage = "Success to Delete Chat Message"
+        
+        repository.deleteChatMessage(toId: "mockToId") { result in
+            switch result {
+            case .success(let message):
+                XCTAssertEqual(message, mockMessage)
+            case .failure:
+                XCTFail("Unexpected Failure")
+            }
+        }
+    }
+    
+    func testDeleteChatMessage_Failure() {
+        let mockError = NSError(domain: "mockDomainError", code: 123, userInfo: nil)
+        mockFirebaseService.mockError = mockError
+        
+        repository.deleteChatMessage(toId: "mockToId") { result in
+            switch result {
+            case .success:
+                XCTFail("Unexpected Success")
+            case .failure(let error):
+                XCTAssertEqual(error as NSError, mockError)
+            }
+        }
+    }
+    
+    func testDeleteRecentMessage_Success() {
+        let mockMessage = "Success to Delete Recent Message"
+        
+        repository.deleteRecentChatMessage(toId: "mockToId") { result in
+            switch result {
+            case .success(let message):
+                XCTAssertEqual(message, mockMessage)
+            case .failure:
+                XCTFail("Unexpected Failure")
+            }
+        }
+    }
+    
+    func testDeleteRecentMessage_Failure() {
+        let mockError = NSError(domain: "mockDomainError", code: 123, userInfo: nil)
+        mockFirebaseService.mockError = mockError
+        
+        repository.deleteRecentChatMessage(toId: "mockToId") { result in
+            switch result {
+            case .success:
+                XCTFail("Unexpected Success")
+            case .failure(let error):
+                XCTAssertEqual(error as NSError, mockError)
+            }
+        }
+    }
 }

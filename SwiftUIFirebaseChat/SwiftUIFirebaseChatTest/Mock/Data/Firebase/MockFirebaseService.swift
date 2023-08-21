@@ -69,6 +69,22 @@ extension MockFirebaseService: FirebaseUserServiceProtocol {
         }
     }
     
+    func deleteChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
+        if let error = mockError {
+            completion(.failure(error))
+        } else {
+            completion(.success("Success to Delete Chat Message"))
+        }
+    }
+    
+    func deleteRecentMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
+        if let error = mockError {
+            completion(.failure(error))
+        } else {
+            completion(.success("Success to Delete Recent Message"))
+        }
+    }
+    
 }
 
 extension MockFirebaseService: FirebaseFileUploadServiceProtocol {

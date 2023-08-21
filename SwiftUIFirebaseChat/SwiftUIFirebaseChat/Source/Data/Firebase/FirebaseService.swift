@@ -141,6 +141,56 @@ extension FirebaseService: FirebaseUserServiceProtocol {
             }
     }
     
+    func deleteChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let uid = auth.currentUser?.uid else {
+            return
+        }
+        
+        firestore
+            .collection(FirebaseConstants.messages)
+            .document(uid)
+            .collection(toId)
+            .getDocuments { querySnapshot, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                querySnapshot?.documents.forEach({ snapshot in
+                    self.firestore
+                        .collection(FirebaseConstants.messages)
+                        .document(uid)
+                        .collection(toId)
+                        .document(snapshot.documentID)
+                        .delete() { error in
+                            if let error = error {
+                                completion(.failure(error))
+                                return
+                            }
+                        }
+                })
+                completion(.success("Success to Delete Chat Log"))
+            }
+    }
+    
+    func deleteRecentMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let uid = auth.currentUser?.uid else {
+            return
+        }
+        
+        self.firestore
+            .collection(FirebaseConstants.recentMessages)
+            .document(uid)
+            .collection(FirebaseConstants.messages)
+            .document(toId)
+            .delete() { error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                completion(.success("Success to Delete Recent Message"))
+            }
+    }
+    
 }
 
 extension FirebaseService: FirebaseMessagingServiceProtocol {
@@ -545,60 +595,6 @@ extension FirebaseService: FirebaseChatListenerProtocol {
     
     func stopListenForRecentMessage() {
         recentMessageListener?.remove()
-    }
-    
-}
-
-extension FirebaseService {
-    
-    func deleteChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let uid = auth.currentUser?.uid else {
-            return
-        }
-        
-        firestore
-            .collection(FirebaseConstants.messages)
-            .document(uid)
-            .collection(toId)
-            .getDocuments { querySnapshot, error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                querySnapshot?.documents.forEach({ snapshot in
-                    self.firestore
-                        .collection(FirebaseConstants.messages)
-                        .document(uid)
-                        .collection(toId)
-                        .document(snapshot.documentID)
-                        .delete() { error in
-                            if let error = error {
-                                completion(.failure(error))
-                                return
-                            }
-                        }
-                })
-                completion(.success("Success to Delete Chat Log"))
-            }
-    }
-    
-    func deleteRecentMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let uid = auth.currentUser?.uid else {
-            return
-        }
-        
-        self.firestore
-            .collection(FirebaseConstants.recentMessages)
-            .document(uid)
-            .collection(FirebaseConstants.messages)
-            .document(toId)
-            .delete() { error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                completion(.success("Success to Delete Recent Message"))
-            }
     }
     
 }

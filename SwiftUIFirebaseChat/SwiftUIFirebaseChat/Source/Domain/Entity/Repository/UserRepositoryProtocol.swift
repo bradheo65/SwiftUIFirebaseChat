@@ -15,5 +15,7 @@ protocol UserRepositoryProtocol {
     func logoutUser(completion: @escaping (Result<String, Error>) -> Void)
     func fetchAllUser(completion: @escaping (Result<ChatUser, Error>) -> Void)
     func fetchCurrentUser(completion: @escaping (Result<ChatUser?, Error>) -> Void)
+    func deleteChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void)
+    func deleteRecentChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void)
     
 }

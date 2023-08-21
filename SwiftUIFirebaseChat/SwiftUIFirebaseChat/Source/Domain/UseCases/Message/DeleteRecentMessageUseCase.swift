@@ -15,17 +15,17 @@ protocol DeleteRecentMessageUseCaseProtocol {
 
 final class DeleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol {
     
-    private let repo: DeleteMessageRepositoryProtocol
+    private let userRepo: UserRepositoryProtocol
     
-    init(repo: DeleteMessageRepositoryProtocol) {
-        self.repo = repo
+    init(userRepo: UserRepositoryProtocol) {
+        self.userRepo = userRepo
     }
     
     func excute(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        repo.deleteRecentChatMessage(toId: toId) { result in
+        userRepo.deleteRecentChatMessage(toId: toId) { result in
             switch result {
             case .success(_):
-                self.repo.deleteChatMessage(toId: toId) { result in
+                self.userRepo.deleteChatMessage(toId: toId) { result in
                     switch result {
                     case .success(let message):
                         completion(.success(message))
