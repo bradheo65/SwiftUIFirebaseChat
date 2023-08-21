@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-protocol SendMessageRepositoryProtocol {
+protocol MessagingRepositoryProtocol {
     
     func thumbnailImageForVideoURL(fileURL: URL) -> UIImage?
     func sendText(text: String, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void)

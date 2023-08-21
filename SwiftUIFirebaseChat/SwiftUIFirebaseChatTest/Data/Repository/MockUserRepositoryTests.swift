@@ -12,12 +12,12 @@ import XCTest
 final class MockUserRepositoryTests: XCTestCase {
     
     private var mockFirebaseService: MockFirebaseService!
-    private var repository: MockUserRepository!
+    private var repository: UserRepository!
     
     override func setUpWithError() throws {
         try super.setUpWithError()
         mockFirebaseService = MockFirebaseService()
-        repository = MockUserRepository(firebaseUserService: mockFirebaseService)
+        repository = UserRepository(firebaseService: mockFirebaseService)
     }
     
     override func tearDownWithError() throws {

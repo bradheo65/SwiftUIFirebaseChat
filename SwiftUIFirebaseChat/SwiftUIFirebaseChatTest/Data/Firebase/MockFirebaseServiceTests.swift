@@ -273,4 +273,196 @@ final class MockFirebaseServiceTests: XCTestCase {
         }
     }
     
+    func testSendTextMessage_Success() {
+        let mockMessage = "Success to Send Text Message"
+        let mockChatUser = ChatUser(uid: "mockUid", email: "mockEmail", profileImageURL: "mockProfileImageUrl")
+
+        mockFirebaseService.sendTextMessage(text: "mockText", chatUser: mockChatUser) { result in
+            switch result {
+            case .success(let message):
+                XCTAssertEqual(message, mockMessage)
+            case .failure:
+                XCTFail("Unexpected Failure")
+            }
+        }
+    }
+    
+    func testSendTextMessage_Failure() {
+        let mockError = NSError(domain: "mockDomainError", code: 123, userInfo: nil)
+        let mockChatUser = ChatUser(uid: "mockUid", email: "mockEmail", profileImageURL: "mockProfileImageUrl")
+        mockFirebaseService.mockError = mockError
+
+        mockFirebaseService.sendTextMessage(text: "mockText", chatUser: mockChatUser) { result in
+            switch result {
+            case .success:
+                XCTFail("Unexpected Success")
+            case .failure(let error):
+                XCTAssertEqual(error as NSError, mockError)
+            }
+        }
+    }
+    
+    func testSendImageMessage_Success() {
+        let mockMessage = "Success to Send Image Message"
+        let mockChatUser = ChatUser(uid: "mockUid", email: "mockEmail", profileImageURL: "mockProfileImageUrl")
+        
+        mockFirebaseService.sendImageMessage(imageURL: URL(string: "mockUrl")!, image: UIImage(), chatUser: mockChatUser) { result in
+            switch result {
+            case .success(let message):
+                XCTAssertEqual(message, mockMessage)
+            case .failure:
+                XCTFail("Unexpected Failure")
+            }
+        }
+    }
+    
+    func testSendImageMessage_Failure() {
+        let mockError = NSError(domain: "mockDomainError", code: 123, userInfo: nil)
+        let mockChatUser = ChatUser(uid: "mockUid", email: "mockEmail", profileImageURL: "mockProfileImageUrl")
+        mockFirebaseService.mockError = mockError
+        
+        mockFirebaseService.sendImageMessage(imageURL: URL(string: "mockUrl")!, image: UIImage(), chatUser: mockChatUser) { result in
+            switch result {
+            case .success:
+                XCTFail("Unexpected Success")
+            case .failure(let error):
+                XCTAssertEqual(error as NSError, mockError)
+            }
+        }
+    }
+    
+    func testSendVedioMessage_Success() {
+        let mockMessage = "Success to Send Video Message"
+        let mockChatUser = ChatUser(uid: "mockUid", email: "mockEmail", profileImageURL: "mockProfileImageUrl")
+
+        mockFirebaseService.sendVideoMessage(
+            imageUrl: URL(string: "mockImageUrl")!,
+            videoUrl: URL(string: "mockVideoUrl")!,
+            image: UIImage(),
+            chatUser: mockChatUser
+        ) { result in
+            switch result {
+            case .success(let message):
+                XCTAssertEqual(message, mockMessage)
+            case .failure:
+                XCTFail("Unexpected Failure")
+            }
+        }
+    }
+    
+    func testSendVideoMessage_Failure() {
+        let mockError = NSError(domain: "mockDomainError", code: 123, userInfo: nil)
+        let mockChatUser = ChatUser(uid: "mockUid", email: "mockEmail", profileImageURL: "mockProfileImageUrl")
+        mockFirebaseService.mockError = mockError
+        
+        mockFirebaseService.sendVideoMessage(
+            imageUrl: URL(string: "mockImageUrl")!,
+            videoUrl: URL(string: "mockVideoUrl")!,
+            image: UIImage(),
+            chatUser: mockChatUser
+        ) { result in
+            switch result {
+            case .success:
+                XCTFail("Unexpected Failure")
+            case .failure(let error):
+                XCTAssertEqual(error as NSError, mockError)
+            }
+        }
+    }
+    
+    func testSendFileMessage_Success() {
+        let mockMessage = "Success to Send File Message"
+        let mockFileInfo = FileInfo(url: URL(string: "mockUrl")!, name: "mockName", contentType: "mockContentType", size: "mockSize")
+        let mockChatUser = ChatUser(uid: "mockUid", email: "mockEmail", profileImageURL: "mockProfileImageUrl")
+        
+        mockFirebaseService.sendFileMessage(fileInfo: mockFileInfo, chatUser: mockChatUser) { result in
+            switch result {
+            case .success(let message):
+                XCTAssertEqual(message, mockMessage)
+            case .failure:
+                XCTFail("Unexpected Failure")
+            }
+        }
+    }
+    
+    func testSendFileMessage_Failure() {
+        let mockError = NSError(domain: "mockDomainError", code: 123, userInfo: nil)
+        let mockFileInfo = FileInfo(url: URL(string: "mockUrl")!, name: "mockName", contentType: "mockContentType", size: "mockSize")
+        let mockChatUser = ChatUser(uid: "mockUid", email: "mockEmail", profileImageURL: "mockProfileImageUrl")
+        mockFirebaseService.mockError = mockError
+        
+        mockFirebaseService.sendFileMessage(fileInfo: mockFileInfo, chatUser: mockChatUser) { result in
+            switch result {
+            case .success:
+                XCTFail("Unexpected Success")
+            case .failure(let error):
+                XCTAssertEqual(error as NSError, mockError)
+            }
+        }
+    }
+    
+    func testSendRecentMessage_Success() {
+        let mockMessage = "Success to Send Recent Message"
+        let mockChatUser = ChatUser(uid: "mockUid", email: "mockEmail", profileImageURL: "mockProfileImageUrl")
+
+        mockFirebaseService.sendRecentMessage(text: "mockText", chatUser: mockChatUser) { result in
+            switch result {
+            case .success(let message):
+                XCTAssertEqual(message, mockMessage)
+            case .failure:
+                XCTFail("Unexpected Failure")
+            }
+        }
+    }
+    
+    func testSendRecentMessage_Failure() {
+        let mockError = NSError(domain: "mockDomainError", code: 123, userInfo: nil)
+        let mockChatUser = ChatUser(uid: "mockUid", email: "mockEmail", profileImageURL: "mockProfileImageUrl")
+        mockFirebaseService.mockError = mockError
+        
+        mockFirebaseService.sendRecentMessage(text: "mockText", chatUser: mockChatUser) { result in
+            switch result {
+            case .success:
+                XCTFail("Unexpected Success")
+            case .failure(let error):
+                XCTAssertEqual(error as NSError, mockError)
+            }
+        }
+    }
+    
+    func testSendMessage_Success() {
+        let mockMessage = "Success to Send Message"
+        
+        mockFirebaseService.sendMessage(
+            fromId: "mockFromId",
+            toId: "mockToId",
+            messageData: [:]
+        ) { result in
+            switch result {
+            case .success(let message):
+                XCTAssertEqual(message, mockMessage)
+            case .failure:
+                XCTFail("Unexpected Failure")
+            }
+        }
+    }
+    
+    func testSendMessage_Failure() {
+        let mockError = NSError(domain: "mockDomainError", code: 123, userInfo: nil)
+        mockFirebaseService.mockError = mockError
+        
+        mockFirebaseService.sendMessage(
+            fromId: "mockFromId",
+            toId: "mockToId",
+            messageData: [:]
+        ) { result in
+            switch result {
+            case .success:
+                XCTFail("Unexpected Success")
+            case .failure(let error):
+                XCTAssertEqual(error as NSError, mockError)
+            }
+        }
+    }
+    
 }

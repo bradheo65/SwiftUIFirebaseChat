@@ -15,10 +15,10 @@ protocol SendFileMessageUseCaseProtocol {
 
 final class SendFileMessageUseCase: SendFileMessageUseCaseProtocol {
     
-    private let sendMessageRepo: SendMessageRepositoryProtocol
+    private let sendMessageRepo: MessagingRepositoryProtocol
     private let uploadFileRepo: FileUploadRepositoryProtocol
 
-    init(sendMessageRepo: SendMessageRepositoryProtocol, uploadFileRepo: FileUploadRepositoryProtocol) {
+    init(sendMessageRepo: MessagingRepositoryProtocol, uploadFileRepo: FileUploadRepositoryProtocol) {
         self.sendMessageRepo = sendMessageRepo
         self.uploadFileRepo = uploadFileRepo
     }

@@ -15,9 +15,9 @@ protocol SendTextMessageUseCaseProtocol {
 
 final class SendTextMessageUseCase: SendTextMessageUseCaseProtocol {
     
-    private let sendMessageRepo: SendMessageRepositoryProtocol
+    private let sendMessageRepo: MessagingRepositoryProtocol
     
-    init(sendMessageRepo: SendMessageRepositoryProtocol) {
+    init(sendMessageRepo: MessagingRepositoryProtocol) {
         self.sendMessageRepo = sendMessageRepo
     }
     

@@ -1,5 +1,5 @@
 //
-//  SendMessageRepository.swift
+//  MessagingRepository.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by brad on 2023/08/16.
@@ -9,9 +9,13 @@ import Foundation
 import SwiftUI
 import AVFoundation
 
-final class SendMessageRepository: SendMessageRepositoryProtocol {
+final class MessagingRepository: MessagingRepositoryProtocol {
     
-    private let firebaseService = FirebaseService.shared
+    private let firebaseService: FirebaseMessagingServiceProtocol
+    
+    init(firebaseService: FirebaseMessagingServiceProtocol) {
+        self.firebaseService = firebaseService
+    }
     
     func thumbnailImageForVideoURL(fileURL: URL) -> UIImage? {
         let asset = AVAsset(url: fileURL)

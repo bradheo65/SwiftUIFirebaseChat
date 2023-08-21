@@ -143,7 +143,7 @@ extension FirebaseService: FirebaseUserServiceProtocol {
     
 }
 
-extension FirebaseService {
+extension FirebaseService: FirebaseMessagingServiceProtocol {
     
     func sendTextMessage(text: String, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
         guard let currentUser = currentUser else {
@@ -302,7 +302,7 @@ extension FirebaseService {
             }
     }
     
-    private func sendMessage(fromId: String, toId: String, messageData: [String: Any], compltion: @escaping (Result<String, Error>) -> Void) {
+    func sendMessage(fromId: String, toId: String, messageData: [String: Any], completion: @escaping (Result<String, Error>) -> Void) {
         let document = firestore
             .collection(FirebaseConstants.messages)
             .document(fromId)
@@ -317,15 +317,15 @@ extension FirebaseService {
         
         document.setData(messageData) { error in
             if let error = error {
-                compltion(.failure(error))
+                completion(.failure(error))
                 return
             }
             recipientMessageDocument.setData(messageData) { error in
                 if let error = error {
-                    compltion(.failure(error))
+                    completion(.failure(error))
                     return
                 }
-                compltion(.success("Successfully saved to user sending message"))
+                completion(.success("Successfully saved to user sending message"))
             }
         }
     }

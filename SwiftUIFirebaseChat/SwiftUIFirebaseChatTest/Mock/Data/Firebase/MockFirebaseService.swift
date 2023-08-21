@@ -88,5 +88,56 @@ extension MockFirebaseService: FirebaseFileUploadServiceProtocol {
         }
     }
     
+}
+
+extension MockFirebaseService: FirebaseMessagingServiceProtocol {
+    
+    func sendTextMessage(text: String, chatUser: SwiftUIFirebaseChat.ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
+        if let error = mockError {
+            completion(.failure(error))
+        } else {
+            completion(.success("Success to Send Text Message"))
+        }
+    }
+    
+    func sendImageMessage(imageURL: URL, image: UIImage, chatUser: SwiftUIFirebaseChat.ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
+        if let error = mockError {
+            completion(.failure(error))
+        } else {
+            completion(.success("Success to Send Image Message"))
+        }
+    }
+    
+    func sendVideoMessage(imageUrl: URL, videoUrl: URL, image: UIImage, chatUser: SwiftUIFirebaseChat.ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
+        if let error = mockError {
+            completion(.failure(error))
+        } else {
+            completion(.success("Success to Send Video Message"))
+        }
+    }
+    
+    func sendFileMessage(fileInfo: SwiftUIFirebaseChat.FileInfo, chatUser: SwiftUIFirebaseChat.ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
+        if let error = mockError {
+            completion(.failure(error))
+        } else {
+            completion(.success("Success to Send File Message"))
+        }
+    }
+    
+    func sendRecentMessage(text: String, chatUser: SwiftUIFirebaseChat.ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
+        if let error = mockError {
+            completion(.failure(error))
+        } else {
+            completion(.success("Success to Send Recent Message"))
+        }
+    }
+    
+    func sendMessage(fromId: String, toId: String, messageData: [String : Any], completion: @escaping (Result<String, Error>) -> Void) {
+        if let error = mockError {
+            completion(.failure(error))
+        } else {
+            completion(.success("Success to Send Message"))
+        }
+    }
     
 }

@@ -44,6 +44,10 @@ func buildContatier() -> Container {
         return FirebaseService.shared
     }.inObjectScope(.container)
     
+    container.register(FirebaseMessagingServiceProtocol.self) { _ in
+        return FirebaseService.shared
+    }.inObjectScope(.container)
+    
     // MARK: - UserRepository DI
     
     container.register(UserRepositoryProtocol.self) { _ in
@@ -72,8 +76,8 @@ func buildContatier() -> Container {
         return ChatMessageListenerRepository()
     }
     
-    container.register(SendMessageRepositoryProtocol.self) { _ in
-        return SendMessageRepository()
+    container.register(MessagingRepositoryProtocol.self) { _ in
+        return MessagingRepository(firebaseService: container.resolve(FirebaseMessagingServiceProtocol.self)!)
     }
     
     container.register(FileSaveRepositoryProtocol.self) { _ in
@@ -130,26 +134,26 @@ func buildContatier() -> Container {
     }.inObjectScope(.container)
     
     container.register(SendTextMessageUseCaseProtocol.self) { _ in
-        return SendTextMessageUseCase(sendMessageRepo: container.resolve(SendMessageRepositoryProtocol.self)!)
+        return SendTextMessageUseCase(sendMessageRepo: container.resolve(MessagingRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
     container.register(SendImageMessageUseCaseProtocol.self) { _ in
         return SendImageMessageUseCase(
-            sendMessageRepo: container.resolve(SendMessageRepositoryProtocol.self)!,
+            sendMessageRepo: container.resolve(MessagingRepositoryProtocol.self)!,
             uploadFileRepo: container.resolve(FileUploadRepositoryProtocol.self)!
         )
     }.inObjectScope(.container)
     
     container.register(SendVideoMessageUseCaseProtocol.self) { _ in
         return SendVideoMessageUseCase(
-            sendMessageRepo: container.resolve(SendMessageRepositoryProtocol.self)!,
+            sendMessageRepo: container.resolve(MessagingRepositoryProtocol.self)!,
             uploadFileRepo: container.resolve(FileUploadRepositoryProtocol.self)!
         )
     }.inObjectScope(.container)
     
     container.register(SendFileMessageUseCaseProtocol.self) { _ in
         return SendFileMessageUseCase(
-            sendMessageRepo: container.resolve(SendMessageRepositoryProtocol.self)!,
+            sendMessageRepo: container.resolve(MessagingRepositoryProtocol.self)!,
             uploadFileRepo: container.resolve(FileUploadRepositoryProtocol.self)!
         )
     }.inObjectScope(.container)

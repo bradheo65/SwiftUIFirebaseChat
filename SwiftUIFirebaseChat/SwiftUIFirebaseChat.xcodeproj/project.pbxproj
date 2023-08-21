@@ -28,12 +28,12 @@
 		A348F3802A8C5F790017DD72 /* AddChatMessageListenerUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F37F2A8C5F790017DD72 /* AddChatMessageListenerUseCase.swift */; };
 		A348F3822A8C5F8C0017DD72 /* RemoveChatMessageListenerUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3812A8C5F8C0017DD72 /* RemoveChatMessageListenerUseCase.swift */; };
 		A348F3852A8C65EE0017DD72 /* ChatMessageListenerRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3842A8C65EE0017DD72 /* ChatMessageListenerRepositoryProtocol.swift */; };
-		A348F3872A8C66740017DD72 /* SendMessageRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3862A8C66740017DD72 /* SendMessageRepositoryProtocol.swift */; };
+		A348F3872A8C66740017DD72 /* MessagingRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3862A8C66740017DD72 /* MessagingRepositoryProtocol.swift */; };
 		A348F38E2A8D99A70017DD72 /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = A348F38D2A8D99A70017DD72 /* Swinject */; };
 		A348F3912A8DA3F60017DD72 /* Reslover.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3902A8DA3F60017DD72 /* Reslover.swift */; };
 		A348F3952A8DE7980017DD72 /* FileSaveUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3942A8DE7980017DD72 /* FileSaveUseCase.swift */; };
 		A348F3972A8DE7B50017DD72 /* FileSaveRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3962A8DE7B50017DD72 /* FileSaveRepositoryProtocol.swift */; };
-		A348F3A42A8DEDA00017DD72 /* SendMessageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F39A2A8DEDA00017DD72 /* SendMessageRepository.swift */; };
+		A348F3A42A8DEDA00017DD72 /* MessagingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F39A2A8DEDA00017DD72 /* MessagingRepository.swift */; };
 		A348F3A62A8DEDA00017DD72 /* ChatMessageListenerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F39C2A8DEDA00017DD72 /* ChatMessageListenerRepository.swift */; };
 		A348F3A72A8DEDA00017DD72 /* FileSaveRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F39D2A8DEDA00017DD72 /* FileSaveRepository.swift */; };
 		A348F3A92A8DEDA00017DD72 /* DeleteMessageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F39F2A8DEDA00017DD72 /* DeleteMessageRepository.swift */; };
@@ -42,7 +42,6 @@
 		A348F3AC2A8DEDA00017DD72 /* FileUploadRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3A22A8DEDA00017DD72 /* FileUploadRepository.swift */; };
 		A34A6E222A73829700440F93 /* ImageModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34A6E212A73829700440F93 /* ImageModifier.swift */; };
 		A34A6E242A7382D300440F93 /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34A6E232A7382D300440F93 /* ImageViewer.swift */; };
-		A35192D22A8EF4F900BE5E21 /* MockUserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35192D12A8EF4F900BE5E21 /* MockUserRepository.swift */; };
 		A35192D72A8F00FD00BE5E21 /* MockFirebaseServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35192D62A8F00FD00BE5E21 /* MockFirebaseServiceTests.swift */; };
 		A35192DC2A8F14DD00BE5E21 /* FirebaseUserServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35192DB2A8F14DD00BE5E21 /* FirebaseUserServiceProtocol.swift */; };
 		A354F6942A5460630063652A /* SwiftUIFirebaseChatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A354F6932A5460630063652A /* SwiftUIFirebaseChatApp.swift */; };
@@ -80,9 +79,11 @@
 		A3CED4632A70B6B5001DD436 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CED4622A70B6B5001DD436 /* ProfileImageView.swift */; };
 		A3CED4662A70B6FE001DD436 /* FirebaseConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CED4652A70B6FE001DD436 /* FirebaseConstants.swift */; };
 		A3EC4DEA2A8F5FC5008DDB02 /* MockFileUploadRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EC4DE92A8F5FC5008DDB02 /* MockFileUploadRepositoryTests.swift */; };
-		A3EC4DEC2A8F5FFE008DDB02 /* MockFileUploadRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EC4DEB2A8F5FFE008DDB02 /* MockFileUploadRepository.swift */; };
 		A3EC4DEE2A92E22C008DDB02 /* FirebaseFileUploadServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EC4DED2A92E22C008DDB02 /* FirebaseFileUploadServiceProtocol.swift */; };
 		A3EC4DF02A92E545008DDB02 /* FileUploadRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EC4DEF2A92E545008DDB02 /* FileUploadRepositoryProtocol.swift */; };
+		A3EC4DF22A92EAE0008DDB02 /* FirebaseMessagingServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EC4DF12A92EAE0008DDB02 /* FirebaseMessagingServiceProtocol.swift */; };
+		A3EC4DF62A9308DD008DDB02 /* MockMessagingRespositoryTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EC4DF52A9308DD008DDB02 /* MockMessagingRespositoryTest.swift */; };
+		A3EC4DF82A930BCE008DDB02 /* SampleVideo_1280x720_1mb.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A3EC4DF72A930BCE008DDB02 /* SampleVideo_1280x720_1mb.mp4 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -125,11 +126,11 @@
 		A348F37F2A8C5F790017DD72 /* AddChatMessageListenerUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddChatMessageListenerUseCase.swift; sourceTree = "<group>"; };
 		A348F3812A8C5F8C0017DD72 /* RemoveChatMessageListenerUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoveChatMessageListenerUseCase.swift; sourceTree = "<group>"; };
 		A348F3842A8C65EE0017DD72 /* ChatMessageListenerRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageListenerRepositoryProtocol.swift; sourceTree = "<group>"; };
-		A348F3862A8C66740017DD72 /* SendMessageRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMessageRepositoryProtocol.swift; sourceTree = "<group>"; };
+		A348F3862A8C66740017DD72 /* MessagingRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingRepositoryProtocol.swift; sourceTree = "<group>"; };
 		A348F3902A8DA3F60017DD72 /* Reslover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reslover.swift; sourceTree = "<group>"; };
 		A348F3942A8DE7980017DD72 /* FileSaveUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSaveUseCase.swift; sourceTree = "<group>"; };
 		A348F3962A8DE7B50017DD72 /* FileSaveRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSaveRepositoryProtocol.swift; sourceTree = "<group>"; };
-		A348F39A2A8DEDA00017DD72 /* SendMessageRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendMessageRepository.swift; sourceTree = "<group>"; };
+		A348F39A2A8DEDA00017DD72 /* MessagingRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagingRepository.swift; sourceTree = "<group>"; };
 		A348F39C2A8DEDA00017DD72 /* ChatMessageListenerRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatMessageListenerRepository.swift; sourceTree = "<group>"; };
 		A348F39D2A8DEDA00017DD72 /* FileSaveRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileSaveRepository.swift; sourceTree = "<group>"; };
 		A348F39F2A8DEDA00017DD72 /* DeleteMessageRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeleteMessageRepository.swift; sourceTree = "<group>"; };
@@ -139,7 +140,6 @@
 		A348F3B12A8DEF480017DD72 /* SwiftUIFirebaseChatTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftUIFirebaseChatTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A34A6E212A73829700440F93 /* ImageModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModifier.swift; sourceTree = "<group>"; };
 		A34A6E232A7382D300440F93 /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
-		A35192D12A8EF4F900BE5E21 /* MockUserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUserRepository.swift; sourceTree = "<group>"; };
 		A35192D62A8F00FD00BE5E21 /* MockFirebaseServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFirebaseServiceTests.swift; sourceTree = "<group>"; };
 		A35192D82A8F0C5000BE5E21 /* SwiftUIFirebaseChat.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftUIFirebaseChat.xctestplan; sourceTree = "<group>"; };
 		A35192DB2A8F14DD00BE5E21 /* FirebaseUserServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseUserServiceProtocol.swift; sourceTree = "<group>"; };
@@ -173,9 +173,11 @@
 		A3CED4622A70B6B5001DD436 /* ProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageView.swift; sourceTree = "<group>"; };
 		A3CED4652A70B6FE001DD436 /* FirebaseConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseConstants.swift; sourceTree = "<group>"; };
 		A3EC4DE92A8F5FC5008DDB02 /* MockFileUploadRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFileUploadRepositoryTests.swift; sourceTree = "<group>"; };
-		A3EC4DEB2A8F5FFE008DDB02 /* MockFileUploadRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFileUploadRepository.swift; sourceTree = "<group>"; };
 		A3EC4DED2A92E22C008DDB02 /* FirebaseFileUploadServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseFileUploadServiceProtocol.swift; sourceTree = "<group>"; };
 		A3EC4DEF2A92E545008DDB02 /* FileUploadRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadRepositoryProtocol.swift; sourceTree = "<group>"; };
+		A3EC4DF12A92EAE0008DDB02 /* FirebaseMessagingServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseMessagingServiceProtocol.swift; sourceTree = "<group>"; };
+		A3EC4DF52A9308DD008DDB02 /* MockMessagingRespositoryTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMessagingRespositoryTest.swift; sourceTree = "<group>"; };
+		A3EC4DF72A930BCE008DDB02 /* SampleVideo_1280x720_1mb.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = SampleVideo_1280x720_1mb.mp4; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -316,20 +318,12 @@
 			path = Firebase;
 			sourceTree = "<group>";
 		};
-		A35192D02A8EF4A800BE5E21 /* Repository */ = {
-			isa = PBXGroup;
-			children = (
-				A35192D12A8EF4F900BE5E21 /* MockUserRepository.swift */,
-				A3EC4DEB2A8F5FFE008DDB02 /* MockFileUploadRepository.swift */,
-			);
-			path = Repository;
-			sourceTree = "<group>";
-		};
 		A35192D32A8F009800BE5E21 /* Repository */ = {
 			isa = PBXGroup;
 			children = (
 				A376747B2A8DFDF100BDC235 /* MockUserRepositoryTests.swift */,
 				A3EC4DE92A8F5FC5008DDB02 /* MockFileUploadRepositoryTests.swift */,
+				A3EC4DF52A9308DD008DDB02 /* MockMessagingRespositoryTest.swift */,
 			);
 			path = Repository;
 			sourceTree = "<group>";
@@ -355,6 +349,7 @@
 			children = (
 				A35192DB2A8F14DD00BE5E21 /* FirebaseUserServiceProtocol.swift */,
 				A3EC4DED2A92E22C008DDB02 /* FirebaseFileUploadServiceProtocol.swift */,
+				A3EC4DF12A92EAE0008DDB02 /* FirebaseMessagingServiceProtocol.swift */,
 			);
 			path = Firebase;
 			sourceTree = "<group>";
@@ -464,8 +459,8 @@
 		A376748A2A8E037800BDC235 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				A3EC4DF72A930BCE008DDB02 /* SampleVideo_1280x720_1mb.mp4 */,
 				A35192CF2A8EF49E00BE5E21 /* Firebase */,
-				A35192D02A8EF4A800BE5E21 /* Repository */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -524,10 +519,10 @@
 			children = (
 				A348F3542A89B3CE0017DD72 /* UserRepositoryProtocol.swift */,
 				A3EC4DEF2A92E545008DDB02 /* FileUploadRepositoryProtocol.swift */,
+				A348F3862A8C66740017DD72 /* MessagingRepositoryProtocol.swift */,
 				A348F3842A8C65EE0017DD72 /* ChatMessageListenerRepositoryProtocol.swift */,
 				A348F3592A89B4240017DD72 /* RecentMessageListenerRepositoryProtocol.swift */,
 				A348F3652A89D4590017DD72 /* DeleteMessageRepositoryProtocol.swift */,
-				A348F3862A8C66740017DD72 /* SendMessageRepositoryProtocol.swift */,
 				A348F3962A8DE7B50017DD72 /* FileSaveRepositoryProtocol.swift */,
 			);
 			name = Repository;
@@ -539,11 +534,11 @@
 			children = (
 				A348F3A02A8DEDA00017DD72 /* UserRepository.swift */,
 				A348F3A22A8DEDA00017DD72 /* FileUploadRepository.swift */,
+				A348F39A2A8DEDA00017DD72 /* MessagingRepository.swift */,
 				A348F39C2A8DEDA00017DD72 /* ChatMessageListenerRepository.swift */,
 				A348F39F2A8DEDA00017DD72 /* DeleteMessageRepository.swift */,
 				A348F39D2A8DEDA00017DD72 /* FileSaveRepository.swift */,
 				A348F3A12A8DEDA00017DD72 /* RecentMessageListenerRepository.swift */,
-				A348F39A2A8DEDA00017DD72 /* SendMessageRepository.swift */,
 			);
 			name = Repository;
 			path = ../Domain/Repository;
@@ -749,6 +744,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3EC4DF82A930BCE008DDB02 /* SampleVideo_1280x720_1mb.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -773,7 +769,7 @@
 				A348F3802A8C5F790017DD72 /* AddChatMessageListenerUseCase.swift in Sources */,
 				A35192DC2A8F14DD00BE5E21 /* FirebaseUserServiceProtocol.swift in Sources */,
 				A348F3A92A8DEDA00017DD72 /* DeleteMessageRepository.swift in Sources */,
-				A348F3A42A8DEDA00017DD72 /* SendMessageRepository.swift in Sources */,
+				A348F3A42A8DEDA00017DD72 /* MessagingRepository.swift in Sources */,
 				A348F3952A8DE7980017DD72 /* FileSaveUseCase.swift in Sources */,
 				A3B722522A6D682E005F713F /* ChatUser.swift in Sources */,
 				A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */,
@@ -797,6 +793,7 @@
 				A326FB972A85D67C00794C27 /* GetAllUserUseCase.swift in Sources */,
 				A35736752A6EBFBA007B0402 /* CreateNewMessageView.swift in Sources */,
 				A35736862A6FAA51007B0402 /* ChatMessage.swift in Sources */,
+				A3EC4DF22A92EAE0008DDB02 /* FirebaseMessagingServiceProtocol.swift in Sources */,
 				A36EF84A2A79F3C400A7DEE2 /* ImageCache.swift in Sources */,
 				A3B0291B2A59AD09008161CE /* ImagePicker.swift in Sources */,
 				A354F6962A5460630063652A /* LoginView.swift in Sources */,
@@ -808,7 +805,7 @@
 				A3CED4602A70B2FE001DD436 /* MainMessageViewModel.swift in Sources */,
 				A348F3A72A8DEDA00017DD72 /* FileSaveRepository.swift in Sources */,
 				A310D6A42A84CD8000634DFE /* FileSaveManager.swift in Sources */,
-				A348F3872A8C66740017DD72 /* SendMessageRepositoryProtocol.swift in Sources */,
+				A348F3872A8C66740017DD72 /* MessagingRepositoryProtocol.swift in Sources */,
 				A348F3552A89B3CE0017DD72 /* UserRepositoryProtocol.swift in Sources */,
 				A35736792A6F343C007B0402 /* ChatLogView.swift in Sources */,
 				A348F3702A89EC8D0017DD72 /* FirebaseService.swift in Sources */,
@@ -832,8 +829,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A3EC4DEC2A8F5FFE008DDB02 /* MockFileUploadRepository.swift in Sources */,
-				A35192D22A8EF4F900BE5E21 /* MockUserRepository.swift in Sources */,
+				A3EC4DF62A9308DD008DDB02 /* MockMessagingRespositoryTest.swift in Sources */,
 				A35192D72A8F00FD00BE5E21 /* MockFirebaseServiceTests.swift in Sources */,
 				A3EC4DEA2A8F5FC5008DDB02 /* MockFileUploadRepositoryTests.swift in Sources */,
 				A376748C2A8E061500BDC235 /* MockFirebaseService.swift in Sources */,
