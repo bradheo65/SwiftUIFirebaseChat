@@ -1,5 +1,5 @@
 //
-//  AddChatMessageListenerUseCase.swift
+//  StartChatMessageListenerUseCase.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by brad on 2023/08/16.
@@ -7,22 +7,22 @@
 
 import Foundation
 
-protocol AddChatMessageListenerUseCaseProtocol {
+protocol StartChatMessageListenerUseCaseProtocol {
     
     func excute(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void)
     
 }
 
-final class AddChatMessageListenerUseCase: AddChatMessageListenerUseCaseProtocol {
+final class StartChatMessageListenerUseCase: StartChatMessageListenerUseCaseProtocol {
     
-    private let chatMessageListenerRepo: ChatMessageListenerRepositoryProtocol
+    private let chatListenerRepo: ChatListenerRepositoryProtocol
     
-    init(chatMessageListenerRepo: ChatMessageListenerRepositoryProtocol) {
-        self.chatMessageListenerRepo = chatMessageListenerRepo
+    init(chatListenerRepo: ChatListenerRepositoryProtocol) {
+        self.chatListenerRepo = chatListenerRepo
     }
     
     func excute(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void) {
-        chatMessageListenerRepo.addChatMessageListener(chatUser: chatUser) { result in
+        chatListenerRepo.startChatMessageListener(chatUser: chatUser) { result in
             switch result {
             case .success(let chatMessage):
                 completion(.success(chatMessage))

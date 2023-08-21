@@ -22,23 +22,23 @@ final class MainMessageViewModel: ObservableObject {
     private let deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol
     private let getAllUserUseCase: GetAllUserUseCaseProtocol
     private let getCurrentUserUseCase: GetCurrentUserUseCaseProtocol
-    private let addRecentMessageListenerUseCase: AddRecentMessageListenerUseCaseProtocol
-    private let removeRecentMessageListenerUseCase: RemoveRecentMessageListenerUseCaseProtocol
+    private let startRecentMessageListenerUseCase: StartRecentMessageListenerUseCaseProtocol
+    private let stopRecentMessageListenerUseCase: StopRecentMessageListenerUseCaseProtocol
     
     init(
         logoutUseCase: LogoutUseCaseProtocol,
         deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol,
         getAllUserUseCase: GetAllUserUseCaseProtocol,
         getCurrentUserUseCase: GetCurrentUserUseCaseProtocol,
-        addRecentMessageListenerUseCase: AddRecentMessageListenerUseCaseProtocol,
-        removeRecentMessageListenerUseCase: RemoveRecentMessageListenerUseCaseProtocol
+        startRecentMessageListenerUseCase: StartRecentMessageListenerUseCaseProtocol,
+        stopRecentMessageListenerUseCase: StopRecentMessageListenerUseCaseProtocol
     ) {
         self.logoutUseCase = logoutUseCase
         self.deleteRecentMessageUseCase = deleteRecentMessageUseCase
         self.getAllUserUseCase = getAllUserUseCase
         self.getCurrentUserUseCase = getCurrentUserUseCase
-        self.addRecentMessageListenerUseCase = addRecentMessageListenerUseCase
-        self.removeRecentMessageListenerUseCase = removeRecentMessageListenerUseCase
+        self.startRecentMessageListenerUseCase = startRecentMessageListenerUseCase
+        self.stopRecentMessageListenerUseCase = stopRecentMessageListenerUseCase
     }
     
     func fetchAllUser() {
@@ -92,7 +92,7 @@ extension MainMessageViewModel {
     }
     
     private func activeFirebaseRecentMessagesListener() {
-        addRecentMessageListenerUseCase.excute { result in
+        startRecentMessageListenerUseCase.excute { result in
             switch result {
             case .success(let documentChange):
                 switch documentChange.type {
@@ -118,7 +118,7 @@ extension MainMessageViewModel {
     }
     
     private func removeFirebaseRecentMessageListener() {
-        removeRecentMessageListenerUseCase.excute()
+        stopRecentMessageListenerUseCase.excute()
     }
     
     private func logoutFirebaseCurrentUser() {

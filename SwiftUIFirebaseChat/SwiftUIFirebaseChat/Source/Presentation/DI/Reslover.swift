@@ -48,6 +48,10 @@ func buildContatier() -> Container {
         return FirebaseService.shared
     }.inObjectScope(.container)
     
+    container.register(FirebaseChatListenerProtocol.self) { _ in
+        return FirebaseService.shared
+    }.inObjectScope(.container)
+    
     // MARK: - UserRepository DI
     
     container.register(UserRepositoryProtocol.self) { _ in
@@ -66,18 +70,14 @@ func buildContatier() -> Container {
         return DeleteMessageRepository()
     }
     
-    container.register(RecentMessageListenerRepositoryProtocol.self) { _ in
-        return RecentMessageListenerRepository()
-    }
-    
     // MARK: - Chat DI Repository
 
-    container.register(ChatMessageListenerRepositoryProtocol.self) { _ in
-        return ChatMessageListenerRepository()
-    }
-    
     container.register(MessagingRepositoryProtocol.self) { _ in
         return MessagingRepository(firebaseService: container.resolve(FirebaseMessagingServiceProtocol.self)!)
+    }
+    
+    container.register(ChatListenerRepositoryProtocol.self) { _ in
+        return ChatListenerRepository(firebaseSerivce: container.resolve(FirebaseChatListenerProtocol.self)!)
     }
     
     container.register(FileSaveRepositoryProtocol.self) { _ in
@@ -115,22 +115,22 @@ func buildContatier() -> Container {
         return GetCurrentUserUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
-    container.register(AddRecentMessageListenerUseCaseProtocol.self) { _ in
-        return AddRecentMessageListenerUseCase(repo: container.resolve(RecentMessageListenerRepositoryProtocol.self)!)
+    container.register(StartRecentMessageListenerUseCaseProtocol.self) { _ in
+        return StartRecentMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
-    container.register(RemoveRecentMessageListenerUseCaseProtocol.self) { _ in
-        return RemoveRecentMessageListenerUseCase(repo: container.resolve(RecentMessageListenerRepositoryProtocol.self)!)
+    container.register(StopRecentMessageListenerUseCaseProtocol.self) { _ in
+        return StopRecentMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
     // MARK: - Chat DI UserCase
     
-    container.register(AddChatMessageListenerUseCaseProtocol.self) { _ in
-        return AddChatMessageListenerUseCase(chatMessageListenerRepo: container.resolve(ChatMessageListenerRepositoryProtocol.self)!)
+    container.register(StartChatMessageListenerUseCaseProtocol.self) { _ in
+        return StartChatMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
-    container.register(RemoveChatMessageListenerUseCaseProtocol.self) { _ in
-        return RemoveChatMessageListenerUseCase(chatMessageListenerRepo: container.resolve(ChatMessageListenerRepositoryProtocol.self)!)
+    container.register(StopChatMessageListenerUseCaseProtocol.self) { _ in
+        return StopChatMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
     container.register(SendTextMessageUseCaseProtocol.self) { _ in

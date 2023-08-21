@@ -16,8 +16,8 @@ struct MainMessageView: View {
         deleteRecentMessageUseCase: Reslover.shared.resolve(DeleteRecentMessageUseCaseProtocol.self),
         getAllUserUseCase: Reslover.shared.resolve(GetAllUserUseCaseProtocol.self),
         getCurrentUserUseCase: Reslover.shared.resolve(GetCurrentUserUseCaseProtocol.self),
-        addRecentMessageListenerUseCase: Reslover.shared.resolve(AddRecentMessageListenerUseCaseProtocol.self),
-        removeRecentMessageListenerUseCase: Reslover.shared.resolve(RemoveRecentMessageListenerUseCaseProtocol.self)
+        startRecentMessageListenerUseCase: Reslover.shared.resolve(StartRecentMessageListenerUseCaseProtocol.self),
+        stopRecentMessageListenerUseCase: Reslover.shared.resolve(StopRecentMessageListenerUseCaseProtocol.self)
     )
     
     @State private var shouldNavigatieToChatLogView = false

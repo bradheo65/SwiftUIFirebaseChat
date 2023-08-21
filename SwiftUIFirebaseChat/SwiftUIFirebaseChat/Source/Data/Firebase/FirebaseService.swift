@@ -485,9 +485,9 @@ extension FirebaseService: FirebaseFileUploadServiceProtocol {
     
 }
 
-extension FirebaseService {
+extension FirebaseService: FirebaseChatListenerProtocol {
     
-    func addChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void) {
+    func listenForChatMessage(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void) {
         guard let currentUser = currentUser else {
             print("Send Message Error no Current User Data")
             return
@@ -518,7 +518,11 @@ extension FirebaseService {
             }
     }
     
-    func addRecentMessageListener(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
+    func stopListenForChatMessage() {
+        chatMessageListener?.remove()
+    }
+    
+    func listenForRecentMessage(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
         guard let uid = auth.currentUser?.uid else {
             return
         }
@@ -539,11 +543,7 @@ extension FirebaseService {
             }
     }
     
-    func removeChatMessageListener() {
-        chatMessageListener?.remove()
-    }
-    
-    func removeRecentMessageListener() {
+    func stopListenForRecentMessage() {
         recentMessageListener?.remove()
     }
     

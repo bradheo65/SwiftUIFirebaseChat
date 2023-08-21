@@ -25,9 +25,9 @@ final class ChatLogViewModel: ObservableObject {
     private let sendImageMessageUseCase: SendImageMessageUseCaseProtocol
     private let sendVideoMessageUseCase: SendVideoMessageUseCaseProtocol
     private let sendFileMessageUseCase: SendFileMessageUseCaseProtocol
-    private let addChatMessageListener: AddChatMessageListenerUseCaseProtocol
-    private let removeChatMessageListenerUseCase: RemoveChatMessageListenerUseCaseProtocol
     private let fileSave: FileSaveUseCaseProtocol
+    private let startChatMessageListener: StartChatMessageListenerUseCaseProtocol
+    private let stopChatMessageListenerUseCase: StopChatMessageListenerUseCaseProtocol
 
     init(
         chatUser: ChatUser?,
@@ -35,18 +35,18 @@ final class ChatLogViewModel: ObservableObject {
         sendImageMessage: SendImageMessageUseCaseProtocol,
         sendVideoMessage: SendVideoMessageUseCaseProtocol,
         sendFileMessage: SendFileMessageUseCaseProtocol,
-        addChatMessageListner: AddChatMessageListenerUseCaseProtocol,
-        removeChatMessageListener: RemoveChatMessageListenerUseCaseProtocol,
-        fileSave: FileSaveUseCaseProtocol
+        fileSave: FileSaveUseCaseProtocol,
+        startChatMessageListner: StartChatMessageListenerUseCaseProtocol,
+        stopChatMessageListener: StopChatMessageListenerUseCaseProtocol
     ) {
         self.chatUser = chatUser
         self.sendMessageUseCase = sendTextMessage
         self.sendImageMessageUseCase = sendImageMessage
         self.sendVideoMessageUseCase = sendVideoMessage
         self.sendFileMessageUseCase = sendFileMessage
-        self.addChatMessageListener = addChatMessageListner
-        self.removeChatMessageListenerUseCase = removeChatMessageListener
         self.fileSave = fileSave
+        self.startChatMessageListener = startChatMessageListner
+        self.stopChatMessageListenerUseCase = stopChatMessageListener
     }
     
     func addListener() {
@@ -56,7 +56,7 @@ final class ChatLogViewModel: ObservableObject {
         }
         chatMessages.removeAll()
         
-        addChatMessageListener.excute(chatUser: chatUser) { result in
+        startChatMessageListener.excute(chatUser: chatUser) { result in
             switch result {
             case .success(let chatMessage):
                 self.chatMessages.append(chatMessage)
@@ -72,7 +72,7 @@ final class ChatLogViewModel: ObservableObject {
     }
     
     func removeListener() {
-        removeChatMessageListenerUseCase.excute()
+        stopChatMessageListenerUseCase.excute()
     }
     
     func handleSendText(text: String, compltion: @escaping () -> Void) {
