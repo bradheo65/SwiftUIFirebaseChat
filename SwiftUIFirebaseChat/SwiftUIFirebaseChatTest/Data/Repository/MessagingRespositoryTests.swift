@@ -1,5 +1,5 @@
 //
-//  MockMessagingRespositoryTest.swift
+//  MessagingRespositoryTests.swift
 //  SwiftUIFirebaseChatTest
 //
 //  Created by brad on 2023/08/21.
@@ -9,7 +9,7 @@ import XCTest
 
 @testable import SwiftUIFirebaseChat
 
-final class MockMessagingRespositoryTest: XCTestCase {
+final class MessagingRespositoryTests: XCTestCase {
 
     private var mockFirebaseService: MockFirebaseService!
     private var repository: MessagingRepository!

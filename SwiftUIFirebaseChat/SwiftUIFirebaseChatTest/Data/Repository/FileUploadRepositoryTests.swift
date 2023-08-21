@@ -1,5 +1,5 @@
 //
-//  MockFileUploadRepositoryTests.swift
+//  FileUploadRepositoryTests.swift
 //  SwiftUIFirebaseChatTest
 //
 //  Created by brad on 2023/08/18.
@@ -9,7 +9,7 @@ import XCTest
 
 @testable import SwiftUIFirebaseChat
 
-final class MockFileUploadRepositoryTests: XCTestCase {
+final class FileUploadRepositoryTests: XCTestCase {
 
     private var mockFirebaseService: MockFirebaseService!
     private var repository: FileUploadRepository!

@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 
+import Firebase
+
 @testable import SwiftUIFirebaseChat
 
 final class MockFirebaseService {
@@ -17,6 +19,7 @@ final class MockFirebaseService {
     var mockCurrentUserResult: Result<ChatUser?, Error>?
     var mockUrlResult: Result<URL, Error>?
     var mockFireInfoResult: Result<FileInfo, Error>?
+    var mockChatMessageResult: Result<ChatMessage, Error>?
 
 }
 
@@ -138,6 +141,27 @@ extension MockFirebaseService: FirebaseMessagingServiceProtocol {
         } else {
             completion(.success("Success to Send Message"))
         }
+    }
+    
+}
+
+extension MockFirebaseService: FirebaseChatListenerProtocol {
+    func listenForChatMessage(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void) {
+        if let result = mockChatMessageResult {
+            completion(result)
+        }
+    }
+    
+    func stopListenForChatMessage() {
+        // no test
+    }
+    
+    func listenForRecentMessage(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
+        // no test
+    }
+    
+    func stopListenForRecentMessage() {
+        // no test
     }
     
 }
