@@ -12,10 +12,10 @@ final class CreateNewMessageViewModel: ObservableObject {
     @Published var users: [ChatUser] = []
     @Published var errorMessage = ""
     
-    private let getAllUserUseCase: GetAllUserUseCaseProtocol
+    private let fetchAllUserUseCase: FetchAllUserUseCaseProtocol
     
-    init(getAllUserUseCase: GetAllUserUseCaseProtocol) {
-        self.getAllUserUseCase = getAllUserUseCase
+    init(fetchAllUserUseCase: FetchAllUserUseCaseProtocol) {
+        self.fetchAllUserUseCase = fetchAllUserUseCase
     }
     
     func fetchAllUser() {
@@ -27,7 +27,7 @@ final class CreateNewMessageViewModel: ObservableObject {
 extension CreateNewMessageViewModel {
     
     private func fetchFirebaseAllUser() {
-        getAllUserUseCase.excute { result in
+        fetchAllUserUseCase.excute { result in
             switch result {
             case .success(let user):
                 self.users.append(user)

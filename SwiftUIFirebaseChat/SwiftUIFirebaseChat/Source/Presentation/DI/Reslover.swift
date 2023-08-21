@@ -22,7 +22,7 @@ final class Reslover {
     func resolve<T>(_ type: T.Type) -> T {
         container.resolve(T.self)!
     }
-    //this is used for tests to set mock container
+
     func setDependencyContainer(_ container: Container) {
         self.container = container
     }
@@ -34,7 +34,7 @@ final class Reslover {
 func buildContatier() -> Container {
     let container = Container()
     
-    // MARK: - Firebase Service DI
+    // MARK: - Service - Firebase
 
     container.register(FirebaseUserServiceProtocol.self) { _ in
         return FirebaseService.shared
@@ -52,36 +52,37 @@ func buildContatier() -> Container {
         return FirebaseService.shared
     }.inObjectScope(.container)
     
-    // MARK: - UserRepository DI
+    // MARK: - Repository - User
     
     container.register(UserRepositoryProtocol.self) { _ in
         return UserRepository(firebaseService: container.resolve(FirebaseUserServiceProtocol.self)!)
     }
     
-    // MARK: - FileUploadRepository DI
+    // MARK: - Repository - FileUpload
     
     container.register(FileUploadRepositoryProtocol.self) { _ in
         return FileUploadRepository(firebaseService: container.resolve(FirebaseFileUploadServiceProtocol.self)!)
     }
     
-    // MARK: - Message DI Repository
-
-    
-    // MARK: - Chat DI Repository
+    // MARK: - Repository - Messaging
 
     container.register(MessagingRepositoryProtocol.self) { _ in
         return MessagingRepository(firebaseService: container.resolve(FirebaseMessagingServiceProtocol.self)!)
     }
     
+    // MARK: - Repository - ChatListener
+
     container.register(ChatListenerRepositoryProtocol.self) { _ in
         return ChatListenerRepository(firebaseSerivce: container.resolve(FirebaseChatListenerProtocol.self)!)
     }
     
+    // MARK: - Repository - FileSave
+
     container.register(FileSaveRepositoryProtocol.self) { _ in
         return FileSaveRepository()
     }
     
-    // MARK: - Login DI UseCase
+    // MARK: - UseCase - User
     
     container.register(RegisterUserUseCaseProtocol.self) { _ in
         return RegisterUserUseCase(
@@ -93,9 +94,7 @@ func buildContatier() -> Container {
     container.register(LoginUserUseCaseProtocol.self) { _ in
         return LoginUserUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
-    
-    // MARK: - Message DI UseCase
-    
+        
     container.register(LogoutUseCaseProtocol.self) { _ in
         return LogoutUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
@@ -104,32 +103,16 @@ func buildContatier() -> Container {
         return DeleteRecentMessageUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
-    container.register(GetAllUserUseCaseProtocol.self) { _ in
-        return GetAllUserUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
+    container.register(FetchAllUserUseCaseProtocol.self) { _ in
+        return FetchAllUserUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
-    container.register(GetCurrentUserUseCaseProtocol.self) { _ in
-        return GetCurrentUserUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
+    container.register(FetchCurrentUserUseCaseProtocol.self) { _ in
+        return FetchCurrentUserUseCase(userRepo: container.resolve(UserRepositoryProtocol.self)!)
     }.inObjectScope(.container)
-    
-    container.register(StartRecentMessageListenerUseCaseProtocol.self) { _ in
-        return StartRecentMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
-    }.inObjectScope(.container)
-    
-    container.register(StopRecentMessageListenerUseCaseProtocol.self) { _ in
-        return StopRecentMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
-    }.inObjectScope(.container)
-    
-    // MARK: - Chat DI UserCase
-    
-    container.register(StartChatMessageListenerUseCaseProtocol.self) { _ in
-        return StartChatMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
-    }.inObjectScope(.container)
-    
-    container.register(StopChatMessageListenerUseCaseProtocol.self) { _ in
-        return StopChatMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
-    }.inObjectScope(.container)
-    
+  
+    // MARK: - UserCase - Message
+
     container.register(SendTextMessageUseCaseProtocol.self) { _ in
         return SendTextMessageUseCase(sendMessageRepo: container.resolve(MessagingRepositoryProtocol.self)!)
     }.inObjectScope(.container)
@@ -157,6 +140,24 @@ func buildContatier() -> Container {
 
     container.register(FileSaveUseCaseProtocol.self) { _ in
         return FileSaveUseCase(repo: container.resolve(FileSaveRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+    
+    // MARK: - UserCase - MessageListener
+
+    container.register(StartChatMessageListenerUseCaseProtocol.self) { _ in
+        return StartChatMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+    
+    container.register(StopChatMessageListenerUseCaseProtocol.self) { _ in
+        return StopChatMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+    
+    container.register(StartRecentMessageListenerUseCaseProtocol.self) { _ in
+        return StartRecentMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+    
+    container.register(StopRecentMessageListenerUseCaseProtocol.self) { _ in
+        return StopRecentMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
     return container

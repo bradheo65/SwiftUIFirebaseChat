@@ -20,23 +20,23 @@ final class MainMessageViewModel: ObservableObject {
 
     private let logoutUseCase: LogoutUseCaseProtocol
     private let deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol
-    private let getAllUserUseCase: GetAllUserUseCaseProtocol
-    private let getCurrentUserUseCase: GetCurrentUserUseCaseProtocol
+    private let fetchAllUserUseCase: FetchAllUserUseCaseProtocol
+    private let fetchCurrentUserUseCase: FetchCurrentUserUseCaseProtocol
     private let startRecentMessageListenerUseCase: StartRecentMessageListenerUseCaseProtocol
     private let stopRecentMessageListenerUseCase: StopRecentMessageListenerUseCaseProtocol
     
     init(
         logoutUseCase: LogoutUseCaseProtocol,
         deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol,
-        getAllUserUseCase: GetAllUserUseCaseProtocol,
-        getCurrentUserUseCase: GetCurrentUserUseCaseProtocol,
+        fetchAllUserUseCase: FetchAllUserUseCaseProtocol,
+        fetchCurrentUserUseCase: FetchCurrentUserUseCaseProtocol,
         startRecentMessageListenerUseCase: StartRecentMessageListenerUseCaseProtocol,
         stopRecentMessageListenerUseCase: StopRecentMessageListenerUseCaseProtocol
     ) {
         self.logoutUseCase = logoutUseCase
         self.deleteRecentMessageUseCase = deleteRecentMessageUseCase
-        self.getAllUserUseCase = getAllUserUseCase
-        self.getCurrentUserUseCase = getCurrentUserUseCase
+        self.fetchAllUserUseCase = fetchAllUserUseCase
+        self.fetchCurrentUserUseCase = fetchCurrentUserUseCase
         self.startRecentMessageListenerUseCase = startRecentMessageListenerUseCase
         self.stopRecentMessageListenerUseCase = stopRecentMessageListenerUseCase
     }
@@ -70,7 +70,7 @@ final class MainMessageViewModel: ObservableObject {
 extension MainMessageViewModel {
     
     private func fetchFirebaseAllUser() {
-        getAllUserUseCase.excute { result in
+        fetchAllUserUseCase.excute { result in
             switch result {
             case .success(let user):
                 self.users.append(user)
@@ -81,7 +81,7 @@ extension MainMessageViewModel {
     }
     
     private func fetchFirebaseCurrentUser() {
-        getCurrentUserUseCase.excute { result in
+        fetchCurrentUserUseCase.excute { result in
             switch result {
             case .success(let currentUser):
                 self.currentUser = currentUser

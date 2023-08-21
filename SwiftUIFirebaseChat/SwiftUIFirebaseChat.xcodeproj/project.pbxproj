@@ -11,8 +11,8 @@
 		A310D6A42A84CD8000634DFE /* FileSaveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A310D6A32A84CD8000634DFE /* FileSaveManager.swift */; };
 		A310D6A62A84CE5100634DFE /* ImageSaveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A310D6A52A84CE5100634DFE /* ImageSaveManager.swift */; };
 		A310D6AC2A84D58600634DFE /* LoginUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A310D6AB2A84D58600634DFE /* LoginUserUseCase.swift */; };
-		A326FB972A85D67C00794C27 /* GetAllUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A326FB962A85D67C00794C27 /* GetAllUserUseCase.swift */; };
-		A348F3512A89AA080017DD72 /* GetCurrentUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3502A89AA080017DD72 /* GetCurrentUserUseCase.swift */; };
+		A326FB972A85D67C00794C27 /* FetchAllUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A326FB962A85D67C00794C27 /* FetchAllUserUseCase.swift */; };
+		A348F3512A89AA080017DD72 /* FetchCurrentUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3502A89AA080017DD72 /* FetchCurrentUserUseCase.swift */; };
 		A348F3532A89B2BA0017DD72 /* StartRecentMessageListenerUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3522A89B2BA0017DD72 /* StartRecentMessageListenerUseCase.swift */; };
 		A348F3552A89B3CE0017DD72 /* UserRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3542A89B3CE0017DD72 /* UserRepositoryProtocol.swift */; };
 		A348F35E2A89C0640017DD72 /* StopRecentMessageListenerUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F35D2A89C0640017DD72 /* StopRecentMessageListenerUseCase.swift */; };
@@ -108,8 +108,8 @@
 		A310D6A32A84CD8000634DFE /* FileSaveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSaveManager.swift; sourceTree = "<group>"; };
 		A310D6A52A84CE5100634DFE /* ImageSaveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSaveManager.swift; sourceTree = "<group>"; };
 		A310D6AB2A84D58600634DFE /* LoginUserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginUserUseCase.swift; sourceTree = "<group>"; };
-		A326FB962A85D67C00794C27 /* GetAllUserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetAllUserUseCase.swift; sourceTree = "<group>"; };
-		A348F3502A89AA080017DD72 /* GetCurrentUserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetCurrentUserUseCase.swift; sourceTree = "<group>"; };
+		A326FB962A85D67C00794C27 /* FetchAllUserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchAllUserUseCase.swift; sourceTree = "<group>"; };
+		A348F3502A89AA080017DD72 /* FetchCurrentUserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchCurrentUserUseCase.swift; sourceTree = "<group>"; };
 		A348F3522A89B2BA0017DD72 /* StartRecentMessageListenerUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartRecentMessageListenerUseCase.swift; sourceTree = "<group>"; };
 		A348F3542A89B3CE0017DD72 /* UserRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepositoryProtocol.swift; sourceTree = "<group>"; };
 		A348F35D2A89C0640017DD72 /* StopRecentMessageListenerUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StopRecentMessageListenerUseCase.swift; sourceTree = "<group>"; };
@@ -224,8 +224,8 @@
 			children = (
 				A348F35F2A89C6BB0017DD72 /* LogoutUseCase.swift */,
 				A348F3692A89D4910017DD72 /* DeleteRecentMessageUseCase.swift */,
-				A326FB962A85D67C00794C27 /* GetAllUserUseCase.swift */,
-				A348F3502A89AA080017DD72 /* GetCurrentUserUseCase.swift */,
+				A326FB962A85D67C00794C27 /* FetchAllUserUseCase.swift */,
+				A348F3502A89AA080017DD72 /* FetchCurrentUserUseCase.swift */,
 				A348F3522A89B2BA0017DD72 /* StartRecentMessageListenerUseCase.swift */,
 				A348F35D2A89C0640017DD72 /* StopRecentMessageListenerUseCase.swift */,
 			);
@@ -776,7 +776,7 @@
 				A348F3AA2A8DEDA00017DD72 /* UserRepository.swift in Sources */,
 				A348F3AC2A8DEDA00017DD72 /* FileUploadRepository.swift in Sources */,
 				A3EC4DEE2A92E22C008DDB02 /* FirebaseFileUploadServiceProtocol.swift in Sources */,
-				A348F3512A89AA080017DD72 /* GetCurrentUserUseCase.swift in Sources */,
+				A348F3512A89AA080017DD72 /* FetchCurrentUserUseCase.swift in Sources */,
 				A3EC4DFC2A9337DE008DDB02 /* ChatListenerRepositoryProtocol.swift in Sources */,
 				A3EC4DF02A92E545008DDB02 /* FileUploadRepositoryProtocol.swift in Sources */,
 				A348F3972A8DE7B50017DD72 /* FileSaveRepositoryProtocol.swift in Sources */,
@@ -786,7 +786,7 @@
 				A3CED45E2A70AC42001DD436 /* CreateNewMessageViewModel.swift in Sources */,
 				A392147C2A83104600BF833D /* RoundedCorner.swift in Sources */,
 				A36EF84F2A79F45100A7DEE2 /* Extention+View.swift in Sources */,
-				A326FB972A85D67C00794C27 /* GetAllUserUseCase.swift in Sources */,
+				A326FB972A85D67C00794C27 /* FetchAllUserUseCase.swift in Sources */,
 				A35736752A6EBFBA007B0402 /* CreateNewMessageView.swift in Sources */,
 				A3EC4DFE2A9338CC008DDB02 /* ChatListenerRepository.swift in Sources */,
 				A35736862A6FAA51007B0402 /* ChatMessage.swift in Sources */,

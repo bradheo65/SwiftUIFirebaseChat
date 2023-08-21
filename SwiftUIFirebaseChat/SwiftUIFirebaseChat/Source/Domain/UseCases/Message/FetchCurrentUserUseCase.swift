@@ -1,19 +1,19 @@
 //
-//  GetAllUserUseCase.swift
+//  FetchCurrentUserUseCase.swift
 //  SwiftUIFirebaseChat
 //
-//  Created by brad on 2023/08/11.
+//  Created by brad on 2023/08/14.
 //
 
 import Foundation
 
-protocol GetAllUserUseCaseProtocol {
+protocol FetchCurrentUserUseCaseProtocol {
     
-    func excute(completion: @escaping (Result<ChatUser, Error>) -> Void)
+    func excute(completion: @escaping (Result<ChatUser?, Error>) -> Void)
     
 }
 
-final class GetAllUserUseCase: GetAllUserUseCaseProtocol {
+final class FetchCurrentUserUseCase: FetchCurrentUserUseCaseProtocol {
     
     private let userRepo: UserRepositoryProtocol
 
@@ -21,8 +21,8 @@ final class GetAllUserUseCase: GetAllUserUseCaseProtocol {
         self.userRepo = userRepo
     }
     
-    func excute(completion: @escaping (Result<ChatUser, Error>) -> Void) {
-        userRepo.fetchAllUser { result in
+    func excute(completion: @escaping (Result<ChatUser?, Error>) -> Void) {
+        userRepo.fetchCurrentUser { result in
             switch result {
             case .success(let user):
                 completion(.success(user))

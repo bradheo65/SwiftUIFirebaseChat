@@ -14,8 +14,8 @@ struct MainMessageView: View {
     @StateObject private var viewModel = MainMessageViewModel(
         logoutUseCase: Reslover.shared.resolve(LogoutUseCaseProtocol.self),
         deleteRecentMessageUseCase: Reslover.shared.resolve(DeleteRecentMessageUseCaseProtocol.self),
-        getAllUserUseCase: Reslover.shared.resolve(GetAllUserUseCaseProtocol.self),
-        getCurrentUserUseCase: Reslover.shared.resolve(GetCurrentUserUseCaseProtocol.self),
+        fetchAllUserUseCase: Reslover.shared.resolve(FetchAllUserUseCaseProtocol.self),
+        fetchCurrentUserUseCase: Reslover.shared.resolve(FetchCurrentUserUseCaseProtocol.self),
         startRecentMessageListenerUseCase: Reslover.shared.resolve(StartRecentMessageListenerUseCaseProtocol.self),
         stopRecentMessageListenerUseCase: Reslover.shared.resolve(StopRecentMessageListenerUseCaseProtocol.self)
     )
