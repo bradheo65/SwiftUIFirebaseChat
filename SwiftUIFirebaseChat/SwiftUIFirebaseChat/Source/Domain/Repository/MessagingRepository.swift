@@ -74,7 +74,6 @@ final class MessagingRepository: MessagingRepositoryProtocol {
             FirebaseConstants.timestamp: firebaseService.timeStamp
         ] as [String : Any]
         
-  
         let sendMessage = try await firebaseService.sendMessage(fromId: currentUser.uid, toId: chatUser.uid, messageData: messageData)
         
         return sendMessage

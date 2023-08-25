@@ -35,6 +35,8 @@
 		A348F3AA2A8DEDA00017DD72 /* UserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3A02A8DEDA00017DD72 /* UserRepository.swift */; };
 		A348F3AC2A8DEDA00017DD72 /* FileUploadRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A348F3A22A8DEDA00017DD72 /* FileUploadRepository.swift */; };
 		A34989F72A982AC300A8DE38 /* ThumbnailUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34989F62A982AC300A8DE38 /* ThumbnailUtilities.swift */; };
+		A34989FA2A983A5A00A8DE38 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = A34989F92A983A5A00A8DE38 /* Realm */; };
+		A34989FC2A983A5A00A8DE38 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A34989FB2A983A5A00A8DE38 /* RealmSwift */; };
 		A34A6E222A73829700440F93 /* ImageModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34A6E212A73829700440F93 /* ImageModifier.swift */; };
 		A34A6E242A7382D300440F93 /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34A6E232A7382D300440F93 /* ImageViewer.swift */; };
 		A35192D72A8F00FD00BE5E21 /* MockFirebaseServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35192D62A8F00FD00BE5E21 /* MockFirebaseServiceTests.swift */; };
@@ -191,7 +193,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A34989FA2A983A5A00A8DE38 /* Realm in Frameworks */,
 				A357367C2A6F9D50007B0402 /* FirebaseAuth in Frameworks */,
+				A34989FC2A983A5A00A8DE38 /* RealmSwift in Frameworks */,
 				A348F38E2A8D99A70017DD72 /* Swinject in Frameworks */,
 				A35736822A6F9D50007B0402 /* FirebaseStorage in Frameworks */,
 				A357367E2A6F9D50007B0402 /* FirebaseFirestore in Frameworks */,
@@ -654,6 +658,8 @@
 				A357367F2A6F9D50007B0402 /* FirebaseFirestoreSwift */,
 				A35736812A6F9D50007B0402 /* FirebaseStorage */,
 				A348F38D2A8D99A70017DD72 /* Swinject */,
+				A34989F92A983A5A00A8DE38 /* Realm */,
+				A34989FB2A983A5A00A8DE38 /* RealmSwift */,
 			);
 			productName = SwiftUIFirebaseChat;
 			productReference = A354F6902A5460630063652A /* SwiftUIFirebaseChat.app */;
@@ -718,6 +724,7 @@
 			packageReferences = (
 				A357367A2A6F9D50007B0402 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				A348F38C2A8D99A70017DD72 /* XCRemoteSwiftPackageReference "Swinject" */,
+				A34989F82A983A5A00A8DE38 /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			productRefGroup = A354F6912A5460630063652A /* Products */;
 			projectDirPath = "";
@@ -1181,6 +1188,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		A34989F82A983A5A00A8DE38 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		A357367A2A6F9D50007B0402 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -1196,6 +1211,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A348F38C2A8D99A70017DD72 /* XCRemoteSwiftPackageReference "Swinject" */;
 			productName = Swinject;
+		};
+		A34989F92A983A5A00A8DE38 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A34989F82A983A5A00A8DE38 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = Realm;
+		};
+		A34989FB2A983A5A00A8DE38 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A34989F82A983A5A00A8DE38 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
 		};
 		A357367B2A6F9D50007B0402 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -12,7 +12,7 @@ protocol FirebaseUserServiceProtocol {
     var currentUser: ChatUser? { get }
     
     func registerUser(email: String, password: String) async throws -> String
-    func saveUserInfo(store: String, currentUser: ChatUser, userData: [String: Any]) async throws -> String
+    func saveUserInfo(store: String, uid: String, userData: [String: Any]) async throws -> String
     func loginUser(email: String, password: String) async throws -> String
     func logoutUser() throws -> String
     func fetchCurrentUser() async throws -> ChatUser?

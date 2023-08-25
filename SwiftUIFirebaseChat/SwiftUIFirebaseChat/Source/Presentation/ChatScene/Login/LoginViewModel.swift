@@ -34,13 +34,6 @@ final class LoginViewModel: ObservableObject {
                     
                     self.loginStatusMessage = loginResultMessage
                     self.isLoginSuccess = true
-//                    switch result {
-//                    case .success(let message):
-//                        self.loginStatusMessage = message
-//                        self.isLoginSuccess = true
-//                    case .failure(let error):
-//                        print(error.localizedDescription)
-//                    }
                 } catch {
                     print(error)
                 }

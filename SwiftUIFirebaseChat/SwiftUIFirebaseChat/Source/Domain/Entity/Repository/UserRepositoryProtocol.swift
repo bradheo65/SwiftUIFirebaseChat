@@ -10,7 +10,7 @@ import Foundation
 protocol UserRepositoryProtocol {
     
     func registerUser(email: String, password: String) async throws -> String
-    func saveUserInfo(email: String, profileImageUrl: URL) async throws -> String
+    func saveUserInfo(email: String, password: String, profileImageUrl: URL, uid: String) async throws -> String
     func loginUser(email: String, password: String) async throws -> String
     func logoutUser() throws -> String
     func fetchCurrentUser() async throws -> ChatUser?

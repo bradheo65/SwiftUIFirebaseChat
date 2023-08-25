@@ -12,6 +12,8 @@ import FirebaseStorage
 
 enum FirebaseError: Error {
     case authUserNotFound
+    case authDataNotFound
+    case authParsingError
 }
 
 final class FirebaseService: NSObject {
@@ -48,19 +50,18 @@ extension FirebaseService: FirebaseUserServiceProtocol {
     
     func registerUser(email: String, password: String) async throws -> String {
         do {
-            let result = try await auth.createUser(withEmail: email, password: password)
-            let message = result.user.uid
+            let authData = try await auth.createUser(withEmail: email, password: password)
             
-            return message
+            return authData.user.uid
         } catch {
             throw error
         }
     }
     
-    func saveUserInfo(store: String, currentUser: ChatUser, userData: [String: Any]) async throws -> String {
+    func saveUserInfo(store: String, uid: String, userData: [String: Any]) async throws -> String {
         do {
             try await firestore.collection(store)
-                .document(currentUser.uid)
+                .document(uid)
                 .setData(userData)
             
             let message = "Success upload data to Firestore"
@@ -73,17 +74,9 @@ extension FirebaseService: FirebaseUserServiceProtocol {
     
     func loginUser(email: String, password: String) async throws -> String {
         do {
-            let result = try await auth.signIn(withEmail: email, password: password)
+            let authData = try await auth.signIn(withEmail: email, password: password)
             
-            let documentSnapshot = try await firestore
-                .collection(FirebaseConstants.users)
-                .document(result.user.uid)
-                .getDocument()
-            
-            let currentUser = try documentSnapshot.data(as: ChatUser.self)
-            self.currentUser = currentUser
-            
-            return result.user.uid
+            return authData.user.uid
         } catch {
             throw error
         }
@@ -105,11 +98,26 @@ extension FirebaseService: FirebaseUserServiceProtocol {
         }
         
         do {
-            let documentSnapshot = try await firestore.collection(FirebaseConstants.users)
+            let documentSnapshot = try await firestore
+                .collection(FirebaseConstants.users)
                 .document(authCurrentUser.uid)
                 .getDocument()
             
-            let currentUser = try documentSnapshot.data(as: ChatUser.self)
+            guard let authData = documentSnapshot.data() else {
+                throw FirebaseError.authDataNotFound
+            }
+            
+            guard let uid = authData[FirebaseConstants.uid] as? String,
+                  let email = authData[FirebaseConstants.email] as? String,
+                  let profileImageUrl = authData[FirebaseConstants.profileImageURL] as? String else {
+                throw FirebaseError.authParsingError
+            }
+            
+            let currentUser = ChatUser(
+                uid: uid,
+                email: email,
+                profileImageURL: profileImageUrl
+            )
             self.currentUser = currentUser
             
             return currentUser

@@ -7,14 +7,43 @@
 
 import Foundation
 
+import RealmSwift
+
 enum UserError: Error {
     case currentUserNotFound
+}
+
+class CurrentUser: Object {
+    
+    @objc dynamic var uid: String = ""
+    @objc dynamic var email: String = ""
+    @objc dynamic var password: String = ""
+    @objc dynamic var profileImageUrl: String = ""
+    
+    override static func primaryKey() -> String? {
+        return "uid"
+    }
+}
+
+class AllUsers: Object {
+    
+    @objc dynamic var uid: String = ""
+    @objc dynamic var email: String = ""
+    @objc dynamic var profileImageURL: String = ""
+    @objc dynamic var username: String {
+        email.components(separatedBy: "@").first ?? email
+    }
+    
+    override static func primaryKey() -> String? {
+        return "uid"
+    }
 }
 
 final class UserRepository: UserRepositoryProtocol {
     
     private let firebaseService: FirebaseUserServiceProtocol
-    
+    private let realm = try! Realm()
+
     init(firebaseService: FirebaseUserServiceProtocol) {
         self.firebaseService = firebaseService
     }
@@ -23,24 +52,46 @@ final class UserRepository: UserRepositoryProtocol {
         return try await firebaseService.registerUser(email: email, password: password)
     }
     
-    func saveUserInfo(email: String, profileImageUrl: URL) async throws -> String {
-        guard let currentUser = firebaseService.currentUser else {
-            throw UserError.currentUserNotFound
-        }
-        
+    func saveUserInfo(email: String, password: String, profileImageUrl: URL, uid: String) async throws -> String {
         let userData = [
             FirebaseConstants.email: email,
-            FirebaseConstants.uid: currentUser.uid,
+            FirebaseConstants.uid: uid,
             FirebaseConstants.profileImageURL: profileImageUrl.absoluteString
         ]
        
-        let saveUserInfoResult = try await firebaseService.saveUserInfo(store: FirebaseConstants.users, currentUser: currentUser, userData: userData)
-        
+        let saveUserInfoResult = try await firebaseService.saveUserInfo(
+            store: FirebaseConstants.users,
+            uid: uid,
+            userData: userData
+        )
+                
         return saveUserInfoResult
     }
     
     func loginUser(email: String, password: String) async throws -> String {
-        return try await firebaseService.loginUser(email: email, password: password)
+        let userUid = try await firebaseService.loginUser(email: email, password: password)
+        
+        DispatchQueue.main.async {
+            let existingUser = self.realm.objects(CurrentUser.self).first?.email
+            
+            if email != existingUser {
+                self.realm.writeAsync {
+                    self.realm.deleteAll()
+                }
+            }
+            let user = CurrentUser()
+            
+            user.uid = userUid
+            user.email = email
+            user.password = password
+            
+            self.realm.writeAsync {
+                self.realm.create(CurrentUser.self, value: user, update: .modified)
+            }
+        }
+        print(Realm.Configuration.defaultConfiguration.fileURL!)
+        
+        return userUid
     }
     
     func logoutUser() throws -> String {
@@ -48,11 +99,37 @@ final class UserRepository: UserRepositoryProtocol {
     }
     
     func fetchCurrentUser() async throws -> ChatUser? {
-        return try await firebaseService.fetchCurrentUser()
+        let currentUser = try await firebaseService.fetchCurrentUser()
+                        
+        DispatchQueue.main.async {
+            if let user = self.realm.objects(CurrentUser.self).first {
+                self.realm.writeAsync {
+                    user.profileImageUrl = currentUser?.profileImageURL ?? ""
+                }
+            }
+        }
+        
+        return currentUser
     }
     
     func fetchAllUsers() async throws -> [ChatUser] {
-        return try await firebaseService.fetchAllUsers()
+        let allUsers = try await firebaseService.fetchAllUsers()
+        
+        DispatchQueue.main.async {
+            allUsers.forEach { user in
+                let allUser = AllUsers()
+                
+                allUser.uid = user.uid
+                allUser.email = user.email
+                allUser.profileImageURL = user.profileImageURL
+                
+                self.realm.writeAsync {
+                    self.realm.create(AllUsers.self, value: allUser, update: .modified)
+                }
+            }
+        }
+        
+        return allUsers
     }
     
     func deleteChatMessage(toId: String) async throws -> String {

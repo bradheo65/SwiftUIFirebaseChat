@@ -32,9 +32,14 @@ final class RegisterUserUseCase: RegisterUserUseCaseProtocol {
             throw RegisterUserError.missingImage
         }
         
-        let (_) = try await userRepo.registerUser(email: email, password: password)
+        let uid = try await userRepo.registerUser(email: email, password: password)
         let uploadedImageUrl = try await fileUploadRepo.uploadImage(image: image)
-        let userInfoSaveResultMessage = try await userRepo.saveUserInfo(email: email, profileImageUrl: uploadedImageUrl)
+        let userInfoSaveResultMessage = try await userRepo.saveUserInfo(
+            email: email,
+            password: password,
+            profileImageUrl: uploadedImageUrl,
+            uid: uid
+        )
         
         return userInfoSaveResultMessage
     }
