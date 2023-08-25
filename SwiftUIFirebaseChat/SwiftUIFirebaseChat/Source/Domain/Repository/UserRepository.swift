@@ -7,6 +7,10 @@
 
 import Foundation
 
+enum UserError: Error {
+    case currentUserNotFound
+}
+
 final class UserRepository: UserRepositoryProtocol {
     
     private let firebaseService: FirebaseUserServiceProtocol
@@ -15,92 +19,48 @@ final class UserRepository: UserRepositoryProtocol {
         self.firebaseService = firebaseService
     }
     
-    func registerUser(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseService.registerUser(email: email, password: password) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func registerUser(email: String, password: String) async throws -> String {
+        return try await firebaseService.registerUser(email: email, password: password)
     }
     
-    func saveUserInfo(email: String, profileImageUrl: URL, completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseService.saveUserInfo(email: email, profileImageUrl: profileImageUrl, store: FirebaseConstants.users) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
+    func saveUserInfo(email: String, profileImageUrl: URL) async throws -> String {
+        guard let currentUser = firebaseService.currentUser else {
+            throw UserError.currentUserNotFound
         }
+        
+        let userData = [
+            FirebaseConstants.email: email,
+            FirebaseConstants.uid: currentUser.uid,
+            FirebaseConstants.profileImageURL: profileImageUrl.absoluteString
+        ]
+       
+        let saveUserInfoResult = try await firebaseService.saveUserInfo(store: FirebaseConstants.users, currentUser: currentUser, userData: userData)
+        
+        return saveUserInfoResult
     }
     
-    func loginUser(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseService.loginUser(email: email, password: password) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func loginUser(email: String, password: String) async throws -> String {
+        return try await firebaseService.loginUser(email: email, password: password)
     }
     
-    func logoutUser(completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseService.logoutUser { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func logoutUser() throws -> String {
+        return try firebaseService.logoutUser()
     }
     
-    func fetchAllUser(completion: @escaping (Result<ChatUser, Error>) -> Void) {
-        firebaseService.fetchAllUser { result in
-            switch result {
-            case .success(let user):
-                completion(.success(user))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func fetchCurrentUser() async throws -> ChatUser? {
+        return try await firebaseService.fetchCurrentUser()
     }
     
-    func fetchCurrentUser(completion: @escaping (Result<ChatUser?, Error>) -> Void) {
-        firebaseService.fetchCurrentUser { result in
-            switch result {
-            case .success(let currentUser):
-                completion(.success(currentUser))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func fetchAllUsers() async throws -> [ChatUser] {
+        return try await firebaseService.fetchAllUsers()
     }
     
-    func deleteChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseService.deleteChatMessage(toId: toId) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func deleteChatMessage(toId: String) async throws -> String {
+        return try await firebaseService.deleteChatMessage(toId: toId)
     }
     
-    func deleteRecentChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        firebaseService.deleteRecentMessage(toId: toId) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func deleteRecentMessage(toId: String) async throws -> String {
+        return try await firebaseService.deleteRecentMessage(toId: toId)
     }
     
 }

@@ -9,7 +9,7 @@ import Foundation
 
 protocol SendFileMessageUseCaseProtocol {
     
-    func excute(fileUrl: URL, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void)
+    func excute(fileUrl: URL, chatUser: ChatUser) async throws -> String
     
 }
 
@@ -23,30 +23,13 @@ final class SendFileMessageUseCase: SendFileMessageUseCaseProtocol {
         self.uploadFileRepo = uploadFileRepo
     }
     
-    func excute(fileUrl: URL, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
-        uploadFileRepo.uploadFile(url: fileUrl) { result in
-            switch result {
-            case .success(let fileInfo):
-                self.sendMessageRepo.sendFile(fileInfo: fileInfo, chatUser: chatUser) { result in
-                    switch result {
-                    case .success(let message):
-                        completion(.success(message))
-                        self.sendMessageRepo.sendRecentMessage(text: "파일", chatUser: chatUser) { result in
-                            switch result {
-                            case .success(let message):
-                                completion(.success(message))
-                            case .failure(let error):
-                                completion(.failure(error))
-                            }
-                        }
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func excute(fileUrl: URL, chatUser: ChatUser) async throws -> String {
+        let uploadFileInfo = try await uploadFileRepo.uploadFile(url: fileUrl)
+        
+        let (_) = try await sendMessageRepo.sendFile(fileInfo: uploadFileInfo, chatUser: chatUser)
+        let sendRecentMessageResult = try await sendMessageRepo.sendRecentMessage(text: "파일", chatUser: chatUser)
+        
+        return sendRecentMessageResult
     }
     
 }

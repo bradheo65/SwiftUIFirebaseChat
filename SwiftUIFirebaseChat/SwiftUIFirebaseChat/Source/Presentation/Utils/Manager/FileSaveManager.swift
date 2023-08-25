@@ -20,19 +20,21 @@ final class FileSaveManager {
     
     private let fileManager = FileManager.default
     
-    func save(name: String, at: URL, completion: @escaping (Result<String, FileSaveManagerError>) -> Void) {
+    func save(name: String, at: URL) async throws -> String {
         guard let documentUrl = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            completion(.failure(.noDocumentUrl))
-            return
+            throw FileSaveManagerError.noDocumentUrl
         }
         
         let directoryUrl = documentUrl.appendingPathComponent(name)
         
         do {
             try fileManager.copyItem(at: at, to: directoryUrl)
-            completion(.success("Success to file save"))
+            
+            let message = "Success to file save"
+            
+            return message
         } catch {
-            completion(.failure(.saveFail))
+            throw FileSaveManagerError.saveFail
         }
     }
     

@@ -7,9 +7,13 @@
 
 import SwiftUI
 
+enum RegisterUserError: Error {
+    case missingImage
+}
+
 protocol RegisterUserUseCaseProtocol {
     
-    func excute(email: String, password: String, image: UIImage?, completion: @escaping (Result<String, Error>) -> Void)
+    func execute(email: String, password: String, image: UIImage?) async throws -> String
     
 }
 
@@ -23,33 +27,16 @@ final class RegisterUserUseCase: RegisterUserUseCaseProtocol {
         self.fileUploadRepo = fileUploadRepo
     }
     
-    func excute(email: String, password: String, image: UIImage?, completion: @escaping (Result<String, Error>) -> Void) {
+    func execute(email: String, password: String, image: UIImage?) async throws -> String {
         guard let image = image else {
-            return
+            throw RegisterUserError.missingImage
         }
         
-        userRepo.registerUser(email: email, password: password) { result in
-            switch result {
-            case .success(_):
-                self.fileUploadRepo.uploadImage(image: image) { result in
-                    switch result {
-                    case .success(let url):
-                        self.userRepo.saveUserInfo(email: email, profileImageUrl: url) { result in
-                            switch result {
-                            case .success(let message):
-                                completion(.success(message))
-                            case .failure(let error):
-                                completion(.failure(error))
-                            }
-                        }
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+        let (_) = try await userRepo.registerUser(email: email, password: password)
+        let uploadedImageUrl = try await fileUploadRepo.uploadImage(image: image)
+        let userInfoSaveResultMessage = try await userRepo.saveUserInfo(email: email, profileImageUrl: uploadedImageUrl)
+        
+        return userInfoSaveResultMessage
     }
     
 }

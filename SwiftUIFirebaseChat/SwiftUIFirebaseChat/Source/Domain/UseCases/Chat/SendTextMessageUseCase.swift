@@ -9,7 +9,7 @@ import Foundation
 
 protocol SendTextMessageUseCaseProtocol {
     
-    func excute(text: String, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void)
+    func execute(text: String, chatUser: ChatUser) async throws -> String
     
 }
 
@@ -21,23 +21,11 @@ final class SendTextMessageUseCase: SendTextMessageUseCaseProtocol {
         self.sendMessageRepo = sendMessageRepo
     }
     
-    func excute(text: String, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
-        sendMessageRepo.sendText(text: text, chatUser: chatUser) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-                self.sendMessageRepo.sendRecentMessage(text: text, chatUser: chatUser) { result in
-                    switch result {
-                    case .success(let message):
-                        completion(.success(message))
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func execute(text: String, chatUser: ChatUser) async throws -> String {
+        let (_) = try await sendMessageRepo.sendText(text: text, chatUser: chatUser)
+        let sendRecentMessageResult = try await sendMessageRepo.sendRecentMessage(text: text, chatUser: chatUser)
+        
+        return sendRecentMessageResult
     }
     
 }

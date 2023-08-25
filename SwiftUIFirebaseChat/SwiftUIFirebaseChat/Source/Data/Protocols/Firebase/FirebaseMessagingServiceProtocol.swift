@@ -8,13 +8,14 @@
 import Foundation
 import SwiftUI
 
+import Firebase
+
 protocol FirebaseMessagingServiceProtocol {
     
-    func sendTextMessage(text: String, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void)
-    func sendImageMessage(imageURL: URL, image: UIImage, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void)
-    func sendVideoMessage(imageUrl: URL, videoUrl: URL, image: UIImage, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void)
-    func sendFileMessage(fileInfo: FileInfo, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void)
-    func sendRecentMessage(text: String, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void)
-    func sendMessage(fromId: String, toId: String, messageData: [String: Any], completion: @escaping (Result<String, Error>) -> Void)
+    var currentUser: ChatUser? { get }
+    var timeStamp: Timestamp { get }
+  
+    func sendMessage(fromId: String, toId: String, messageData: [String: Any]) async throws -> String
+    func sendRecentMessage(text: String, currentUser: ChatUser, chatUser: ChatUser, userMessage: [String: Any], recentMessage: [String: Any]) async throws -> String
     
 }

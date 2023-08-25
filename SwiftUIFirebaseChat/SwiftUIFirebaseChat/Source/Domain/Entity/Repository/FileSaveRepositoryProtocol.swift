@@ -9,6 +9,6 @@ import Foundation
 
 protocol FileSaveRepositoryProtocol {
     
-    func save(url: URL, completion: @escaping (Result<URL, Error>) -> Void)
+    func save(url: URL) async throws -> URL
     
 }

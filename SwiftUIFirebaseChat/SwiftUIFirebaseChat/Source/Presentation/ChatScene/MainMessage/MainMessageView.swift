@@ -194,6 +194,7 @@ extension MainMessageView {
     private func deleteAction(indexSet: IndexSet) {
         viewModel.deleteRecentChatMessage(indexSet: indexSet) 
     }
+    
 }
 
 struct MainMessageView_Previews: PreviewProvider {

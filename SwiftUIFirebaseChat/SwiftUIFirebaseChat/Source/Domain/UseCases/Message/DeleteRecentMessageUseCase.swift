@@ -9,8 +9,8 @@ import Foundation
 
 protocol DeleteRecentMessageUseCaseProtocol {
     
-    func excute(toId: String, completion: @escaping (Result<String, Error>) -> Void)
-    
+    func execute(toId: String) async throws -> String
+
 }
 
 final class DeleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol {
@@ -21,22 +21,11 @@ final class DeleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol {
         self.userRepo = userRepo
     }
     
-    func excute(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        userRepo.deleteRecentChatMessage(toId: toId) { result in
-            switch result {
-            case .success(_):
-                self.userRepo.deleteChatMessage(toId: toId) { result in
-                    switch result {
-                    case .success(let message):
-                        completion(.success(message))
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func execute(toId: String) async throws -> String {
+        let (_) = try await userRepo.deleteChatMessage(toId: toId)
+        let deleteRecentMessage = try await userRepo.deleteRecentMessage(toId: toId)
+        
+        return deleteRecentMessage
     }
     
 }

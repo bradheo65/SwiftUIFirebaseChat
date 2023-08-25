@@ -9,7 +9,7 @@ import Foundation
 
 protocol SendVideoMessageUseCaseProtocol {
     
-    func excute(url: URL, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void)
+    func excute(url: URL, chatUser: ChatUser) async throws -> String
     
 }
 
@@ -22,40 +22,15 @@ final class SendVideoMessageUseCase: SendVideoMessageUseCaseProtocol {
         self.sendMessageRepo = sendMessageRepo
         self.uploadFileRepo = uploadFileRepo
     }
-
-    func excute(url: URL, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
-        uploadFileRepo.uploadVideo(url: url) { result in
-            switch result {
-            case .success(let url):
-                if let thumbnailImage = self.sendMessageRepo.thumbnailImageForVideoURL(fileURL: url) {
-                    self.uploadFileRepo.uploadImage(image: thumbnailImage) { result in
-                        switch result {
-                        case .success(let thumbnailUrl):
-                            self.sendMessageRepo.sendVideo(imageUrl: thumbnailUrl, videoUrl: url, image: thumbnailImage, chatUser: chatUser) { result in
-                                switch result {
-                                case .success(let message):
-                                    completion(.success(message))
-                                    self.sendMessageRepo.sendRecentMessage(text: "비디오", chatUser: chatUser) { result in
-                                        switch result {
-                                        case .success(let message):
-                                            completion(.success(message))
-                                        case .failure(let error):
-                                            completion(.failure(error))
-                                        }
-                                    }
-                                case .failure(let error):
-                                    completion(.failure(error))
-                                }
-                            }
-                        case .failure(let error):
-                            completion(.failure(error))
-                        }
-                    }
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    
+    func excute(url: URL, chatUser: ChatUser) async throws -> String {
+        let videoUrl = try await uploadFileRepo.uploadVideo(url: url)
+        let thumbnailImage = try ThumbnailUtilities.generateThumbnailForVideo(fileURL: url)
+        let thumbnailImageUrl = try await uploadFileRepo.uploadImage(image: thumbnailImage)
+        let (_) = try await sendMessageRepo.sendVideo(imageUrl: thumbnailImageUrl, videoUrl: videoUrl, image: thumbnailImage, chatUser: chatUser)
+        let recentMessage = try await sendMessageRepo.sendRecentMessage(text: "비디오", chatUser: chatUser)
+        
+        return recentMessage
     }
     
 }

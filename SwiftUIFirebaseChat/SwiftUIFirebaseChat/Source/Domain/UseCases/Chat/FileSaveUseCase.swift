@@ -9,7 +9,7 @@ import Foundation
 
 protocol FileSaveUseCaseProtocol {
     
-    func excute(url: URL, completion: @escaping (Result<URL, Error>) -> Void)
+    func excute(url: URL) async throws -> URL
     
 }
 
@@ -21,15 +21,8 @@ final class FileSaveUseCase: FileSaveUseCaseProtocol {
         self.repo = repo
     }
     
-    func excute(url: URL, completion: @escaping (Result<URL, Error>) -> Void) {
-        repo.save(url: url) { result in
-            switch result {
-            case .success(let url):
-                completion(.success(url))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func excute(url: URL) async throws -> URL {
+        return try await repo.save(url: url)
     }
     
 }

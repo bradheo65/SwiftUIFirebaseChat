@@ -8,6 +8,11 @@
 import Foundation
 import SwiftUI
 
+enum FileUploadError: Error {
+    case compressionFailed
+    case invalidUrl
+}
+
 final class FileUploadRepository: FileUploadRepositoryProtocol {
     
     private let firebaseService: FirebaseFileUploadServiceProtocol
@@ -16,38 +21,34 @@ final class FileUploadRepository: FileUploadRepositoryProtocol {
         self.firebaseService = firebaseService
     }
     
-    func uploadImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
-        firebaseService.uploadImage(image: image, store: FirebaseConstants.Storage.messageImages) { result in
-            switch result {
-            case .success(let url):
-                completion(.success(url))
-            case .failure(let error):
-                completion(.failure(error))
-            }
+    func uploadImage(image: UIImage) async throws -> URL {
+        guard let compressedImageData = image.jpegData(compressionQuality: 0.5) else {
+            throw FileUploadError.compressionFailed
         }
+   
+        let uploadImageUrl = try await firebaseService.uploadImage(
+            data: compressedImageData,
+            store: FirebaseConstants.Storage.messageImages
+        )
+        
+        return uploadImageUrl
     }
     
-    func uploadVideo(url: URL, completion: @escaping (Result<URL, Error>) -> Void) {
-        firebaseService.uploadVideo(url: url, store: FirebaseConstants.Storage.messageVideos) { result in
-            switch result {
-            case .success(let url):
-                completion(.success(url))
-            case .failure(let error):
-                completion(.failure(error))
-            }
+    func uploadVideo(url: URL) async throws -> URL {
+        guard let videoData = try? Data(contentsOf: url) as Data? else {
+            throw FileUploadError.invalidUrl
         }
+        
+        let uploadVideoUrl = try await firebaseService.uploadVideo(
+            data: videoData,
+            store: FirebaseConstants.Storage.messageVideos
+        )
+        
+        return uploadVideoUrl
     }
     
-    
-    func uploadFile(url: URL, compltion: @escaping (Result<FileInfo, Error>) -> Void) {
-        firebaseService.uploadFile(url: url, store: FirebaseConstants.Storage.messageFiles) { result in
-            switch result {
-            case .success(let fileInfo):
-                compltion(.success(fileInfo))
-            case .failure(let error):
-                compltion(.failure(error))
-            }
-        }
+    func uploadFile(url: URL) async throws -> FileInfo {
+        return try await firebaseService.uploadFile(url: url, store: FirebaseConstants.Storage.messageFiles)
     }
     
 }

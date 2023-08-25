@@ -9,8 +9,8 @@ import Foundation
 
 protocol FetchCurrentUserUseCaseProtocol {
     
-    func excute(completion: @escaping (Result<ChatUser?, Error>) -> Void)
-    
+    func excute() async throws -> ChatUser?
+
 }
 
 final class FetchCurrentUserUseCase: FetchCurrentUserUseCaseProtocol {
@@ -21,15 +21,8 @@ final class FetchCurrentUserUseCase: FetchCurrentUserUseCaseProtocol {
         self.userRepo = userRepo
     }
     
-    func excute(completion: @escaping (Result<ChatUser?, Error>) -> Void) {
-        userRepo.fetchCurrentUser { result in
-            switch result {
-            case .success(let user):
-                completion(.success(user))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func excute() async throws -> ChatUser? {
+        return try await userRepo.fetchCurrentUser()
     }
     
 }

@@ -12,22 +12,16 @@ final class NetworkService {
     static let shared = NetworkService()
     
     private init() { }
-    
-    private let sessionConfig = URLSessionConfiguration.default
-    
-    func downloadFile(url: URL, completion: @escaping (Result<URL, Error>) -> Void) {
-        let request = URLRequest(url: url)
         
-        let task = URLSession(configuration: sessionConfig).downloadTask(with: request) { url, response, error in
-            if let error = error {
-                completion(.failure(error))
-            }
+    func downloadFile(url: URL) async throws -> URL {
+        let (url, response) = try await URLSession.shared.download(from: url)
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            let httpCode = httpResponse.statusCode
             
-            if let url = url {
-                completion(.success(url))
-            }
+            print("HTTP response code: \(httpCode)")
         }
-        task.resume()
+        return url
     }
     
 }

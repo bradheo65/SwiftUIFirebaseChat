@@ -18,6 +18,7 @@ final class CreateNewMessageViewModel: ObservableObject {
         self.fetchAllUserUseCase = fetchAllUserUseCase
     }
     
+    @MainActor
     func fetchAllUser() {
         fetchFirebaseAllUser()
     }
@@ -26,12 +27,14 @@ final class CreateNewMessageViewModel: ObservableObject {
 
 extension CreateNewMessageViewModel {
     
+    @MainActor
     private func fetchFirebaseAllUser() {
-        fetchAllUserUseCase.excute { result in
-            switch result {
-            case .success(let user):
-                self.users.append(user)
-            case .failure(let error):
+        Task {
+            do {
+                let users = try await fetchAllUserUseCase.excute()
+                
+                self.users = users
+            } catch {
                 print(error)
             }
         }

@@ -75,21 +75,21 @@ final class ChatLogViewModel: ObservableObject {
         stopChatMessageListenerUseCase.excute()
     }
     
-    func handleSendText(text: String, compltion: @escaping () -> Void) {
+    func handleSendText(text: String) {
         guard let chatUser = chatUser else {
             print("no Chat User")
             return
         }
 
-        sendMessageUseCase.excute(text: text, chatUser: chatUser) { result in
-            switch result {
-            case .success(let message):
-                print(message)
-            case .failure(let error):
+        Task {
+            do {
+                let sendMessageResultMessage = try await sendMessageUseCase.execute(text: text, chatUser: chatUser)
+                
+                print(sendMessageResultMessage)
+            } catch {
                 print(error)
             }
         }
-        compltion()
     }
      
     func handleSendImage(image: UIImage?) {
@@ -102,11 +102,12 @@ final class ChatLogViewModel: ObservableObject {
             return
         }
         
-        sendImageMessageUseCase.excute(image: image, chatUser: chatUser) { result in
-            switch result {
-            case .success(let message):
-                print(message)
-            case .failure(let error):
+        Task {
+            do {
+                let sendImageMessageResultMessage = try await sendImageMessageUseCase.excute(image: image, chatUser: chatUser)
+                
+                print(sendImageMessageResultMessage)
+            } catch {
                 print(error)
             }
         }
@@ -118,11 +119,12 @@ final class ChatLogViewModel: ObservableObject {
             return
         }
         
-        sendVideoMessageUseCase.excute(url: videoUrl, chatUser: chatUser) { result in
-            switch result {
-            case .success(let message):
-                print(message)
-            case .failure(let error):
+        Task {
+            do {
+                let sendVideoMessageResultMessage = try await sendVideoMessageUseCase.excute(url: videoUrl, chatUser: chatUser)
+                
+                print(sendVideoMessageResultMessage)
+            } catch {
                 print(error)
             }
         }
@@ -134,11 +136,12 @@ final class ChatLogViewModel: ObservableObject {
             return
         }
         
-        sendFileMessageUseCase.excute(fileUrl: fileUrl, chatUser: chatUser) { result in
-            switch result {
-            case .success(let message):
-                print(message)
-            case .failure(let error):
+        Task {
+            do {
+                let sendFileMessageResultMessage = try await sendFileMessageUseCase.excute(fileUrl: fileUrl, chatUser: chatUser)
+                
+                print(sendFileMessageResultMessage)
+            } catch {
                 print(error)
             }
         }
@@ -163,22 +166,18 @@ final class ChatLogViewModel: ObservableObject {
             return
         }
         
-        fileSave.excute(url: fileInfo.url) { result in
-            switch result {
-            case .success(let url):
-                FileSaveManager.shared.save(name: fileInfo.name, at: url) { result in
-                    switch result {
-                    case .success(let message):
-                        print(message)
-                        DispatchQueue.main.sync {
-                            self.isSaveCompleted.toggle()
-                        }
-                    case .failure(let error):
-                        print(error.localizedDescription)
-                    }
+        Task {
+            do {
+                let url = try await fileSave.excute(url: fileInfo.url)
+                
+                let message = try await FileSaveManager.shared.save(name: fileInfo.name, at: url)
+                
+                print(message)
+                DispatchQueue.main.sync {
+                    self.isSaveCompleted.toggle()
                 }
-            case .failure(let error):
-                print(error.localizedDescription)
+            } catch {
+                print(error)
             }
         }
     }

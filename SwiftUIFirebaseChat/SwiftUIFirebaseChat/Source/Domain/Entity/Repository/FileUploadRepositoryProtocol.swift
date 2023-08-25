@@ -10,8 +10,8 @@ import SwiftUI
 
 protocol FileUploadRepositoryProtocol {
     
-    func uploadImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void)
-    func uploadVideo(url: URL, completion: @escaping (Result<URL, Error>) -> Void)
-    func uploadFile(url: URL, compltion: @escaping (Result<FileInfo, Error>) -> Void)
+    func uploadImage(image: UIImage) async throws -> URL
+    func uploadVideo(url: URL) async throws -> URL
+    func uploadFile(url: URL) async throws -> FileInfo
     
 }

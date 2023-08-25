@@ -112,7 +112,6 @@ struct ChatLogView: View {
             onCompletion: { result in
                 switch result {
                 case .success(let url):
-                    print(url)
                     viewModel.handleSendFile(fileUrl: url)
                     
                 case .failure(let error):
@@ -230,8 +229,9 @@ extension ChatLogView {
             .frame(height: 40)
             
             Button {
-                viewModel.handleSendText(text: self.chatText) {
-                    self.chatText = ""
+                Task {
+                    await viewModel.handleSendText(text: self.chatText)
+                    chatText = ""
                 }
             } label: {
                 Text("Send")

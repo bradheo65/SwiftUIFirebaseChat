@@ -9,13 +9,13 @@ import Foundation
 
 protocol UserRepositoryProtocol {
     
-    func registerUser(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void)
-    func saveUserInfo(email: String, profileImageUrl: URL, completion: @escaping (Result<String, Error>) -> Void)
-    func loginUser(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void)
-    func logoutUser(completion: @escaping (Result<String, Error>) -> Void)
-    func fetchAllUser(completion: @escaping (Result<ChatUser, Error>) -> Void)
-    func fetchCurrentUser(completion: @escaping (Result<ChatUser?, Error>) -> Void)
-    func deleteChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void)
-    func deleteRecentChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void)
+    func registerUser(email: String, password: String) async throws -> String
+    func saveUserInfo(email: String, profileImageUrl: URL) async throws -> String
+    func loginUser(email: String, password: String) async throws -> String
+    func logoutUser() throws -> String
+    func fetchCurrentUser() async throws -> ChatUser?
+    func fetchAllUsers() async throws -> [ChatUser]
+    func deleteChatMessage(toId: String) async throws -> String
+    func deleteRecentMessage(toId: String) async throws -> String
     
 }

@@ -9,8 +9,8 @@ import SwiftUI
 
 protocol FirebaseFileUploadServiceProtocol {
         
-    func uploadImage(image: UIImage, store: String, compltion: @escaping (Result<URL, Error>) -> Void)
-    func uploadVideo(url: URL, store: String, compltion: @escaping (Result<URL, Error>) -> Void)
-    func uploadFile(url: URL, store: String, compltion: @escaping (Result<FileInfo, Error>) -> Void)
+    func uploadImage(data: Data, store: String) async throws -> URL
+    func uploadVideo(data: Data, store: String) async throws -> URL
+    func uploadFile(url: URL, store: String) async throws -> FileInfo
     
 }

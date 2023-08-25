@@ -41,11 +41,11 @@ final class MainMessageViewModel: ObservableObject {
         self.stopRecentMessageListenerUseCase = stopRecentMessageListenerUseCase
     }
     
-    func fetchAllUser() {
+    @MainActor func fetchAllUser() {
         fetchFirebaseAllUser()
     }
     
-    func fetchCurrentUser() {
+    @MainActor func fetchCurrentUser() {
         fetchFirebaseCurrentUser()
     }
     
@@ -57,10 +57,12 @@ final class MainMessageViewModel: ObservableObject {
         removeFirebaseRecentMessageListener()
     }
     
+    @MainActor
     func handleLogout() {
         logoutFirebaseCurrentUser()
     }
     
+    @MainActor
     func deleteRecentChatMessage(indexSet: IndexSet) {
         deleteFirebaseRecentMessage(indexSet: indexSet)
     }
@@ -69,23 +71,27 @@ final class MainMessageViewModel: ObservableObject {
 
 extension MainMessageViewModel {
     
+    @MainActor
     private func fetchFirebaseAllUser() {
-        fetchAllUserUseCase.excute { result in
-            switch result {
-            case .success(let user):
-                self.users.append(user)
-            case .failure(let error):
+        Task {
+            do {
+                let chatUserList = try await fetchAllUserUseCase.excute()
+                
+                self.users = chatUserList
+            } catch {
                 print(error)
             }
         }
     }
     
+    @MainActor
     private func fetchFirebaseCurrentUser() {
-        fetchCurrentUserUseCase.excute { result in
-            switch result {
-            case .success(let currentUser):
-                self.currentUser = currentUser
-            case .failure(let error):
+        Task {
+            do {
+                let chatUser = try await fetchCurrentUserUseCase.excute()
+                
+                self.currentUser = chatUser
+            } catch {
                 print(error)
             }
         }
@@ -122,18 +128,17 @@ extension MainMessageViewModel {
     }
     
     private func logoutFirebaseCurrentUser() {
-        logoutUseCase.excute { result in
-            switch result {
-            case .success(let message):
-                print(message)
-                self.isUserCurrentlyLoggedOut.toggle()
-            case .failure(let error):
-                print(error)
-                self.errorMessage = error.localizedDescription
-            }
+        do {
+            let logoutResultMessage = try logoutUseCase.excute()
+            
+            print(logoutResultMessage)
+            self.isUserCurrentlyLoggedOut.toggle()
+        } catch {
+            print(error)
         }
     }
     
+    @MainActor
     private func deleteFirebaseRecentMessage(indexSet: IndexSet) {
         guard let firestIndex = indexSet.first else {
             print("Fail to Load first data")
@@ -141,12 +146,13 @@ extension MainMessageViewModel {
         }
         let toId = recentMessages[firestIndex].toId
         
-        deleteRecentMessageUseCase.excute(toId: toId) { result in
-            switch result {
-            case .success(let message):
-                print(message)
+        Task {
+            do {
+                let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(toId: toId)
+                
+                print(deleteMessageResultMessage)
                 self.recentMessages.remove(atOffsets: indexSet)
-            case .failure(let error):
+            } catch {
                 print(error)
             }
         }

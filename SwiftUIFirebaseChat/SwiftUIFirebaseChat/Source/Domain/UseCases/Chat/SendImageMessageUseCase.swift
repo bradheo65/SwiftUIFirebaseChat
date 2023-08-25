@@ -10,7 +10,7 @@ import SwiftUI
 
 protocol SendImageMessageUseCaseProtocol {
     
-    func excute(image: UIImage, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void)
+    func excute(image: UIImage, chatUser: ChatUser) async throws -> String
     
 }
 
@@ -24,30 +24,12 @@ final class SendImageMessageUseCase: SendImageMessageUseCaseProtocol {
         self.uploadFileRepo = uploadFileRepo
     }
     
-    func excute(image: UIImage, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
-        uploadFileRepo.uploadImage(image: image) { result in
-            switch result {
-            case .success(let url):
-                self.sendMessageRepo.sendImage(url: url, image: image, chatUser: chatUser) { result in
-                    switch result {
-                    case .success(let message):
-                        completion(.success(message))
-                        self.sendMessageRepo.sendRecentMessage(text: "이미지", chatUser: chatUser) { result in
-                            switch result {
-                            case .success(let message):
-                                completion(.success(message))
-                            case .failure(let error):
-                                completion(.failure(error))
-                            }
-                        }
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func excute(image: UIImage, chatUser: ChatUser) async throws -> String {
+        let uploadImageResult = try await uploadFileRepo.uploadImage(image: image)
+        let (_) = try await sendMessageRepo.sendImage(url: uploadImageResult, image: image, chatUser: chatUser)
+        let sendRecentMessage = try await sendMessageRepo.sendRecentMessage(text: "이미지", chatUser: chatUser)
+        
+        return sendRecentMessage
     }
     
 }

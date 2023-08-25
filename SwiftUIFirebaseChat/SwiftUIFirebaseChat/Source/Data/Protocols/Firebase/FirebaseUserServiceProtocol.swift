@@ -9,12 +9,15 @@ import Foundation
 
 protocol FirebaseUserServiceProtocol {
     
-    func registerUser(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void)
-    func saveUserInfo(email: String, profileImageUrl: URL, store: String, completion: @escaping (Result<String, Error>) -> Void)
-    func loginUser(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void)
-    func logoutUser(completion: @escaping (Result<String, Error>) -> Void)
-    func fetchAllUser(completion: @escaping (Result<ChatUser, Error>) -> Void)
-    func fetchCurrentUser(completion: @escaping (Result<ChatUser?, Error>) -> Void)
-    func deleteChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void)
-    func deleteRecentMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void)
+    var currentUser: ChatUser? { get }
+    
+    func registerUser(email: String, password: String) async throws -> String
+    func saveUserInfo(store: String, currentUser: ChatUser, userData: [String: Any]) async throws -> String
+    func loginUser(email: String, password: String) async throws -> String
+    func logoutUser() throws -> String
+    func fetchCurrentUser() async throws -> ChatUser?
+    func fetchAllUsers() async throws -> [ChatUser]
+    func deleteChatMessage(toId: String) async throws -> String
+    func deleteRecentMessage(toId: String) async throws -> String
+    
 }

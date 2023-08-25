@@ -9,7 +9,7 @@ import Foundation
 
 protocol LoginUserUseCaseProtocol {
     
-    func excute(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void)
+    func execute(email: String, password: String) async throws -> String
     
 }
 
@@ -21,15 +21,8 @@ final class LoginUserUseCase: LoginUserUseCaseProtocol {
         self.userRepo = userRepo
     }
     
-    func excute(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
-        userRepo.loginUser(email: email, password: password) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func execute(email: String, password: String) async throws -> String {
+        return try await userRepo.loginUser(email: email, password: password)
     }
     
 }

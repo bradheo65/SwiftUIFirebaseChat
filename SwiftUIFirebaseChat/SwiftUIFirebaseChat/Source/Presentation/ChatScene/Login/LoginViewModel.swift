@@ -25,24 +25,35 @@ final class LoginViewModel: ObservableObject {
         self.loginUserUseCase = loginUseCase
     }
 
+    @MainActor
     func handleAction(isLoginMode: Bool, email: String, password: String, profileImage: UIImage?) {
         if isLoginMode {
-            loginUserUseCase.excute(email: email, password: password) { result in
-                switch result {
-                case .success(let message):
-                    self.loginStatusMessage = message
+            Task {
+                do {
+                    let loginResultMessage = try await loginUserUseCase.execute(email: email, password: password)
+                    
+                    self.loginStatusMessage = loginResultMessage
                     self.isLoginSuccess = true
-                case .failure(let error):
-                    self.loginStatusMessage = error.localizedDescription
+//                    switch result {
+//                    case .success(let message):
+//                        self.loginStatusMessage = message
+//                        self.isLoginSuccess = true
+//                    case .failure(let error):
+//                        print(error.localizedDescription)
+//                    }
+                } catch {
+                    print(error)
                 }
             }
         } else {
-            registerUserUseCase.excute(email: email, password: password, image: profileImage) { result in
-                switch result {
-                case .success(let message):
-                    self.loginStatusMessage = message
-                case .failure(let error):
-                    print(error.localizedDescription)
+            Task {
+                do {
+                    let registerUserResultMessage = try await registerUserUseCase.execute(email: email, password: password, image: profileImage)
+                    
+                    self.loginStatusMessage = registerUserResultMessage
+                }
+                catch {
+                    print(error)
                 }
             }
         }

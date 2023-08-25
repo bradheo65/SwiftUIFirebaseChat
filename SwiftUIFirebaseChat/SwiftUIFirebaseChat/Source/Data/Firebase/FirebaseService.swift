@@ -10,21 +10,25 @@ import Foundation
 import Firebase
 import FirebaseStorage
 
+enum FirebaseError: Error {
+    case authUserNotFound
+}
+
 final class FirebaseService: NSObject {
     
     private let auth: Auth
     private let storage: Storage
     private let firestore: Firestore
     
-    private var timeStamp: Timestamp {
+    private var chatMessageListener: ListenerRegistration?
+    private var recentMessageListener: ListenerRegistration?
+    
+    var currentUser: ChatUser?
+    var timeStamp: Timestamp {
         get {
             return Timestamp()
         }
     }
-    private var chatMessageListener: ListenerRegistration?
-    private var recentMessageListener: ListenerRegistration?
-    
-    private var currentUser: ChatUser?
     
     static let shared = FirebaseService()
     
@@ -42,341 +46,205 @@ final class FirebaseService: NSObject {
  
 extension FirebaseService: FirebaseUserServiceProtocol {
     
-    func registerUser(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
-        auth.createUser(withEmail: email, password: password) { result, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            completion(.success(result?.user.email ?? ""))
+    func registerUser(email: String, password: String) async throws -> String {
+        do {
+            let result = try await auth.createUser(withEmail: email, password: password)
+            let message = result.user.uid
+            
+            return message
+        } catch {
+            throw error
         }
     }
     
-    func saveUserInfo(email: String, profileImageUrl: URL, store: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let uid = auth.currentUser?.uid else {
-            return
-        }
-        
-        let userData = [
-            FirebaseConstants.email: email,
-            FirebaseConstants.uid: uid,
-            FirebaseConstants.profileImageURL: profileImageUrl.absoluteString
-        ]
-        
-        firestore.collection(store)
-            .document(uid)
-            .setData(userData) { error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                completion(.success("Success upload data to Firestore"))
-            }
-    }
-    
-    func loginUser(email: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
-        auth.signIn(withEmail: email, password: password) { result, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            completion(.success("Success to Login \(result?.user.uid ?? "")"))
+    func saveUserInfo(store: String, currentUser: ChatUser, userData: [String: Any]) async throws -> String {
+        do {
+            try await firestore.collection(store)
+                .document(currentUser.uid)
+                .setData(userData)
+            
+            let message = "Success upload data to Firestore"
+            
+            return message
+        } catch {
+            throw error
         }
     }
     
-    func logoutUser(completion: @escaping (Result<String, Error>) -> Void) {
+    func loginUser(email: String, password: String) async throws -> String {
+        do {
+            let result = try await auth.signIn(withEmail: email, password: password)
+            
+            let documentSnapshot = try await firestore
+                .collection(FirebaseConstants.users)
+                .document(result.user.uid)
+                .getDocument()
+            
+            let currentUser = try documentSnapshot.data(as: ChatUser.self)
+            self.currentUser = currentUser
+            
+            return result.user.uid
+        } catch {
+            throw error
+        }
+    }
+    
+    func logoutUser() throws -> String {
         do {
             try auth.signOut()
-            completion(.success("Success to Logout"))
-        } catch let error {
-            completion(.failure(error))
+            
+            return "Success to Logout"
+        } catch {
+            throw error
         }
     }
     
-    func fetchAllUser(completion: @escaping (Result<ChatUser, Error>) -> Void) {
-        firestore
-            .collection(FirebaseConstants.users)
-            .getDocuments { documentsSnapshot, error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                
-                documentsSnapshot?.documents.forEach({ snapshot in
-                    do {
-                        let user = try snapshot.data(as: ChatUser.self)
-                        
-                        if user.id != self.auth.currentUser?.uid {
-                            completion(.success(user))
-                        }
-                    } catch {
-                        completion(.failure(error))
-                    }
-                })
-            }
-    }
-    
-    func fetchCurrentUser(completion: @escaping (Result<ChatUser?, Error>) -> Void) {
-        guard let uid = auth.currentUser?.uid else {
-            return
+    func fetchCurrentUser() async throws -> ChatUser? {
+        guard let authCurrentUser = auth.currentUser else {
+            throw FirebaseError.authUserNotFound
         }
         
-        firestore
-            .collection(FirebaseConstants.users)
-            .document(uid)
-            .getDocument { snapshot, error in
-                if let error = error {
-                    print("Failed to fetch current user:", error)
-                    return
-                }
-                
+        do {
+            let documentSnapshot = try await firestore.collection(FirebaseConstants.users)
+                .document(authCurrentUser.uid)
+                .getDocument()
+            
+            let currentUser = try documentSnapshot.data(as: ChatUser.self)
+            self.currentUser = currentUser
+            
+            return currentUser
+        } catch {
+            throw error
+        }
+    }
+    
+    func fetchAllUsers() async throws -> [ChatUser]  {
+        do {
+            let querySnapshot = try await firestore
+                .collection(FirebaseConstants.users)
+                .getDocuments()
+            
+            var chatUsers: [ChatUser] = []
+            
+            try querySnapshot.documents.forEach { snapshot in
                 do {
-                    let currentUser = try snapshot?.data(as: ChatUser.self)
-
-                    self.currentUser = currentUser
-                    completion(.success(currentUser))
-                } catch let error {
-                    print(error)
+                    let user = try snapshot.data(as: ChatUser.self)
+                    
+                    if user.id != self.auth.currentUser?.uid {
+                        chatUsers.append(user)
+                    }
+                } catch {
+                    throw error
                 }
             }
+            return chatUsers
+        } catch {
+            throw error
+        }
     }
     
-    func deleteChatMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let uid = auth.currentUser?.uid else {
-            return
+    func deleteChatMessage(toId: String) async throws -> String {
+        guard let authCurrentUser = auth.currentUser else {
+            throw FirebaseError.authUserNotFound
         }
         
-        firestore
-            .collection(FirebaseConstants.messages)
-            .document(uid)
-            .collection(toId)
-            .getDocuments { querySnapshot, error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                querySnapshot?.documents.forEach({ snapshot in
-                    self.firestore
-                        .collection(FirebaseConstants.messages)
-                        .document(uid)
-                        .collection(toId)
-                        .document(snapshot.documentID)
-                        .delete() { error in
-                            if let error = error {
-                                completion(.failure(error))
-                                return
-                            }
-                        }
-                })
-                completion(.success("Success to Delete Chat Log"))
+        do {
+            let querySnapshot = try await firestore
+                .collection(FirebaseConstants.messages)
+                .document(authCurrentUser.uid)
+                .collection(toId)
+                .getDocuments()
+        
+            for snapshot in querySnapshot.documents {
+                try await firestore
+                    .collection(FirebaseConstants.messages)
+                    .document(authCurrentUser.uid)
+                    .collection(toId)
+                    .document(snapshot.documentID)
+                    .delete()
             }
+            let message = "Success to Delete chat Message"
+            
+            return message
+        } catch {
+            throw error
+        }
     }
     
-    func deleteRecentMessage(toId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let uid = auth.currentUser?.uid else {
-            return
+    func deleteRecentMessage(toId: String) async throws -> String {
+        guard let authCurrentUser = auth.currentUser else {
+            throw FirebaseError.authUserNotFound
         }
         
-        self.firestore
-            .collection(FirebaseConstants.recentMessages)
-            .document(uid)
-            .collection(FirebaseConstants.messages)
-            .document(toId)
-            .delete() { error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                completion(.success("Success to Delete Recent Message"))
-            }
+        do {
+            try await firestore
+                .collection(FirebaseConstants.recentMessages)
+                .document(authCurrentUser.uid)
+                .collection(FirebaseConstants.messages)
+                .document(toId)
+                .delete()
+            
+            let message = "Success to Delete recent Message"
+            
+            return message
+        }
+        catch {
+            throw error
+        }
     }
     
 }
 
 extension FirebaseService: FirebaseMessagingServiceProtocol {
     
-    func sendTextMessage(text: String, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let currentUser = currentUser else {
-            print("Send Message Error no Current User Data")
-            return
-        }
-        
-        let messageData = [
-            FirebaseConstants.fromId: currentUser.uid,
-            FirebaseConstants.toId: chatUser.uid,
-            FirebaseConstants.Text.text: text,
-            FirebaseConstants.timestamp: timeStamp
-        ] as [String : Any]
-        
-        sendMessage(fromId: currentUser.uid, toId: chatUser.uid, messageData: messageData) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-    
-    func sendImageMessage(imageURL: URL, image: UIImage, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let currentUser = currentUser else {
-            print("Send Message Error no Current User Data")
-            return
-        }
-        
-        let width = Float(image.size.width)
-        let height = Float(image.size.height)
-        
-        let messageData = [
-            FirebaseConstants.fromId: currentUser.uid,
-            FirebaseConstants.toId: chatUser.uid,
-            FirebaseConstants.Image.url: imageURL.absoluteString,
-            FirebaseConstants.Image.width: CGFloat(200),
-            FirebaseConstants.Image.height: CGFloat(height / width * 200),
-            FirebaseConstants.timestamp: timeStamp
-        ] as [String : Any]
-        
-        sendMessage(fromId: currentUser.uid, toId: chatUser.uid, messageData: messageData) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-    
-    func sendVideoMessage(imageUrl: URL, videoUrl: URL, image: UIImage, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let currentUser = currentUser else {
-            print("Send Message Error no Current User Data")
-            return
-        }
-        
-        let width = Float(image.size.width)
-        let height = Float(image.size.height)
-        
-        let messageData = [
-            FirebaseConstants.fromId: currentUser.uid,
-            FirebaseConstants.toId: chatUser.uid,
-            FirebaseConstants.Image.url: imageUrl.absoluteString,
-            FirebaseConstants.Video.url: videoUrl.absoluteString,
-            FirebaseConstants.Image.width: CGFloat(200),
-            FirebaseConstants.Image.height: CGFloat(height / width * 200),
-            FirebaseConstants.timestamp: timeStamp
-        ] as [String : Any]
-        
-        sendMessage(fromId: currentUser.uid, toId: chatUser.uid, messageData: messageData) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-    
-    func sendFileMessage(fileInfo: FileInfo, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let currentUser = currentUser else {
-            print("Send Message Error no Current User Data")
-            return
-        }
-        
-        let messageData = [
-            FirebaseConstants.fromId: currentUser.uid,
-            FirebaseConstants.toId: chatUser.uid,
-            FirebaseConstants.File.url: fileInfo.url.absoluteString,
-            FirebaseConstants.File.name: fileInfo.name,
-            FirebaseConstants.File.type: fileInfo.contentType,
-            FirebaseConstants.File.size: fileInfo.size,
-            FirebaseConstants.timestamp: timeStamp
-        ] as [String : Any]
-    
-        sendMessage(fromId: currentUser.uid, toId: chatUser.uid, messageData: messageData) { result in
-            switch result {
-            case .success(let message):
-                completion(.success(message))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-       
-    func sendRecentMessage(text: String, chatUser: ChatUser, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let currentUser = currentUser else {
-            print("Send Message Error no Current User Data")
-            return
-        }
-        
-        let document = firestore
-            .collection(FirebaseConstants.recentMessages)
-            .document(currentUser.uid)
-            .collection(FirebaseConstants.messages)
-            .document(chatUser.uid)
-        
-        let data = [
-            FirebaseConstants.Text.text: text,
-            FirebaseConstants.fromId: currentUser.uid,
-            FirebaseConstants.toId: chatUser.uid,
-            FirebaseConstants.profileImageURL: chatUser.profileImageURL,
-            FirebaseConstants.email: chatUser.email,
-            FirebaseConstants.timestamp: timeStamp
-        ] as [String : Any]
-        
-        document.setData(data) { error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-        }
-        
-        let recipientRecentMessageDictionary = [
-            FirebaseConstants.Text.text: text,
-            FirebaseConstants.fromId: currentUser.uid,
-            FirebaseConstants.toId: chatUser.uid,
-            FirebaseConstants.profileImageURL: currentUser.profileImageURL,
-            FirebaseConstants.email: currentUser.email,
-            FirebaseConstants.timestamp: timeStamp
-        ] as [String : Any]
-        
-        firestore
-            .collection(FirebaseConstants.recentMessages)
-            .document(chatUser.uid)
-            .collection(FirebaseConstants.messages)
-            .document(currentUser.uid)
-            .setData(recipientRecentMessageDictionary) { error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                completion(.success("Success to send recent message"))
-            }
-    }
-    
-    func sendMessage(fromId: String, toId: String, messageData: [String: Any], completion: @escaping (Result<String, Error>) -> Void) {
+    func sendMessage(fromId: String, toId: String, messageData: [String: Any]) async throws -> String {
         let document = firestore
             .collection(FirebaseConstants.messages)
             .document(fromId)
             .collection(toId)
             .document()
         
-        let recipientMessageDocument = firestore
+        let recentDocument = firestore
             .collection(FirebaseConstants.messages)
             .document(toId)
             .collection(fromId)
             .document()
+                
+        do {
+            try await document.setData(messageData)
+            try await recentDocument.setData(messageData)
+            
+            let message = "Success to send user message"
+            
+            return message
+        } catch {
+            throw error
+        }
         
-        document.setData(messageData) { error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            recipientMessageDocument.setData(messageData) { error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                completion(.success("Successfully saved to user sending message"))
-            }
+    }
+    
+    func sendRecentMessage(text: String, currentUser: ChatUser, chatUser: ChatUser, userMessage: [String: Any], recentMessage: [String: Any]) async throws -> String {
+        let document = firestore
+            .collection(FirebaseConstants.recentMessages)
+            .document(currentUser.uid)
+            .collection(FirebaseConstants.messages)
+            .document(chatUser.uid)
+
+        let recentDocument = firestore
+            .collection(FirebaseConstants.recentMessages)
+            .document(chatUser.uid)
+            .collection(FirebaseConstants.messages)
+            .document(currentUser.uid)
+        
+        do {
+            try await document.setData(userMessage)
+            try await recentDocument.setData(recentMessage)
+            
+            let message = "Success to send recent message"
+            
+            return message
+        } catch {
+            throw error
         }
     }
     
@@ -384,153 +252,65 @@ extension FirebaseService: FirebaseMessagingServiceProtocol {
 
 extension FirebaseService: FirebaseFileUploadServiceProtocol {
     
-    func uploadImage(image: UIImage, store: String, compltion: @escaping (Result<URL, Error>) -> Void) {
-        let ref = storage.reference()
-            .child(store)
-            .child(UUID().uuidString)
-        
-        if let uploadData = image.jpegData(compressionQuality: 0.5) {
-            ref.putData(uploadData) { metadata, error in
-                if let error = error {
-                    print(error)
-                    compltion(.failure(error))
-                    return
-                }
-                
-                ref.downloadURL { url, error in
-                    if let error = error {
-                        print(error)
-                        compltion(.failure(error))
-                        return
-                    }
-                    print("Successfully stored image with url \(url?.absoluteString ?? "")")
-                    
-                    guard let url = url else {
-                        return
-                    }
-                    compltion(.success(url))
-                }
-            }
-        }
-    }
-    
-    func uploadVideo(url: URL, store: String, compltion: @escaping (Result<URL, Error>) -> Void) {
-        let videoRef = storage.reference()
+    func uploadImage(data: Data, store: String) async throws -> URL {
+        let imageRef = storage.reference()
             .child(store)
             .child(UUID().uuidString)
         
         do {
-            let data = try Data(contentsOf: url)
+            let (_) = try await imageRef.putDataAsync(data)
+            let url = try await imageRef.downloadURL()
             
-            if let uploadData = data as Data? {
-                let metaData = StorageMetadata()
-                metaData.contentType = "video/mp4"
-                
-                let uploadTask = videoRef.putData(uploadData, metadata: metaData) { metadata, error in
-                    if let error = error {
-                        print(error.localizedDescription)
-                        compltion(.failure(error))
-                        return
-                    }
-                    
-                    videoRef.downloadURL { url, error in
-                        if let error = error {
-                            print(error.localizedDescription)
-                            return
-                        }
-                        
-                        guard let url = url else {
-                            return
-                        }
-                        print("Successfully stored video with url \(url.absoluteString)")
-                        compltion(.success(url))
-                    }
-                }
-                    
-                uploadTask.observe(.progress) { snapshot in
-                    print(snapshot.progress?.completedUnitCount as Any)
-                }
-                
-                uploadTask.observe(.success) { snapshot in
-                    print(snapshot.status)
-                }
-            }
-        } catch let error {
-            print(error.localizedDescription)
+            return url
+        } catch {
+           throw error
         }
     }
     
-    func uploadFile(url: URL, store: String, compltion: @escaping (Result<FileInfo, Error>) -> Void) {
+    func uploadVideo(data: Data, store: String) async throws -> URL {
+        let videoRef = storage.reference()
+            .child(store)
+            .child(UUID().uuidString)
+
+        let metaData = StorageMetadata()
+        metaData.contentType = "video/mp4"
+        
+        do {
+            let (_) = try await videoRef.putDataAsync(data, metadata: metaData)
+            let videoDownloadUrl = try await videoRef.downloadURL()
+            
+            return videoDownloadUrl
+        }
+        catch {
+            throw error
+        }
+    }
+    
+    func uploadFile(url: URL, store: String) async throws -> FileInfo {
         let fileRef = storage.reference()
             .child(store)
             .child(url.deletingPathExtension().lastPathComponent)
         
-        fileRef.putFile(from: url, metadata: nil) { _, error in
-            if let error = error {
-                print(error.localizedDescription)
-                compltion(.failure(error))
-                return
-            }
+        do {
+            let (_) = try await fileRef.putFileAsync(from: url, metadata: nil)
+            let uploadUrl = try await fileRef.downloadURL()
+            let metaData = try await fileRef.getMetadata()
             
-            print("uploadFile Success")
+            let contentType = metaData.contentType ?? ""
+            let fileSize = metaData.size
+            let size = String(format: "%.2f", Float(fileSize) / 1000000)
+
+            let fileInfo = FileInfo(
+                url: uploadUrl,
+                name: uploadUrl.deletingPathExtension().lastPathComponent,
+                contentType: contentType,
+                size:size
+            )
             
-            fileRef.downloadURL { url, error in
-                if let error = error {
-                    print(error.localizedDescription)
-                    compltion(.failure(error))
-                    return
-                }
-                
-                guard let url = url else {
-                    return
-                }
-                fileRef.getMetadata { meta, error in
-                    if let error = error {
-                        print(error.localizedDescription)
-                        compltion(.failure(error))
-                        return
-                    }
-                    guard let contentType = meta?.contentType else {
-                        return
-                    }
-                    let fileSize = meta?.size ?? .zero
-                    
-                    let size = Float(fileSize) / 1000000
-                    
-                    print("Successfully stored File with url \(url.absoluteString)")
-                    
-                    let fileInfo = FileInfo(
-                        url: url,
-                        name: url.deletingPathExtension().lastPathComponent,
-                        contentType: contentType,
-                        size: String(format: "%.2f", size)
-                    )
-                    compltion(.success(fileInfo))
-                }
-            }
+            return fileInfo
+        } catch {
+            throw error
         }
-    }
-    
-    func uploadAccountInfo(email: String, profileImageUrl: URL, store: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let uid = auth.currentUser?.uid else {
-            return
-        }
-        
-        let userData = [
-            FirebaseConstants.email: email,
-            FirebaseConstants.uid: uid,
-            FirebaseConstants.profileImageURL: profileImageUrl.absoluteString
-        ]
-        
-        firestore.collection(store)
-            .document(uid)
-            .setData(userData) { error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                completion(.success("Success upload data to Firestore"))
-            }
     }
     
 }
