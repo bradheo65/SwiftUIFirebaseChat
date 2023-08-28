@@ -107,12 +107,22 @@ final class UserRepository: UserRepositoryProtocol {
     }
     
     func deleteChatMessage(toId: String) async throws -> String {
+        DispatchQueue.main.async {
+            let deleteMessage = self.realm.objects(ChatLog.self).filter("id == %@", toId)
+            
+            self.realm.writeAsync {
+                deleteMessage.forEach { chatLog in
+                    self.realm.delete(chatLog)
+                }
+            }
+        }
+        
         return try await firebaseService.deleteChatMessage(toId: toId)
     }
     
     func deleteRecentMessage(toId: String) async throws -> String {
         DispatchQueue.main.async {
-            if let deleteMessage = self.realm.objects(RecentChat.self).filter("toId == %@", toId).first {
+            if let deleteMessage = self.realm.objects(ChatList.self).filter("id == %@", toId).first {
                 self.realm.writeAsync {
                     self.realm.delete(deleteMessage)
                 }

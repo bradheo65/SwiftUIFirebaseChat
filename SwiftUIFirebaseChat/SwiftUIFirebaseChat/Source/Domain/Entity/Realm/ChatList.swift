@@ -1,5 +1,5 @@
 //
-//  RecentChat.swift
+//  ChatList.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by PJH on 2023/08/28.
@@ -9,7 +9,7 @@ import Foundation
 
 import RealmSwift
 
-class RecentChat: Object {
+class ChatList: Object {
     
     @objc dynamic var id = ""
     @objc dynamic var text = ""

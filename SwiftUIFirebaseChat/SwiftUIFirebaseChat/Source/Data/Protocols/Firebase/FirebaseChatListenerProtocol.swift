@@ -11,7 +11,7 @@ import Firebase
 
 protocol FirebaseChatListenerProtocol {
     
-    func listenForChatMessage(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void)
+    func listenForChatMessage(chatUser: ChatUser, completion: @escaping (Result<DocumentChange, Error>) -> Void)
     func stopListenForChatMessage()
     func listenForRecentMessage(completion: @escaping (Result<DocumentChange, Error>) -> Void)
     func stopListenForRecentMessage()

@@ -285,8 +285,8 @@ extension ChatLogView {
                 }
             }
             .frame(
-                width: message.imageWidth,
-                height: message.imageHeight
+                width: CGFloat(message.imageWidth ?? .zero),
+                height: CGFloat(message.imageHeight ?? .zero)
             )
         }
         
@@ -297,10 +297,10 @@ extension ChatLogView {
                     .font(.system(size: 40))
 
                 VStack(alignment: .leading) {
-                    Text(message.fileTitle)
+                    Text(message.fileTitle ?? "")
                         .font(.system(size: 14))
                         .lineLimit(2)
-                    Text(message.fileSizes)
+                    Text(message.fileSizes ?? "")
                         .foregroundColor(.secondary)
                         .font(.system(size: 14))
                 }
@@ -314,9 +314,9 @@ extension ChatLogView {
                 
                 fileInfo = FileInfo(
                     url: URL(string: message.fileUrl ?? "")!,
-                    name: message.fileTitle,
+                    name: message.fileTitle ?? "",
                     contentType: message.fileType ?? "",
-                    size: message.fileSizes
+                    size: message.fileSizes ?? ""
                 )
             }
         }

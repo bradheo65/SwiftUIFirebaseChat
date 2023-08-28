@@ -325,7 +325,7 @@ extension FirebaseService: FirebaseFileUploadServiceProtocol {
 
 extension FirebaseService: FirebaseChatListenerProtocol {
     
-    func listenForChatMessage(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void) {
+    func listenForChatMessage(chatUser: ChatUser, completion: @escaping (Result<DocumentChange, Error>) -> Void) {
         guard let currentUser = currentUser else {
             print("Send Message Error no Current User Data")
             return
@@ -342,17 +342,9 @@ extension FirebaseService: FirebaseChatListenerProtocol {
                     return
                 }
                 
-                querySnapshot?.documentChanges.forEach({ change in
-                    if change.type == .added {
-                        do {
-                            let chatMessage = try change.document.data(as: ChatMessage.self)
-                            
-                            completion(.success(chatMessage))
-                        } catch {
-                            completion(.failure(error))
-                        }
-                    }
-                })
+                querySnapshot?.documentChanges.forEach { change in
+                    completion(.success(change))
+                }
             }
     }
     
