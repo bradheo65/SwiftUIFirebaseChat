@@ -7,10 +7,13 @@
 
 import Foundation
 
+import RealmSwift
+
 final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     
     private let firebaseSerivce: FirebaseChatListenerProtocol
-    
+    private let realm = try! Realm()
+
     init(firebaseSerivce: FirebaseChatListenerProtocol) {
         self.firebaseSerivce = firebaseSerivce
     }
@@ -47,6 +50,21 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                     }
                     if let rm = try? documentChange.document.data(as: RecentMessage.self) {
                         recentMessages.insert(rm, at: 0)
+                        
+                        let recentChat = RecentChat()
+
+                        recentChat.id = rm.id ?? ""
+                        recentChat.text = rm.text
+                        recentChat.username = rm.username
+                        recentChat.email = rm.email
+                        recentChat.fromId = rm.fromId
+                        recentChat.toId = rm.toId
+                        recentChat.profileImageURL = rm.profileImageURL
+                        recentChat.timestamp = rm.timestamp
+                        
+                        self.realm.writeAsync {
+                            self.realm.create(RecentChat.self, value: recentChat, update: .modified)
+                        }
                         
                         completion(.success(recentMessages))
                     }

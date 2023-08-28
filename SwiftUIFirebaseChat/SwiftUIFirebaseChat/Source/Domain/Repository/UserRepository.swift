@@ -13,32 +13,6 @@ enum UserError: Error {
     case currentUserNotFound
 }
 
-class CurrentUser: Object {
-    
-    @objc dynamic var uid: String = ""
-    @objc dynamic var email: String = ""
-    @objc dynamic var password: String = ""
-    @objc dynamic var profileImageUrl: String = ""
-    
-    override static func primaryKey() -> String? {
-        return "uid"
-    }
-}
-
-class AllUsers: Object {
-    
-    @objc dynamic var uid: String = ""
-    @objc dynamic var email: String = ""
-    @objc dynamic var profileImageURL: String = ""
-    @objc dynamic var username: String {
-        email.components(separatedBy: "@").first ?? email
-    }
-    
-    override static func primaryKey() -> String? {
-        return "uid"
-    }
-}
-
 final class UserRepository: UserRepositoryProtocol {
     
     private let firebaseService: FirebaseUserServiceProtocol
@@ -137,6 +111,14 @@ final class UserRepository: UserRepositoryProtocol {
     }
     
     func deleteRecentMessage(toId: String) async throws -> String {
+        DispatchQueue.main.async {
+            if let deleteMessage = self.realm.objects(RecentChat.self).filter("toId == %@", toId).first {
+                self.realm.writeAsync {
+                    self.realm.delete(deleteMessage)
+                }
+            }
+        }
+        
         return try await firebaseService.deleteRecentMessage(toId: toId)
     }
     
