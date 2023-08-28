@@ -7,8 +7,6 @@
 
 import Foundation
 
-import Firebase
-
 final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     
     private let firebaseSerivce: FirebaseChatListenerProtocol
@@ -32,11 +30,29 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
         firebaseSerivce.stopListenForChatMessage()
     }
     
-    func startRecentMessageListener(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
+    func startRecentMessageListener(completion: @escaping (Result<[RecentMessage], Error>) -> Void) {
+        var recentMessages: [RecentMessage] = []
+        
         firebaseSerivce.listenForRecentMessage { result in
             switch result {
             case .success(let documentChange):
-                completion(.success(documentChange))
+                switch documentChange.type {
+                case .added, .modified:
+                    let docId = documentChange.document.documentID
+                    
+                    if let index = recentMessages.firstIndex(where: { recentMessage in
+                        return recentMessage.id == docId
+                    }) {
+                        recentMessages.remove(at: index)
+                    }
+                    if let rm = try? documentChange.document.data(as: RecentMessage.self) {
+                        recentMessages.insert(rm, at: 0)
+                        
+                        completion(.success(recentMessages))
+                    }
+                case .removed:
+                    return
+                }
             case .failure(let error):
                 completion(.failure(error))
             }

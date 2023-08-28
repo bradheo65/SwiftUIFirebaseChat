@@ -11,7 +11,7 @@ import Firebase
 
 protocol StartRecentMessageListenerUseCaseProtocol {
     
-    func excute(completion: @escaping (Result<DocumentChange, Error>) -> Void)
+    func excute(completion: @escaping (Result<[RecentMessage], Error>) -> Void)
     
 }
 
@@ -23,7 +23,7 @@ final class StartRecentMessageListenerUseCase: StartRecentMessageListenerUseCase
         self.chatListenerRepo = chatListenerRepo
     }
     
-    func excute(completion: @escaping (Result<DocumentChange, Error>) -> Void) {
+    func excute(completion: @escaping (Result<[RecentMessage], Error>) -> Void) {
         chatListenerRepo.startRecentMessageListener { result in
             switch result {
             case .success(let documentChange):

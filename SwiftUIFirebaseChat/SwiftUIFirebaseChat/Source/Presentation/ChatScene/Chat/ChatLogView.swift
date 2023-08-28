@@ -229,10 +229,8 @@ extension ChatLogView {
             .frame(height: 40)
             
             Button {
-                Task {
-                    await viewModel.handleSendText(text: self.chatText)
-                    chatText = ""
-                }
+                viewModel.handleSendText(text: self.chatText)
+                chatText = ""
             } label: {
                 Text("Send")
                     .foregroundColor(.white)

@@ -12,7 +12,7 @@ protocol ChatListenerRepositoryProtocol {
     
     func startChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void)
     func stopChatMessageListener()
-    func startRecentMessageListener(completion: @escaping (Result<DocumentChange, Error>) -> Void)
+    func startRecentMessageListener(completion: @escaping (Result<[RecentMessage], Error>) -> Void)
     func stopRecentMessageListener()
     
 }

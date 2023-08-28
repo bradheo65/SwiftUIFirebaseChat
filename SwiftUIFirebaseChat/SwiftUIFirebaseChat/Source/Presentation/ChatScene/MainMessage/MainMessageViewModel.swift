@@ -101,22 +101,7 @@ extension MainMessageViewModel {
         startRecentMessageListenerUseCase.excute { result in
             switch result {
             case .success(let documentChange):
-                switch documentChange.type {
-                case .added, .modified:
-                    let docId = documentChange.document.documentID
-                    
-                    if let index = self.recentMessages.firstIndex(where: { recentMessage in
-                        return recentMessage.id == docId
-                    }) {
-                        self.recentMessages.remove(at: index)
-                    }
-                    if let rm = try? documentChange.document.data(as: RecentMessage.self) {
-                        self.recentMessages.append(rm)
-                        self.recentMessages.sort()
-                    }
-                case .removed:
-                    return
-                }
+                self.recentMessages = documentChange
             case .failure(let error):
                 print(error)
             }
