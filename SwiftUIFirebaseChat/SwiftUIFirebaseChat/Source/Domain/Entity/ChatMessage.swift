@@ -10,6 +10,7 @@ import Foundation
 import FirebaseFirestoreSwift
 
 struct ChatMessage: Codable, Identifiable {
+    
     @DocumentID var id: String?
     
     let fromId, toId: String
@@ -23,10 +24,9 @@ struct ChatMessage: Codable, Identifiable {
         if let fileName = fileName {
             
             return fileName + "." + (fileType?.suffix(3) ?? "")
-        } else{
+        } else {
             return nil
         }
-        
     }
     
     var fileSizes: String? {
@@ -36,4 +36,5 @@ struct ChatMessage: Codable, Identifiable {
             return nil
         }
     }
+    
 }

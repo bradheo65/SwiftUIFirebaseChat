@@ -15,4 +15,5 @@ protocol MessagingRepositoryProtocol {
     func sendVideo(imageUrl: URL, videoUrl: URL, image: UIImage, chatUser: ChatUser) async throws -> String
     func sendFile(fileInfo: FileInfo, chatUser: ChatUser) async throws -> String
     func sendRecentMessage(text: String, chatUser: ChatUser) async throws -> String
+    
 }

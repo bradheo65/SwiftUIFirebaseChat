@@ -10,6 +10,7 @@ import Foundation
 import FirebaseFirestoreSwift
 
 struct ChatUser: Codable, Identifiable {
+    
     @DocumentID var id: String?
     
     let uid, email, profileImageURL: String
@@ -17,4 +18,5 @@ struct ChatUser: Codable, Identifiable {
     var username: String {
         email.components(separatedBy: "@").first ?? email
     }
+    
 }

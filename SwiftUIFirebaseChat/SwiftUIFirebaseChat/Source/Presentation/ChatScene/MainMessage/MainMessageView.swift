@@ -32,7 +32,7 @@ struct MainMessageView: View {
                 currentUserTitleView
                  
                 List {
-                    ForEach(viewModel.recentMessages, id: \.id) { recentMessage in
+                    ForEach(viewModel.chatRoomList, id: \.id) { recentMessage in
                         NavigationLink {
                             ChatLogView(
                                 chatUser: ChatUser(
@@ -154,7 +154,7 @@ extension MainMessageView {
         }
     }
     
-    func messageListCell(message: RecentMessage) -> some View {
+    func messageListCell(message: ChatRoom) -> some View {
         var body: some View {
             HStack(spacing: 16) {
                 ProfileImageView(url: message.profileImageURL)

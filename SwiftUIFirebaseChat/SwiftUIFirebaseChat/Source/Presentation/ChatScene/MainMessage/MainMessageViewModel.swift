@@ -9,7 +9,7 @@ import Foundation
 
 final class MainMessageViewModel: ObservableObject {
     
-    @Published var recentMessages: [RecentMessage] = []
+    @Published var chatRoomList: [ChatRoom] = []
     @Published var users: [ChatUser] = []
     
     @Published var currentUser: ChatUser?
@@ -41,11 +41,13 @@ final class MainMessageViewModel: ObservableObject {
         self.stopRecentMessageListenerUseCase = stopRecentMessageListenerUseCase
     }
     
-    @MainActor func fetchAllUser() {
+    @MainActor
+    func fetchAllUser() {
         fetchFirebaseAllUser()
     }
     
-    @MainActor func fetchCurrentUser() {
+    @MainActor
+    func fetchCurrentUser() {
         fetchFirebaseCurrentUser()
     }
     
@@ -57,7 +59,6 @@ final class MainMessageViewModel: ObservableObject {
         removeFirebaseRecentMessageListener()
     }
     
-    @MainActor
     func handleLogout() {
         logoutFirebaseCurrentUser()
     }
@@ -100,8 +101,8 @@ extension MainMessageViewModel {
     private func activeFirebaseRecentMessagesListener() {
         startRecentMessageListenerUseCase.excute { result in
             switch result {
-            case .success(let documentChange):
-                self.recentMessages = documentChange
+            case .success(let chatRoomList):
+                self.chatRoomList = chatRoomList
             case .failure(let error):
                 print(error)
             }
@@ -129,14 +130,14 @@ extension MainMessageViewModel {
             print("Fail to Load first data")
             return
         }
-        let toId = recentMessages[firestIndex].toId
+        let toId = chatRoomList[firestIndex].toId
         
         Task {
             do {
                 let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(toId: toId)
                 
+                self.chatRoomList.remove(atOffsets: indexSet)
                 print(deleteMessageResultMessage)
-                self.recentMessages.remove(atOffsets: indexSet)
             } catch {
                 print(error)
             }

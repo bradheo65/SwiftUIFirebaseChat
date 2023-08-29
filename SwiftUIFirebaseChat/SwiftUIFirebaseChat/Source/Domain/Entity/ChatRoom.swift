@@ -1,5 +1,5 @@
 //
-//  RecentMessage.swift
+//  ChatRoom.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by brad on 2023/07/25.
@@ -9,7 +9,7 @@ import Foundation
 
 import FirebaseFirestoreSwift
 
-struct RecentMessage: Codable, Identifiable, Comparable {
+struct ChatRoom: Codable, Identifiable, Comparable {
 
     @DocumentID var id: String?
     
@@ -28,7 +28,7 @@ struct RecentMessage: Codable, Identifiable, Comparable {
         return formatter.localizedString(for: timestamp, relativeTo: Date())
     }
     
-    static func < (lhs: RecentMessage, rhs: RecentMessage) -> Bool {
+    static func < (lhs: ChatRoom, rhs: ChatRoom) -> Bool {
         return lhs.timestamp.timeIntervalSince1970 > rhs.timestamp.timeIntervalSince1970
     }
     

@@ -11,7 +11,6 @@ import SwiftUI
 final class LoginViewModel: ObservableObject {
     
     @Published var loginStatusMessage = ""
-    
     @Published var isLoginSuccess = false
 
     private let registerUserUseCase: RegisterUserUseCaseProtocol
@@ -44,8 +43,7 @@ final class LoginViewModel: ObservableObject {
                     let registerUserResultMessage = try await registerUserUseCase.execute(email: email, password: password, image: profileImage)
                     
                     self.loginStatusMessage = registerUserResultMessage
-                }
-                catch {
+                } catch {
                     print(error)
                 }
             }

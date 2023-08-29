@@ -81,8 +81,8 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
         firebaseSerivce.stopListenForChatMessage()
     }
     
-    func startRecentMessageListener(completion: @escaping (Result<[RecentMessage], Error>) -> Void) {
-        var recentMessages: [RecentMessage] = []
+    func startRecentMessageListener(completion: @escaping (Result<[ChatRoom], Error>) -> Void) {
+        var chatRoomList: [ChatRoom] = []
         
         firebaseSerivce.listenForRecentMessage { result in
             switch result {
@@ -91,30 +91,30 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                 case .added, .modified:
                     let docId = documentChange.document.documentID
                     
-                    if let index = recentMessages.firstIndex(where: { recentMessage in
+                    if let index = chatRoomList.firstIndex(where: { recentMessage in
                         return recentMessage.id == docId
                     }) {
-                        recentMessages.remove(at: index)
+                        chatRoomList.remove(at: index)
                     }
-                    if let rm = try? documentChange.document.data(as: RecentMessage.self) {
-                        recentMessages.insert(rm, at: 0)
+                    if let chatRoom = try? documentChange.document.data(as: ChatRoom.self) {
+                        chatRoomList.insert(chatRoom, at: 0)
                         
-                        let recentChat = ChatList()
+                        let chatList = ChatList()
 
-                        recentChat.id = rm.id ?? ""
-                        recentChat.text = rm.text
-                        recentChat.username = rm.username
-                        recentChat.email = rm.email
-                        recentChat.fromId = rm.fromId
-                        recentChat.toId = rm.toId
-                        recentChat.profileImageURL = rm.profileImageURL
-                        recentChat.timestamp = rm.timestamp
+                        chatList.id = chatRoom.id ?? ""
+                        chatList.text = chatRoom.text
+                        chatList.username = chatRoom.username
+                        chatList.email = chatRoom.email
+                        chatList.fromId = chatRoom.fromId
+                        chatList.toId = chatRoom.toId
+                        chatList.profileImageURL = chatRoom.profileImageURL
+                        chatList.timestamp = chatRoom.timestamp
                         
                         self.realm.writeAsync {
-                            self.realm.create(ChatList.self, value: recentChat, update: .modified)
+                            self.realm.create(ChatList.self, value: chatList, update: .modified)
                         }
                         
-                        completion(.success(recentMessages))
+                        completion(.success(chatRoomList))
                     }
                 case .removed:
                     return

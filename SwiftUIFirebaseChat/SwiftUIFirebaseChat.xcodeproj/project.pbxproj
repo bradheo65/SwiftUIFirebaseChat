@@ -55,7 +55,7 @@
 		A357367E2A6F9D50007B0402 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A357367D2A6F9D50007B0402 /* FirebaseFirestore */; };
 		A35736802A6F9D50007B0402 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A357367F2A6F9D50007B0402 /* FirebaseFirestoreSwift */; };
 		A35736822A6F9D50007B0402 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = A35736812A6F9D50007B0402 /* FirebaseStorage */; };
-		A35736842A6F9D9D007B0402 /* RecentMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35736832A6F9D9D007B0402 /* RecentMessage.swift */; };
+		A35736842A6F9D9D007B0402 /* ChatRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35736832A6F9D9D007B0402 /* ChatRoom.swift */; };
 		A35736862A6FAA51007B0402 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35736852A6FAA51007B0402 /* ChatMessage.swift */; };
 		A36EF84A2A79F3C400A7DEE2 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF8492A79F3C400A7DEE2 /* ImageCache.swift */; };
 		A36EF84C2A79F42000A7DEE2 /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF84B2A79F42000A7DEE2 /* RemoteImage.swift */; };
@@ -155,7 +155,7 @@
 		A354F69A2A5460640063652A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A35736742A6EBFBA007B0402 /* CreateNewMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateNewMessageView.swift; sourceTree = "<group>"; };
 		A35736782A6F343C007B0402 /* ChatLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatLogView.swift; sourceTree = "<group>"; };
-		A35736832A6F9D9D007B0402 /* RecentMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentMessage.swift; sourceTree = "<group>"; };
+		A35736832A6F9D9D007B0402 /* ChatRoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoom.swift; sourceTree = "<group>"; };
 		A35736852A6FAA51007B0402 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 		A36EF8492A79F3C400A7DEE2 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		A36EF84B2A79F42000A7DEE2 /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
@@ -615,7 +615,7 @@
 			isa = PBXGroup;
 			children = (
 				A3B722512A6D682E005F713F /* ChatUser.swift */,
-				A35736832A6F9D9D007B0402 /* RecentMessage.swift */,
+				A35736832A6F9D9D007B0402 /* ChatRoom.swift */,
 				A35736852A6FAA51007B0402 /* ChatMessage.swift */,
 				A392147D2A8319BE00BF833D /* FileInfo.swift */,
 				00B320832A9C589D007A038F /* Realm */,
@@ -820,7 +820,7 @@
 				A3EC4DF02A92E545008DDB02 /* FileUploadRepositoryProtocol.swift in Sources */,
 				A348F3972A8DE7B50017DD72 /* FileSaveRepositoryProtocol.swift in Sources */,
 				A310D6A22A84A9D700634DFE /* NetworkService.swift in Sources */,
-				A35736842A6F9D9D007B0402 /* RecentMessage.swift in Sources */,
+				A35736842A6F9D9D007B0402 /* ChatRoom.swift in Sources */,
 				A348F36A2A89D4910017DD72 /* DeleteRecentMessageUseCase.swift in Sources */,
 				A3CED45E2A70AC42001DD436 /* CreateNewMessageViewModel.swift in Sources */,
 				A392147C2A83104600BF833D /* RoundedCorner.swift in Sources */,
