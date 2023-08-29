@@ -96,7 +96,7 @@ struct ChatLogView: View {
         }
         .onChange(of: videoUrl) { newValue in
             if let url = videoUrl {
-                viewModel.handleSendVideo(videoUrl: url)
+                viewModel.handleSendVideo(url: url)
             }
         }
         .onChange(of: isImageTap, perform: { newValue in
@@ -112,7 +112,7 @@ struct ChatLogView: View {
             onCompletion: { result in
                 switch result {
                 case .success(let url):
-                    viewModel.handleSendFile(fileUrl: url)
+                    viewModel.handleSendFile(url: url)
                     
                 case .failure(let error):
                     print(error)

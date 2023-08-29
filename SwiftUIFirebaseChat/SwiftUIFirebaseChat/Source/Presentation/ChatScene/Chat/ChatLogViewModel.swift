@@ -49,6 +49,13 @@ final class ChatLogViewModel: ObservableObject {
         self.stopChatMessageListenerUseCase = stopChatMessageListener
     }
     
+    /**
+    메세지 리스너를 활성화하고 새 메세지를 받아오는 함수
+     
+     새로운 메시지를 받으면 'chatMessages' 배열에 메세지를 추가하고 스크롤뷰를 조작
+     
+     - Throws: 'startChatMessageListener.excute(chatUser: chatUser)' 메서드가 실패한 경우 에러를 출력
+     */
     func addListener() {
         guard let chatUser = chatUser else {
             print("no Chat User")
@@ -61,7 +68,7 @@ final class ChatLogViewModel: ObservableObject {
             case .success(let chatMessage):
                 self.chatMessages.append(chatMessage)
                 
-                // ScollViewProxy receiver
+                // ScollViewProxy receiver 업데이트
                 DispatchQueue.main.async {
                     self.count += 1
                 }
@@ -71,10 +78,23 @@ final class ChatLogViewModel: ObservableObject {
         }
     }
     
+    /**
+    메세지 리스너를 비활성화하는 함수
+     */
     func removeListener() {
         stopChatMessageListenerUseCase.excute()
     }
     
+    /**
+    텍스트 메세지를 전송하는 함수
+     
+     전송된 메시지의 결과 메세지를 출력
+     
+     - Parameters:
+        - text: 전송할 텍스트
+     
+     - Throws: 'sendMessageUseCase.execute(text: text, chatUser: chatUser)' 메서드가 실패한 경우 에러를 출력
+     */
     func handleSendText(text: String) {
         guard let chatUser = chatUser else {
             print("no Chat User")
@@ -83,7 +103,10 @@ final class ChatLogViewModel: ObservableObject {
 
         Task {
             do {
-                let sendMessageResultMessage = try await sendMessageUseCase.execute(text: text, chatUser: chatUser)
+                let sendMessageResultMessage = try await sendMessageUseCase.execute(
+                    text: text,
+                    chatUser: chatUser
+                )
                 
                 print(sendMessageResultMessage)
             } catch {
@@ -92,6 +115,16 @@ final class ChatLogViewModel: ObservableObject {
         }
     }
      
+    /**
+    이미지 메세지를 전송하는 함수
+     
+     전송된 메시지의 결과 메세지를 출력
+     
+     - Parameters:
+        - image: 전송할 이미지
+     
+     - Throws: 'sendImageMessageUseCase.excute(image: image, chatUser: chatUser)' 메서드가 실패한 경우 에러를 출력
+     */
     func handleSendImage(image: UIImage?) {
         guard let image = image else {
             print("Fail to image load")
@@ -104,7 +137,10 @@ final class ChatLogViewModel: ObservableObject {
         
         Task {
             do {
-                let sendImageMessageResultMessage = try await sendImageMessageUseCase.excute(image: image, chatUser: chatUser)
+                let sendImageMessageResultMessage = try await sendImageMessageUseCase.excute(
+                    image: image,
+                    chatUser: chatUser
+                )
                 
                 print(sendImageMessageResultMessage)
             } catch {
@@ -113,7 +149,17 @@ final class ChatLogViewModel: ObservableObject {
         }
     }
     
-    func handleSendVideo(videoUrl: URL) {
+    /**
+    비디오 메세지를 전송하는 함수
+     
+     전송된 메시지의 결과 메세지를 출력
+     
+     - Parameters:
+        - url: 전송할 비디오 URL
+     
+     - Throws: 'sendVideoMessageUseCase.excute(url: videoUrl, chatUser: chatUser)' 메서드가 실패한 경우 에러를 출력
+     */
+    func handleSendVideo(url: URL) {
         guard let chatUser = chatUser else {
             print("no Chat User")
             return
@@ -121,7 +167,10 @@ final class ChatLogViewModel: ObservableObject {
         
         Task {
             do {
-                let sendVideoMessageResultMessage = try await sendVideoMessageUseCase.excute(url: videoUrl, chatUser: chatUser)
+                let sendVideoMessageResultMessage = try await sendVideoMessageUseCase.excute(
+                    url: url,
+                    chatUser: chatUser
+                )
                 
                 print(sendVideoMessageResultMessage)
             } catch {
@@ -130,7 +179,17 @@ final class ChatLogViewModel: ObservableObject {
         }
     }
     
-    func handleSendFile(fileUrl: URL) {
+    /**
+    파일 메세지를 전송하는 함수
+     
+     전송된 메시지의 결과 메세지를 출력
+     
+     - Parameters:
+        - url: 전송할 파일 URL
+     
+     - Throws: 'sendFileMessageUseCase.excute(url: url, chatUser: chatUser)' 메서드가 실패한 경우 에러를 출력
+     */
+    func handleSendFile(url: URL) {
         guard let chatUser = chatUser else {
             print("no Chat User")
             return
@@ -138,7 +197,10 @@ final class ChatLogViewModel: ObservableObject {
         
         Task {
             do {
-                let sendFileMessageResultMessage = try await sendFileMessageUseCase.excute(fileUrl: fileUrl, chatUser: chatUser)
+                let sendFileMessageResultMessage = try await sendFileMessageUseCase.excute(
+                    url: url,
+                    chatUser: chatUser
+                )
                 
                 print(sendFileMessageResultMessage)
             } catch {
@@ -147,6 +209,14 @@ final class ChatLogViewModel: ObservableObject {
         }
     }
     
+    /**
+     이미지를 사진 앨범에 저장하는 함수
+
+     이미지 저장 완료 시 `isSaveCompleted`를 토글하고, 에러 발생 시 에러 알림을 표시
+
+     - Parameters:
+       - image: 저장할 이미지
+     */
     func handleImageSave(image: UIImage) {
         ImageSaveManager.shared.writeToPhotoAlbum(image: image)
         
@@ -160,6 +230,16 @@ final class ChatLogViewModel: ObservableObject {
         }
     }
     
+    /**
+     파일을 저장하는 함수
+
+     파일 저장 완료 시 `isSaveCompleted` 상태 업데이트하고, 결과 메세지 출력
+
+     - Parameters:
+       - fileInfo: 저장할 파일의 정보
+
+     - Throws: 'FileSaveManager.shared.save(name: fileInfo.name, at: url)' 메서드가 실패한 경우 에러를 출력
+     */
     func handleFileSave(fileInfo: FileInfo?) {
         guard let fileInfo = fileInfo else {
             print("Fail to file load")
@@ -170,12 +250,15 @@ final class ChatLogViewModel: ObservableObject {
             do {
                 let url = try await fileSave.excute(url: fileInfo.url)
                 
-                let message = try await FileSaveManager.shared.save(name: fileInfo.name, at: url)
+                let fileSaveResultMessage = try await FileSaveManager.shared.save(
+                    name: fileInfo.name,
+                    at: url
+                )
                 
-                print(message)
                 DispatchQueue.main.sync {
                     self.isSaveCompleted.toggle()
                 }
+                print(fileSaveResultMessage)
             } catch {
                 print(error)
             }

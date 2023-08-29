@@ -9,7 +9,7 @@ import Foundation
 
 protocol SendFileMessageUseCaseProtocol {
     
-    func excute(fileUrl: URL, chatUser: ChatUser) async throws -> String
+    func excute(url: URL, chatUser: ChatUser) async throws -> String
     
 }
 
@@ -23,8 +23,8 @@ final class SendFileMessageUseCase: SendFileMessageUseCaseProtocol {
         self.uploadFileRepo = uploadFileRepo
     }
     
-    func excute(fileUrl: URL, chatUser: ChatUser) async throws -> String {
-        let uploadFileInfo = try await uploadFileRepo.uploadFile(url: fileUrl)
+    func excute(url: URL, chatUser: ChatUser) async throws -> String {
+        let uploadFileInfo = try await uploadFileRepo.uploadFile(url: url)
         
         let (_) = try await sendMessageRepo.sendFile(fileInfo: uploadFileInfo, chatUser: chatUser)
         let sendRecentMessageResult = try await sendMessageRepo.sendRecentMessage(text: "파일", chatUser: chatUser)
