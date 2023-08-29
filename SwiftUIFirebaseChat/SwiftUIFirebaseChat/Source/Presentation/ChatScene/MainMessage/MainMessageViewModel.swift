@@ -78,8 +78,7 @@ extension MainMessageViewModel {
      가져온 정보는 'users' 프로퍼티에 저장
      
      - Throws: 'fetchAllUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
-     
-     */
+    */
     @MainActor
     private func fetchFirebaseAllUser() {
         Task {
@@ -99,7 +98,6 @@ extension MainMessageViewModel {
      가져온 정보는 'currentUser' 프로퍼티에 저장
      
      - Throws: 'fetchCurrentUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
-     
      */
     @MainActor
     private func fetchFirebaseCurrentUser() {
@@ -120,7 +118,6 @@ extension MainMessageViewModel {
      새로운 메시가 도착하면 해당 메시지 정보를 가져와 'chatRoomList'에 업데이트
      
      - Throws: 'startRecentMessageListenerUseCase.excute()' 메서드가 실패한 경우 에러를 출력
-     
      */
     private func activeFirebaseRecentMessagesListener() {
         startRecentMessageListenerUseCase.excute { result in

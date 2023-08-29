@@ -32,7 +32,6 @@ final class LoginViewModel: ObservableObject {
         - email: View에 입력된 이메일 주소
         - password: View에 입력된 비밀번호
         - profileImage: imagePicker로 선택한 image
-     
      */
     @MainActor
     func handleAction(isLoginMode: Bool, email: String, password: String, profileImage: UIImage?) {
@@ -57,7 +56,6 @@ extension LoginViewModel {
         - password: 이메일 주소에 맞는 비밀번호
      
      - Throws: 'loginStatusMessage'에 로그인 상태 메시지 업데이트
-     
      */
     private func login(email: String, password: String) {
         Task {
@@ -85,7 +83,6 @@ extension LoginViewModel {
         - image: 프로필 이미지로 등록할 이미지
      
      - Throws: 'loginStatusMessage'에 회원가입 상태 메시지 업데이트
-     
      */
     private func register(email: String, password: String, image: UIImage?) {
         Task {
