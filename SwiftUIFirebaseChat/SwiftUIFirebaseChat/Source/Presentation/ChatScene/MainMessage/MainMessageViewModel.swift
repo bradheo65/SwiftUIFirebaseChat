@@ -72,6 +72,13 @@ final class MainMessageViewModel: ObservableObject {
 
 extension MainMessageViewModel {
     
+    /**
+    모든 사용자 정보를 가져오는 함수
+     
+     - Throws: 'fetchAllUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
+     
+     - Returns: 가져온 정보는 'users' 프로퍼티에 저장
+     */
     @MainActor
     private func fetchFirebaseAllUser() {
         Task {
@@ -85,6 +92,13 @@ extension MainMessageViewModel {
         }
     }
     
+    /**
+    현재 로그인한 사용자 정보를 가져오는 함수
+     
+     - Throws: 'fetchCurrentUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
+     
+     - Returns: 가져온 정보는 'currentUser' 프로퍼티에 저장
+     */
     @MainActor
     private func fetchFirebaseCurrentUser() {
         Task {
@@ -98,6 +112,15 @@ extension MainMessageViewModel {
         }
     }
     
+    /**
+    최근 메시지 리스너 활성화하는 함수
+     
+     새로운 메시가 도착하면 해당 메시지 정보를 가져와 'chatRoomList'에 업데이트
+     
+     - Throws: 'startRecentMessageListenerUseCase.excute()' 메서드가 실패한 경우 에러를 출력
+     
+     - Returns: 가져온 정보는 'chatRoomList' 프로퍼티에 저장
+     */
     private func activeFirebaseRecentMessagesListener() {
         startRecentMessageListenerUseCase.excute { result in
             switch result {
@@ -109,21 +132,40 @@ extension MainMessageViewModel {
         }
     }
     
+    /**
+    최근 메시지 리스너 비활성화하는 함수
+     */
     private func removeFirebaseRecentMessageListener() {
         stopRecentMessageListenerUseCase.excute()
     }
     
+    /**
+    현재 사용자 로그아웃을 처리하는 함수
+     
+     로그아웃 이후 'isUserCurrentlyLoggedOut' 상태 업데이트
+     
+     - Throws: 'logoutUseCase.excute()' 메서드가 실패한 경우 에러를 출력
+     */
     private func logoutFirebaseCurrentUser() {
         do {
             let logoutResultMessage = try logoutUseCase.excute()
             
-            print(logoutResultMessage)
             self.isUserCurrentlyLoggedOut.toggle()
         } catch {
             print(error)
         }
     }
     
+    /**
+    최근 메세지 삭제하는 함수
+     
+     선택한 메시지의 'toId'를 사용하여 메세지를 삭제하고, 'chatRoomList'에서도 해당 메세지를 제거
+     
+     - Parameters:
+        - indexSet: 삭제할 메시지의 indexSet
+     
+     - Throws: 'deleteRecentMessageUseCase.execute(toId: toId)' 메서드가 실패한 경우 에러를 출력
+     */
     @MainActor
     private func deleteFirebaseRecentMessage(indexSet: IndexSet) {
         guard let firestIndex = indexSet.first else {
@@ -137,7 +179,6 @@ extension MainMessageViewModel {
                 let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(toId: toId)
                 
                 self.chatRoomList.remove(atOffsets: indexSet)
-                print(deleteMessageResultMessage)
             } catch {
                 print(error)
             }
