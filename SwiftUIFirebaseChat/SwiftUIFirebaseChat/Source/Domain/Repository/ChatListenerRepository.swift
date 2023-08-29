@@ -141,13 +141,13 @@ extension ChatListenerRepository {
         chatLog.text = chatMessage.text
         chatLog.imageUrl = chatMessage.imageUrl
         chatLog.videoUrl = chatMessage.videoUrl
-        chatLog.fileUrl = chatMessage.fileUrl
-        chatLog.imageWidth = RealmOptional(chatMessage.imageWidth)
-        chatLog.imageHeight = RealmOptional(chatMessage.imageHeight)
-        chatLog.timestamp = chatMessage.timestamp
+        chatLog.imageWidth = chatMessage.imageWidth
+        chatLog.imageHeight = chatMessage.imageHeight
         chatLog.fileTitle = chatMessage.fileTitle
         chatLog.fileSizes = chatMessage.fileSizes
-        
+        chatLog.fileUrl = chatMessage.fileUrl
+        chatLog.timestamp = chatMessage.timestamp
+
         return chatLog
     }
     

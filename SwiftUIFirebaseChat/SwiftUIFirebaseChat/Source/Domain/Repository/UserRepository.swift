@@ -63,7 +63,7 @@ final class UserRepository: UserRepositoryProtocol {
      사용자 로그인 함수
 
      이 함수는 주어진 이메일과 비밀번호를 사용하여 사용자를 Firebase에 로그인하고, 로그인한 사용자 정보를 Realm에 저장하는 역할을 합니다.
-     사용자가 로그인하면 현재 로그인한 사용자 정보를 `CurrentUser` 모델로 Realm에 저장합니다.
+     사용자가 로그인하면 현재 로그인한 사용자 정보를 `MyAccountInfo` 모델로 Realm에 저장합니다.
 
      - Parameters:
        - email: 사용자의 이메일 주소
@@ -78,7 +78,7 @@ final class UserRepository: UserRepositoryProtocol {
         let userUid = try await firebaseService.loginUser(email: email, password: password)
         
         DispatchQueue.main.async {
-            let existingUser = self.realm.objects(CurrentUser.self).first?.email
+            let existingUser = self.realm.objects(MyAccountInfo.self).first?.email
             
             // 이메일이 다른 사용자가 로그인했을 경우 기존 Realm 데이터를 삭제합니다.
             if email != existingUser {
@@ -87,15 +87,15 @@ final class UserRepository: UserRepositoryProtocol {
                 }
             }
             
-            // 로그인한 사용자 정보를 CurrentUser 모델로 구성하여 Realm에 저장합니다.
-            let user = CurrentUser()
+            // 로그인한 사용자 정보를 MyAccountInfo 모델로 구성하여 Realm에 저장합니다.
+            let user = MyAccountInfo()
             
             user.uid = userUid
             user.email = email
             user.password = password
             
             self.realm.writeAsync {
-                self.realm.create(CurrentUser.self, value: user, update: .modified)
+                self.realm.create(MyAccountInfo.self, value: user, update: .modified)
             }
         }
         print(Realm.Configuration.defaultConfiguration.fileURL!)
@@ -133,10 +133,10 @@ final class UserRepository: UserRepositoryProtocol {
                         
         DispatchQueue.main.async {
             // 현재 로그인한 사용자의 Realm 데이터를 가져옵니다.
-            if let user = self.realm.objects(CurrentUser.self).first {
+            if let myAccountInfo = self.realm.objects(MyAccountInfo.self).first {
                 // 현재 사용자의 프로필 이미지 URL을 업데이트합니다.
                 self.realm.writeAsync {
-                    user.profileImageUrl = currentUser?.profileImageURL ?? ""
+                    myAccountInfo.profileImageUrl = currentUser?.profileImageURL ?? ""
                 }
             }
         }
@@ -148,7 +148,7 @@ final class UserRepository: UserRepositoryProtocol {
      모든 사용자 정보를 가져오는 함수
 
      이 함수는 Firebase에서 모든 사용자의 정보를 가져와서 해당 정보를 Realm에 업데이트하는 역할을 합니다.
-     가져온 사용자 정보를 사용하여 `AllUsers` 모델로 구성하여 Realm에 저장합니다.
+     가져온 사용자 정보를 사용하여 `FriendAccountInfo` 모델로 구성하여 Realm에 저장합니다.
 
      - Throws:
        - 기타 에러: 사용자 정보 가져오기 및 Realm 업데이트 과정에서 발생한 에러를 전달
@@ -159,16 +159,16 @@ final class UserRepository: UserRepositoryProtocol {
         let allUsers = try await firebaseService.fetchAllUsers()
         
         DispatchQueue.main.async {
-            // 가져온 사용자 정보를 사용하여 AllUsers 모델로 구성하여 Realm에 저장합니다.
+            // 가져온 사용자 정보를 사용하여 FriendAccountInfo 모델로 구성하여 Realm에 저장합니다.
             allUsers.forEach { user in
-                let allUser = AllUsers()
+                let friendAccountInfo = FriendAccountInfo()
                 
-                allUser.uid = user.uid
-                allUser.email = user.email
-                allUser.profileImageURL = user.profileImageURL
+                friendAccountInfo.uid = user.uid
+                friendAccountInfo.email = user.email
+                friendAccountInfo.profileImageURL = user.profileImageURL
                 
                 self.realm.writeAsync {
-                    self.realm.create(AllUsers.self, value: allUser, update: .modified)
+                    self.realm.create(FriendAccountInfo.self, value: friendAccountInfo, update: .modified)
                 }
             }
         }

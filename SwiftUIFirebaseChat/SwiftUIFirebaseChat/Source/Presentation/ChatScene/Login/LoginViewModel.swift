@@ -57,6 +57,7 @@ extension LoginViewModel {
      
      - Throws: 'loginStatusMessage'에 로그인 상태 메시지 업데이트
      */
+    @MainActor
     private func login(email: String, password: String) {
         Task {
             do {
@@ -84,6 +85,7 @@ extension LoginViewModel {
      
      - Throws: 'loginStatusMessage'에 회원가입 상태 메시지 업데이트
      */
+    @MainActor
     private func register(email: String, password: String, image: UIImage?) {
         Task {
             do {

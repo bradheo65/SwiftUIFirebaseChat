@@ -9,7 +9,7 @@ import Foundation
 
 import RealmSwift
 
-class ChatList: Object {
+final class ChatList: Object {
     
     @objc dynamic var id = ""
     @objc dynamic var text = ""
@@ -23,4 +23,5 @@ class ChatList: Object {
     override static func primaryKey() -> String? {
         return "id"
     }
+    
 }
