@@ -31,7 +31,8 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                         let id = self.realm.objects(ChatList.self)
                             .filter(
                                 "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)",
-                                chatMessage.toId, chatMessage.fromId, chatMessage.fromId, chatMessage.toId)
+                                chatMessage.toId, chatMessage.fromId, chatMessage.fromId, chatMessage.toId
+                            )
                             .first?.id ?? chatMessage.toId
                         
                         chatLog.id = id
@@ -46,7 +47,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                         chatLog.imageHeight = RealmOptional(chatMessage.imageHeight)
                         chatLog.timestamp = chatMessage.timestamp
                         chatLog.fileTitle = chatMessage.fileTitle
-                        chatLog.fileTitle = chatMessage.fileSizes
+                        chatLog.fileSizes = chatMessage.fileSizes
                         
                         if self.realm.objects(ChatLog.self)
                             .filter("id == %@", id)
