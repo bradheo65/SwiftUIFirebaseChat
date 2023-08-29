@@ -75,9 +75,10 @@ extension MainMessageViewModel {
     /**
     모든 사용자 정보를 가져오는 함수
      
+     가져온 정보는 'users' 프로퍼티에 저장
+     
      - Throws: 'fetchAllUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
      
-     - Returns: 가져온 정보는 'users' 프로퍼티에 저장
      */
     @MainActor
     private func fetchFirebaseAllUser() {
@@ -95,9 +96,10 @@ extension MainMessageViewModel {
     /**
     현재 로그인한 사용자 정보를 가져오는 함수
      
+     가져온 정보는 'currentUser' 프로퍼티에 저장
+     
      - Throws: 'fetchCurrentUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
      
-     - Returns: 가져온 정보는 'currentUser' 프로퍼티에 저장
      */
     @MainActor
     private func fetchFirebaseCurrentUser() {
@@ -119,7 +121,6 @@ extension MainMessageViewModel {
      
      - Throws: 'startRecentMessageListenerUseCase.excute()' 메서드가 실패한 경우 에러를 출력
      
-     - Returns: 가져온 정보는 'chatRoomList' 프로퍼티에 저장
      */
     private func activeFirebaseRecentMessagesListener() {
         startRecentMessageListenerUseCase.excute { result in
