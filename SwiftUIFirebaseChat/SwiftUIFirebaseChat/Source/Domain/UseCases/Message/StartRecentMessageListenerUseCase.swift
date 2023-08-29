@@ -23,6 +23,17 @@ final class StartRecentMessageListenerUseCase: StartRecentMessageListenerUseCase
         self.chatListenerRepo = chatListenerRepo
     }
     
+    /**
+     최근 채팅 메시지 리스너를 활성화하고 결과를 반환하는 함수
+
+     이 함수는 최근 채팅 메시지 리스너를 활성화하고, 리스너 실행 결과를 비동기적으로 반환합니다.
+     리스너가 성공적으로 실행되면 성공 결과와 최근 채팅 메시지 리스트를 반환하고,
+     실행 중 에러가 발생하면 에러 결과와 해당 에러를 반환합니다.
+
+     - Parameters:
+       - completion: 리스너 실행 결과를 처리하는 클로저
+         - Parameter result: 리스너 실행 결과 (`Result<[ChatRoom], Error>`)
+     */
     func excute(completion: @escaping (Result<[ChatRoom], Error>) -> Void) {
         chatListenerRepo.startRecentMessageListener { result in
             switch result {
