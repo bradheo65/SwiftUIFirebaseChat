@@ -36,8 +36,8 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                 if documentChange.type == .added {
                     do {
                         let chatMessage = try documentChange.document.data(as: ChatMessage.self)
-                                                
-                        let id = self.generateChatLogId(from: chatMessage)
+                                       
+                        let id = self.generateChatLogId(fromId: chatMessage.fromId, toId: chatMessage.toId)
                         let chatLog = self.createChatLog(from: chatMessage, with: id)
                         
                         self.saveChatLog(chatLog, with: id)
@@ -87,8 +87,21 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                     if let chatRoom = try? documentChange.document.data(as: ChatRoom.self) {
                         chatRoomList.insert(chatRoom, at: 0)
                         
-                        self.createChatListLog(from: chatRoom)
+                        if documentChange.type == .added {
+                            let filterQuery = "toId == %@ AND fromId == %@"
                         
+                            // 이미 저장되어 있다면 저장하지 않습니다.
+                            if self.realm.objects(ChatList.self)
+                                .filter(
+                                    filterQuery,
+                                    chatRoom.toId, chatRoom.fromId
+                                ).isEmpty {
+                                self.createChatListLog(from: chatRoom, id: nil)
+                            }
+                        } else {
+                            let id = self.generateChatLogId(fromId: chatRoom.fromId, toId: chatRoom.toId)
+                            self.createChatListLog(from: chatRoom, id: id)
+                        }
                         completion(.success(chatRoomList))
                     }
                 case .removed:
@@ -116,28 +129,28 @@ extension ChatListenerRepository {
      그렇지 않은 경우 대화 상대방의 ID를 사용하여 새로운 채팅 로그 ID를 생성합니다.
      
      - Parameters:
-       - chatMessage: 채팅 메시지 객체
+       - fromId: 채팅 보낸 유저의 ID
+       - toId: 채팅 받는 유저의 ID
      
      - Returns: 생성된 채팅 로그 ID
      */
-    private func generateChatLogId(from chatMessage: ChatMessage) -> String {
+    private func generateChatLogId(fromId: String, toId: String) -> String {
         let filterQuery = "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)"
         
         let id = self.realm.objects(ChatList.self)
             .filter(
                 filterQuery,
-                chatMessage.toId, chatMessage.fromId, chatMessage.fromId, chatMessage.toId
+                toId, fromId, fromId, toId
             )
-            .first?.id ?? chatMessage.toId
+            .first?.id
 
-        return id
+        return id ?? ""
     }
     
     private func createChatLog(from chatMessage: ChatMessage, with id: String) -> ChatLog {
         let chatLog = ChatLog()
         
         chatLog.id = id
-        
         chatLog.fromId = chatMessage.fromId
         chatLog.toId = chatMessage.toId
         chatLog.text = chatMessage.text
@@ -156,14 +169,14 @@ extension ChatListenerRepository {
     private func saveChatLog(_ chatLog: ChatLog, with id: String) {
         let filterQuery = "id == %@"
         
-        if self.realm.objects(ChatLog.self)
+        if realm.objects(ChatLog.self)
             .filter(filterQuery, id)
             .isEmpty {
             // 중복된 ChatLog가 없을 경우 ChatLog를 Realm에 추가합니다.
             self.realm.writeAsync {
                 self.realm.add(chatLog)
             }
-        } else if let date = self.realm.objects(ChatLog.self)
+        } else if let date = realm.objects(ChatLog.self)
             .filter(filterQuery, id)
             .last?.timestamp {
             // 이미 존재하는 ChatLog 중 가장 마지막 메시지의 타임스탬프와 비교하여 최신 메시지인 경우 추가합니다.
@@ -175,10 +188,10 @@ extension ChatListenerRepository {
         }
     }
     
-    private func createChatListLog(from chatRoom: ChatRoom) {
+    private func createChatListLog(from chatRoom: ChatRoom, id: String?) {
         let chatList = ChatList()
 
-        chatList.id = chatRoom.id ?? ""
+        chatList.id = id ?? UUID().uuidString
         chatList.text = chatRoom.text
         chatList.username = chatRoom.username
         chatList.email = chatRoom.email

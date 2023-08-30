@@ -37,11 +37,11 @@ final class SendTextMessageUseCase: SendTextMessageUseCaseProtocol {
      - Returns: 메시지 전송 및 최근 메시지 업데이트 결과 메시지
      */
     func execute(text: String, chatUser: ChatUser) async throws -> String {
-        let (_) = try await sendMessageRepo.sendText(
+        let sendRecentMessageResult = try await sendMessageRepo.sendRecentMessage(
             text: text,
             chatUser: chatUser
         )
-        let sendRecentMessageResult = try await sendMessageRepo.sendRecentMessage(
+        let (_) = try await sendMessageRepo.sendText(
             text: text,
             chatUser: chatUser
         )

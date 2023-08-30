@@ -43,16 +43,16 @@ final class SendImageMessageUseCase: SendImageMessageUseCaseProtocol {
         // 이미지를 업로드하고 업로드 결과 URL을 받아옵니다.
         let uploadImageResult = try await uploadFileRepo.uploadImage(image: image)
         
+        // 최근 메시지를 업데이트하고 결과 메시지를 받아옵니다.
+        let sendRecentMessage = try await sendMessageRepo.sendRecentMessage(
+            text: "이미지",
+            chatUser: chatUser
+        )
+        
         // 이미지를 전송하고 결과를 무시합니다.
         let (_) = try await sendMessageRepo.sendImage(
             url: uploadImageResult,
             image: image,
-            chatUser: chatUser
-        )
-        
-        // 최근 메시지를 업데이트하고 결과 메시지를 받아옵니다.
-        let sendRecentMessage = try await sendMessageRepo.sendRecentMessage(
-            text: "이미지",
             chatUser: chatUser
         )
         

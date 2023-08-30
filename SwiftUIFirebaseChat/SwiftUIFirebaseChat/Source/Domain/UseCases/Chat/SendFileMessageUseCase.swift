@@ -42,15 +42,15 @@ final class SendFileMessageUseCase: SendFileMessageUseCaseProtocol {
         // 파일을 업로드하고 업로드 결과 정보를 받아옵니다.
         let uploadFileInfo = try await uploadFileRepo.uploadFile(url: url)
         
-        // 파일을 전송하고 결과를 무시합니다.
-        let (_) = try await sendMessageRepo.sendFile(
-            fileInfo: uploadFileInfo,
-            chatUser: chatUser
-        )
-        
         // 최근 메시지를 업데이트하고 결과 메시지를 받아옵니다.
         let sendRecentMessageResult = try await sendMessageRepo.sendRecentMessage(
             text: "파일",
+            chatUser: chatUser
+        )
+        
+        // 파일을 전송하고 결과를 무시합니다.
+        let (_) = try await sendMessageRepo.sendFile(
+            fileInfo: uploadFileInfo,
             chatUser: chatUser
         )
         

@@ -48,17 +48,17 @@ final class SendVideoMessageUseCase: SendVideoMessageUseCaseProtocol {
         // 썸네일 이미지를 업로드하고 업로드 결과 URL을 받아옵니다.
         let thumbnailImageUrl = try await uploadFileRepo.uploadImage(image: thumbnailImage)
         
+        // 최근 메시지를 업데이트하고 결과 메시지를 받아옵니다.
+        let recentMessage = try await sendMessageRepo.sendRecentMessage(
+            text: "비디오",
+            chatUser: chatUser
+        )
+        
         // 비디오와 썸네일 이미지를 전송하고 결과를 무시합니다.
         let (_) = try await sendMessageRepo.sendVideo(
             imageUrl: thumbnailImageUrl,
             videoUrl: videoUrl,
             image: thumbnailImage,
-            chatUser: chatUser
-        )
-        
-        // 최근 메시지를 업데이트하고 결과 메시지를 받아옵니다.
-        let recentMessage = try await sendMessageRepo.sendRecentMessage(
-            text: "비디오",
             chatUser: chatUser
         )
         

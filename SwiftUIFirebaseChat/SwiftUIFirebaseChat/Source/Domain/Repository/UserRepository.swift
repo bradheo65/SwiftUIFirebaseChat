@@ -182,7 +182,7 @@ final class UserRepository: UserRepositoryProtocol {
      이 함수는 주어진 대화 메시지 ID에 해당하는 대화 메시지를 Realm에서 삭제하고, Firebase에서도 해당 메시지를 삭제하는 역할을 합니다.
 
      - Parameters:
-       - toId: 대화 메시지 ID
+       - toId: 채팅 받는 유저의 ID
 
      - Throws:
        - 기타 에러: 대화 메시지 삭제 과정에서 발생한 에러를 전달
@@ -191,8 +191,8 @@ final class UserRepository: UserRepositoryProtocol {
      */
     func deleteChatMessage(toId: String) async throws -> String {
         DispatchQueue.main.async {
-            // 대화 메시지 ID에 해당하는 대화 메시지를 Realm에서 삭제합니다.
-            let deleteMessage = self.realm.objects(ChatLog.self).filter("id == %@", toId)
+            // 채팅 받는 유저의 ID에 해당하는 대화 메시지를 Realm에서 삭제합니다.
+            let deleteMessage = self.realm.objects(ChatLog.self).filter("toId == %@", toId)
             
             self.realm.writeAsync {
                 deleteMessage.forEach { chatLog in
@@ -210,7 +210,7 @@ final class UserRepository: UserRepositoryProtocol {
      이 함수는 주어진 대화 메시지 ID에 해당하는 최근 대화 목록을 Realm에서 삭제하고, Firebase에서도 해당 대화 메시지를 삭제하는 역할을 합니다.
 
      - Parameters:
-       - toId: 대화 메시지 ID
+       - toId: 채팅 받는 유저의 ID
 
      - Throws:
        - 기타 에러: 대화 메시지 삭제 과정에서 발생한 에러를 전달
@@ -219,8 +219,8 @@ final class UserRepository: UserRepositoryProtocol {
      */
     func deleteRecentMessage(toId: String) async throws -> String {
         DispatchQueue.main.async {
-            // 대화 메시지 ID에 해당하는 최근 대화 목록을 Realm에서 가져옵니다. Realm에서 삭제합니다.
-            if let deleteMessage = self.realm.objects(ChatList.self).filter("id == %@", toId).first {
+            // 채팅 받는 유저의 ID에 해당하는 최근 대화 목록을 Realm에서 가져옵니다. Realm에서 삭제합니다.
+            if let deleteMessage = self.realm.objects(ChatList.self).filter("toId == %@", toId).first {
                 
                 self.realm.writeAsync {
                     self.realm.delete(deleteMessage)
