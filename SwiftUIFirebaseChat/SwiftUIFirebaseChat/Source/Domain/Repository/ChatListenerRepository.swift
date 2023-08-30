@@ -121,9 +121,11 @@ extension ChatListenerRepository {
      - Returns: 생성된 채팅 로그 ID
      */
     private func generateChatLogId(from chatMessage: ChatMessage) -> String {
+        let filterQuery = "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)"
+        
         let id = self.realm.objects(ChatList.self)
             .filter(
-                "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)",
+                filterQuery,
                 chatMessage.toId, chatMessage.fromId, chatMessage.fromId, chatMessage.toId
             )
             .first?.id ?? chatMessage.toId
@@ -152,15 +154,17 @@ extension ChatListenerRepository {
     }
     
     private func saveChatLog(_ chatLog: ChatLog, with id: String) {
-        // 중복된 ChatLog가 없을 경우 ChatLog를 Realm에 추가합니다.
+        let filterQuery = "id == %@"
+        
         if self.realm.objects(ChatLog.self)
-            .filter("id == %@", id)
+            .filter(filterQuery, id)
             .isEmpty {
+            // 중복된 ChatLog가 없을 경우 ChatLog를 Realm에 추가합니다.
             self.realm.writeAsync {
                 self.realm.add(chatLog)
             }
         } else if let date = self.realm.objects(ChatLog.self)
-            .filter("id == %@", id)
+            .filter(filterQuery, id)
             .last?.timestamp {
             // 이미 존재하는 ChatLog 중 가장 마지막 메시지의 타임스탬프와 비교하여 최신 메시지인 경우 추가합니다.
             if date < chatLog.timestamp {

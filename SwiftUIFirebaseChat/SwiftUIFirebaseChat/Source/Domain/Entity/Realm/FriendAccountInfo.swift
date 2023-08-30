@@ -1,5 +1,5 @@
 //
-//  AllUsers.swift
+//  FriendAccountInfo.swift
 //  SwiftUIFirebaseChat
 //
 //  Created by PJH on 2023/08/28.
@@ -9,7 +9,7 @@ import Foundation
 
 import RealmSwift
 
-final class AllUsers: Object {
+final class FriendAccountInfo: Object {
     
     @objc dynamic var uid: String = ""
     @objc dynamic var email: String = ""
