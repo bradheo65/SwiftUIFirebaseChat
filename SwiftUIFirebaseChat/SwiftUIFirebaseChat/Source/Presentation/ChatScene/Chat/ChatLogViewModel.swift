@@ -10,7 +10,7 @@ import SwiftUI
 
 final class ChatLogViewModel: ObservableObject {
     
-    @Published var chatMessages: [ChatMessage] = []
+    @Published var chatMessages: [ChatLog] = []
     
     @Published var errorMessage = ""
 

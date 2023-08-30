@@ -9,8 +9,9 @@ import Foundation
 
 import RealmSwift
 
-final class ChatLog: Object {
+final class ChatLog: Object, Identifiable {
     
+    @Persisted(primaryKey: true) var uid: String = UUID().uuidString
     @Persisted var id: String = ""
     @Persisted var fromId = ""
     @Persisted var toId = ""
@@ -23,6 +24,7 @@ final class ChatLog: Object {
     
     @Persisted var fileTitle: String? = nil
     @Persisted var fileSizes: String? = nil
+    @Persisted var fileType: String? = nil
     @Persisted var fileUrl: String? = nil
 
     @Persisted var timestamp = Date()

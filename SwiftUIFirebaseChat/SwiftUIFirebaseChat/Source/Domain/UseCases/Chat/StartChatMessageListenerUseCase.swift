@@ -9,7 +9,7 @@ import Foundation
 
 protocol StartChatMessageListenerUseCaseProtocol {
     
-    func excute(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void)
+    func excute(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void)
     
 }
 
@@ -33,7 +33,7 @@ final class StartChatMessageListenerUseCase: StartChatMessageListenerUseCaseProt
        - completion: 리스너 실행 결과를 처리하는 클로저
          - Parameter result: 리스너 실행 결과 (`Result<ChatMessage, Error>`)
      */
-    func excute(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void) {
+    func excute(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void) {
         chatListenerRepo.startChatMessageListener(chatUser: chatUser) { result in
             switch result {
             case .success(let chatMessage):

@@ -9,7 +9,7 @@ import Foundation
 
 import RealmSwift
 
-final class ChatList: Object {
+final class ChatList: Object, Identifiable, Comparable {
     
     @objc dynamic var id = ""
     @objc dynamic var text = ""
@@ -22,6 +22,16 @@ final class ChatList: Object {
     
     override static func primaryKey() -> String? {
         return "id"
+    }
+    
+    var timeAgo: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: timestamp, relativeTo: Date())
+    }
+    
+    static func < (lhs: ChatList, rhs: ChatList) -> Bool {
+        return lhs.timestamp.timeIntervalSince1970 > rhs.timestamp.timeIntervalSince1970
     }
     
 }

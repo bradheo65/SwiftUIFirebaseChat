@@ -13,7 +13,8 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     
     private let firebaseSerivce: FirebaseChatListenerProtocol
     private let realm = try! Realm()
-
+    private var chatLogsToken: NotificationToken?
+    
     init(firebaseSerivce: FirebaseChatListenerProtocol) {
         self.firebaseSerivce = firebaseSerivce
     }
@@ -29,7 +30,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
 
      - Note: Firebase에서 채팅 메시지를 감지하여 새로운 메시지가 추가되었을 경우, 해당 메시지를 처리하고 ChatLog 객체를 Realm에 저장합니다.
      */
-    func startChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void) {
+    func startChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void) {
         firebaseSerivce.listenForChatMessage(chatUser: chatUser) { result in
             switch result {
             case .success(let documentChange):
@@ -42,7 +43,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                         
                         self.saveChatLog(chatLog, with: id)
                         
-                        completion(.success(chatMessage))
+                        completion(.success(chatLog))
                     } catch {
                         completion(.failure(error))
                     }
@@ -67,54 +68,58 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
      
      - Note: Firebase에서 최근 메시지를 감지하여 메시지의 추가 또는 수정 사항이 발생한 경우, 해당 메시지를 처리하고 ChatRoom 객체를 생성하여 ChatListLog를 만듭니다.
      */
-    func startRecentMessageListener(completion: @escaping (Result<[ChatRoom], Error>) -> Void) {
-        var chatRoomList: [ChatRoom] = []
+    func startRecentMessageListener(completion: @escaping (Result<[ChatList], Error>) -> Void) {
+        firebaseRecentMessageListener()
         
+        let chatLogs = self.realm.objects(ChatList.self)
+        
+        self.chatLogsToken = chatLogs.observe { changes in
+            switch changes {
+            case .initial(let collectionType):
+                completion(.success(Array(collectionType)))
+            case .update(let collectionType, _, _, _):
+                completion(.success(Array(collectionType)))
+            case .error(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    func firebaseRecentMessageListener() {
         firebaseSerivce.listenForRecentMessage { result in
             switch result {
             case .success(let documentChange):
+                guard let chatRoom = try? documentChange.document.data(as: ChatRoom.self)  else {
+                    return
+                }
                 switch documentChange.type {
-                case .added, .modified:
+                case .added:
                     let docId = documentChange.document.documentID
+                    let filterQuery = "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)"
                     
-                    // 이미 존재하는 메시지인 경우 리스트에서 제거
-                    if let index = chatRoomList.firstIndex(where: { recentMessage in
-                        return recentMessage.id == docId
-                    }) {
-                        chatRoomList.remove(at: index)
+                    // 이미 저장되어 있다면 저장하지 않습니다.
+                    if self.realm.objects(ChatList.self)
+                        .filter(
+                            filterQuery,
+                            chatRoom.toId, chatRoom.fromId, chatRoom.fromId, chatRoom.toId
+                        ).isEmpty {
+                        self.createChatListLog(from: chatRoom, id: nil)
                     }
-                    // 새로운 메시지를 ChatRoom 객체로 변환하여 리스트의 맨 앞에 추가
-                    if let chatRoom = try? documentChange.document.data(as: ChatRoom.self) {
-                        chatRoomList.insert(chatRoom, at: 0)
-                        
-                        if documentChange.type == .added {
-                            let filterQuery = "toId == %@ AND fromId == %@"
-                        
-                            // 이미 저장되어 있다면 저장하지 않습니다.
-                            if self.realm.objects(ChatList.self)
-                                .filter(
-                                    filterQuery,
-                                    chatRoom.toId, chatRoom.fromId
-                                ).isEmpty {
-                                self.createChatListLog(from: chatRoom, id: nil)
-                            }
-                        } else {
-                            let id = self.generateChatLogId(fromId: chatRoom.fromId, toId: chatRoom.toId)
-                            self.createChatListLog(from: chatRoom, id: id)
-                        }
-                        completion(.success(chatRoomList))
-                    }
+                case .modified:
+                    let id = self.generateChatLogId(fromId: chatRoom.fromId, toId: chatRoom.toId)
+                    self.createChatListLog(from: chatRoom, id: id)
                 case .removed:
                     return
                 }
             case .failure(let error):
-                completion(.failure(error))
+                print(error.localizedDescription)
             }
         }
     }
     
     func stopRecentMessageListener() {
         firebaseSerivce.stopListenForRecentMessage()
+        chatLogsToken?.invalidate()
     }
     
 }
@@ -144,7 +149,7 @@ extension ChatListenerRepository {
             )
             .first?.id
 
-        return id ?? ""
+        return id ?? UUID().uuidString
     }
     
     private func createChatLog(from chatMessage: ChatMessage, with id: String) -> ChatLog {
@@ -160,6 +165,7 @@ extension ChatListenerRepository {
         chatLog.imageHeight = chatMessage.imageHeight
         chatLog.fileTitle = chatMessage.fileTitle
         chatLog.fileSizes = chatMessage.fileSizes
+        chatLog.fileType = chatMessage.fileType
         chatLog.fileUrl = chatMessage.fileUrl
         chatLog.timestamp = chatMessage.timestamp
 

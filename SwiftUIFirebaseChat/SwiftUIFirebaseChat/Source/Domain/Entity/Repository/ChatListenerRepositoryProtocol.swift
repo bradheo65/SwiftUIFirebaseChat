@@ -10,9 +10,9 @@ import Firebase
 
 protocol ChatListenerRepositoryProtocol {
     
-    func startChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatMessage, Error>) -> Void)
+    func startChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void)
     func stopChatMessageListener()
-    func startRecentMessageListener(completion: @escaping (Result<[ChatRoom], Error>) -> Void)
+    func startRecentMessageListener(completion: @escaping (Result<[ChatList], Error>) -> Void)
     func stopRecentMessageListener()
     
 }

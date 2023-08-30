@@ -167,10 +167,10 @@ extension ChatLogView {
         ScrollView {
             ScrollViewReader { scollViewProxy in
                 VStack {
-                    ForEach(viewModel.chatMessages) { message in
+                    ForEach(viewModel.chatMessages, id: \.uid) { message in
                         messageView(message: message)
                     }
-                    HStack { Spacer() }
+                    Spacer()
                         .id("Empty")
                 }
                 .onReceive(viewModel.$count) { _ in
@@ -255,7 +255,7 @@ extension ChatLogView {
         }
     }
     
-    private func messageView(message: ChatMessage) -> some View {
+    private func messageView(message: ChatLog) -> some View {
         var imageMessage: some View {
             ZStack {
                 RemoteImage(
@@ -315,7 +315,7 @@ extension ChatLogView {
                 fileInfo = FileInfo(
                     url: URL(string: message.fileUrl ?? "")!,
                     name: message.fileTitle ?? "",
-                    contentType: message.fileType ?? "",
+                    contentType:  message.fileType ?? "",
                     size: message.fileSizes ?? ""
                 )
             }

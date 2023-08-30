@@ -9,7 +9,7 @@ import Foundation
 
 final class MainMessageViewModel: ObservableObject {
     
-    @Published var chatRoomList: [ChatRoom] = []
+    @Published var chatRoomList: [ChatList] = []
     @Published var users: [ChatUser] = []
     
     @Published var currentUser: ChatUser?
@@ -123,7 +123,7 @@ extension MainMessageViewModel {
         startRecentMessageListenerUseCase.excute { result in
             switch result {
             case .success(let chatRoomList):
-                self.chatRoomList = chatRoomList
+                self.chatRoomList = chatRoomList.sorted(by: <)
             case .failure(let error):
                 print(error)
             }
@@ -170,13 +170,18 @@ extension MainMessageViewModel {
             print("Fail to Load first data")
             return
         }
-        let toId = chatRoomList[firestIndex].toId
+        let chatRoom = chatRoomList[firestIndex]
+
+        if let index = chatRoomList.firstIndex(of: chatRoom) {
+            chatRoomList.remove(at: index)
+        } else {
+            chatRoomList.remove(atOffsets: indexSet)
+        }
         
         Task {
             do {
-                let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(toId: toId)
+                let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(toId: chatRoom.toId)
                 
-                self.chatRoomList.remove(atOffsets: indexSet)
             } catch {
                 print(error)
             }
