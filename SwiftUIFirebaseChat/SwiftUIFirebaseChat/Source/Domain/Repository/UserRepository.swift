@@ -7,8 +7,6 @@
 
 import Foundation
 
-import RealmSwift
-
 enum UserError: Error {
     case currentUserNotFound
 }
@@ -16,10 +14,11 @@ enum UserError: Error {
 final class UserRepository: UserRepositoryProtocol {
     
     private let firebaseService: FirebaseUserServiceProtocol
-    private let realm = try! Realm()
+    private let dataSource: RealmDataSourceProtocol
 
-    init(firebaseService: FirebaseUserServiceProtocol) {
+    init(firebaseService: FirebaseUserServiceProtocol, dataSource: RealmDataSourceProtocol) {
         self.firebaseService = firebaseService
+        self.dataSource = dataSource
     }
     
     func registerUser(email: String, password: String) async throws -> String {
@@ -76,30 +75,22 @@ final class UserRepository: UserRepositoryProtocol {
      */
     func loginUser(email: String, password: String) async throws -> String {
         let userUid = try await firebaseService.loginUser(email: email, password: password)
+        let existingUser = self.dataSource.read(MyAccountInfo.self).first?.email
         
-        DispatchQueue.main.async {
-            let existingUser = self.realm.objects(MyAccountInfo.self).first?.email
-            
-            // 이메일이 다른 사용자가 로그인했을 경우 기존 Realm 데이터를 삭제합니다.
-            if email != existingUser {
-                self.realm.writeAsync {
-                    self.realm.deleteAll()
-                }
-            }
-            
-            // 로그인한 사용자 정보를 MyAccountInfo 모델로 구성하여 Realm에 저장합니다.
-            let user = MyAccountInfo()
-            
-            user.uid = userUid
-            user.email = email
-            user.password = password
-            
-            self.realm.writeAsync {
-                self.realm.create(MyAccountInfo.self, value: user, update: .modified)
-            }
+        // 이메일이 다른 사용자가 로그인했을 경우 기존 Realm 데이터를 삭제합니다.
+        if email != existingUser {
+            self.dataSource.deleteAll()
         }
-        print(Realm.Configuration.defaultConfiguration.fileURL!)
         
+        // 로그인한 사용자 정보를 MyAccountInfo 모델로 구성하여 Realm에 저장합니다.
+        let user = MyAccountInfo()
+        
+        user.uid = userUid
+        user.email = email
+        user.password = password
+        
+        self.dataSource.create(MyAccountInfo.self, value: user)
+                
         return userUid
     }
     
@@ -130,18 +121,21 @@ final class UserRepository: UserRepositoryProtocol {
      */
     func fetchCurrentUser() async throws -> ChatUser? {
         let currentUser = try await firebaseService.fetchCurrentUser()
-                        
-        DispatchQueue.main.async {
-            // 현재 로그인한 사용자의 Realm 데이터를 가져옵니다.
-            if let myAccountInfo = self.realm.objects(MyAccountInfo.self).first {
-                // 현재 사용자의 프로필 이미지 URL을 업데이트합니다.
-                self.realm.writeAsync {
-                    myAccountInfo.profileImageUrl = currentUser?.profileImageURL ?? ""
-                }
-            }
+        guard let myAccountInfo = self.dataSource.read(MyAccountInfo.self).first else {
+            throw UserError.currentUserNotFound
+        }
+
+        self.dataSource.update {
+            myAccountInfo.profileImageUrl = currentUser?.profileImageURL ?? ""
         }
         
-        return currentUser
+        let user = ChatUser(
+            uid: myAccountInfo.uid,
+            email: myAccountInfo.email,
+            profileImageURL: myAccountInfo.profileImageUrl
+        )
+        
+        return user
     }
     
     /**
@@ -149,6 +143,7 @@ final class UserRepository: UserRepositoryProtocol {
 
      이 함수는 Firebase에서 모든 사용자의 정보를 가져와서 해당 정보를 Realm에 업데이트하는 역할을 합니다.
      가져온 사용자 정보를 사용하여 `FriendAccountInfo` 모델로 구성하여 Realm에 저장합니다.
+     그리고 Realm에 저장되어 있는 정보를 `ChatUser` 모델로 재 구성하여 반환 합니다.
 
      - Throws:
        - 기타 에러: 사용자 정보 가져오기 및 Realm 업데이트 과정에서 발생한 에러를 전달
@@ -157,23 +152,40 @@ final class UserRepository: UserRepositoryProtocol {
      */
     func fetchAllUsers() async throws -> [ChatUser] {
         let allUsers = try await firebaseService.fetchAllUsers()
+        saveUserToRealm(chatUser: allUsers)
         
-        DispatchQueue.main.async {
-            // 가져온 사용자 정보를 사용하여 FriendAccountInfo 모델로 구성하여 Realm에 저장합니다.
-            allUsers.forEach { user in
-                let friendAccountInfo = FriendAccountInfo()
-                
-                friendAccountInfo.uid = user.uid
-                friendAccountInfo.email = user.email
-                friendAccountInfo.profileImageURL = user.profileImageURL
-                
-                self.realm.writeAsync {
-                    self.realm.create(FriendAccountInfo.self, value: friendAccountInfo, update: .modified)
-                }
-            }
+        let friendAccountInfo = fetchSaveUserToRealm()
+        
+        var FriendList: [ChatUser] = []
+        
+        friendAccountInfo.forEach { info in
+            let user = ChatUser(
+                uid: info.uid,
+                email: info.email,
+                profileImageURL: info.profileImageURL
+            )
+            FriendList.append(user)
         }
         
-        return allUsers
+        return FriendList
+    }
+    
+    func saveUserToRealm(chatUser: [ChatUser]) {
+        chatUser.forEach { user in
+            let friendAccountInfo = FriendAccountInfo()
+            
+            friendAccountInfo.uid = user.uid
+            friendAccountInfo.email = user.email
+            friendAccountInfo.profileImageURL = user.profileImageURL
+            
+            self.dataSource.create(FriendAccountInfo.self, value: friendAccountInfo)
+        }
+    }
+    
+    func fetchSaveUserToRealm() -> [FriendAccountInfo] {
+        let friendAccountInfo = dataSource.read(FriendAccountInfo.self)
+        
+        return Array(friendAccountInfo)
     }
     
     /**
@@ -190,15 +202,11 @@ final class UserRepository: UserRepositoryProtocol {
      - Returns: 대화 메시지 삭제 결과 메시지
      */
     func deleteChatMessage(toId: String) async throws -> String {
-        DispatchQueue.main.async {
-            // 채팅 받는 유저의 ID에 해당하는 대화 메시지를 Realm에서 삭제합니다.
-            let deleteMessage = self.realm.objects(ChatLog.self).filter("toId == %@", toId)
-            
-            self.realm.writeAsync {
-                deleteMessage.forEach { chatLog in
-                    self.realm.delete(chatLog)
-                }
-            }
+        // 채팅 받는 유저의 ID에 해당하는 대화 메시지를 Realm에서 삭제합니다.
+        let deleteMessage = self.dataSource.read(ChatLog.self).filter("toId == %@", toId)
+        
+        deleteMessage.forEach { chatLog in
+            self.dataSource.delete(chatLog)
         }
         
         return try await firebaseService.deleteChatMessage(toId: toId)
@@ -218,19 +226,12 @@ final class UserRepository: UserRepositoryProtocol {
      - Returns: 대화 메시지 삭제 결과 메시지
      */
     func deleteRecentMessage(toId: String) async throws -> String {
-        DispatchQueue.main.async {
-            // 채팅 받는 유저의 ID에 해당하는 최근 대화 목록을 Realm에서 가져옵니다. Realm에서 삭제합니다.
-            if let deleteMessage = self.realm.objects(ChatList.self).filter("toId == %@", toId).first {
-                
-                self.realm.writeAsync {
-                    self.realm.delete(deleteMessage)
-                }
-            }
+        // 채팅 받는 유저의 ID에 해당하는 최근 대화 목록을 Realm에서 가져옵니다. Realm에서 삭제합니다.
+        if let deleteMessage = self.dataSource.read(ChatList.self).filter("toId == %@", toId).first {
+            self.dataSource.delete(deleteMessage)
         }
         
         return try await firebaseService.deleteRecentMessage(toId: toId)
     }
     
 }
-
-

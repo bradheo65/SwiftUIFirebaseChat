@@ -19,7 +19,7 @@ struct CreateNewMessageView: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach(viewModel.users, id: \.id) { user in
+                ForEach(viewModel.users, id: \.self) { user in
                     Button {
                         dismiss()
                         didSelectNewUser(user)

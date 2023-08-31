@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		007E8D272AA05D5300325777 /* RealmDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007E8D262AA05D5300325777 /* RealmDataSource.swift */; };
+		007E8D2A2AA05F2B00325777 /* RealmDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007E8D292AA05F2B00325777 /* RealmDataSourceProtocol.swift */; };
 		00B320852A9C58B1007A038F /* MyAccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B320842A9C58B1007A038F /* MyAccountInfo.swift */; };
 		00B320872A9C58D3007A038F /* FriendAccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B320862A9C58D3007A038F /* FriendAccountInfo.swift */; };
 		00B320892A9C5903007A038F /* ChatList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B320882A9C5903007A038F /* ChatList.swift */; };
@@ -110,6 +112,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		007E8D262AA05D5300325777 /* RealmDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataSource.swift; sourceTree = "<group>"; };
+		007E8D292AA05F2B00325777 /* RealmDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataSourceProtocol.swift; sourceTree = "<group>"; };
 		00B320842A9C58B1007A038F /* MyAccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAccountInfo.swift; sourceTree = "<group>"; };
 		00B320862A9C58D3007A038F /* FriendAccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendAccountInfo.swift; sourceTree = "<group>"; };
 		00B320882A9C5903007A038F /* ChatList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatList.swift; sourceTree = "<group>"; };
@@ -225,6 +229,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		007E8D252AA05D0900325777 /* DataSource */ = {
+			isa = PBXGroup;
+			children = (
+				007E8D262AA05D5300325777 /* RealmDataSource.swift */,
+			);
+			path = DataSource;
+			sourceTree = "<group>";
+		};
+		007E8D282AA05F1600325777 /* DataSource */ = {
+			isa = PBXGroup;
+			children = (
+				007E8D292AA05F2B00325777 /* RealmDataSourceProtocol.swift */,
+			);
+			path = DataSource;
+			sourceTree = "<group>";
+		};
 		00B320832A9C589D007A038F /* Realm */ = {
 			isa = PBXGroup;
 			children = (
@@ -371,6 +391,7 @@
 		A35192D92A8F14BC00BE5E21 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				007E8D282AA05F1600325777 /* DataSource */,
 				A35192DA2A8F14CE00BE5E21 /* Firebase */,
 			);
 			path = Protocols;
@@ -543,6 +564,7 @@
 				A35192D92A8F14BC00BE5E21 /* Protocols */,
 				A348F36D2A89EA7C0017DD72 /* Network */,
 				A348F36E2A89EC7C0017DD72 /* Firebase */,
+				007E8D252AA05D0900325777 /* DataSource */,
 				A392148C2A837C2800BF833D /* Repository */,
 			);
 			path = Data;
@@ -816,6 +838,7 @@
 				A348F3AC2A8DEDA00017DD72 /* FileUploadRepository.swift in Sources */,
 				A3EC4DEE2A92E22C008DDB02 /* FirebaseFileUploadServiceProtocol.swift in Sources */,
 				A348F3512A89AA080017DD72 /* FetchCurrentUserUseCase.swift in Sources */,
+				007E8D272AA05D5300325777 /* RealmDataSource.swift in Sources */,
 				A3EC4DFC2A9337DE008DDB02 /* ChatListenerRepositoryProtocol.swift in Sources */,
 				A3EC4DF02A92E545008DDB02 /* FileUploadRepositoryProtocol.swift in Sources */,
 				A348F3972A8DE7B50017DD72 /* FileSaveRepositoryProtocol.swift in Sources */,
@@ -834,6 +857,7 @@
 				A3B0291B2A59AD09008161CE /* ImagePicker.swift in Sources */,
 				A354F6962A5460630063652A /* LoginView.swift in Sources */,
 				00B320872A9C58D3007A038F /* FriendAccountInfo.swift in Sources */,
+				007E8D2A2AA05F2B00325777 /* RealmDataSourceProtocol.swift in Sources */,
 				A348F37C2A8C5F1E0017DD72 /* SendVideoMessageUseCase.swift in Sources */,
 				A348F3742A89F14E0017DD72 /* SendTextMessageUseCase.swift in Sources */,
 				A39214852A832ED200BF833D /* RegisterUserUseCase.swift in Sources */,

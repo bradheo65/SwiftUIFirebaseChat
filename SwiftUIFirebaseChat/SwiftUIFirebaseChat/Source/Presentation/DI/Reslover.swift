@@ -34,6 +34,10 @@ final class Reslover {
 func buildContatier() -> Container {
     let container = Container()
     
+    container.register(RealmDataSourceProtocol.self) { _ in
+        return RealmDataSource.shared
+    }.inObjectScope(.container)
+    
     // MARK: - Service - Firebase
 
     container.register(FirebaseUserServiceProtocol.self) { _ in
@@ -55,7 +59,10 @@ func buildContatier() -> Container {
     // MARK: - Repository - User
     
     container.register(UserRepositoryProtocol.self) { _ in
-        return UserRepository(firebaseService: container.resolve(FirebaseUserServiceProtocol.self)!)
+        return UserRepository(
+            firebaseService: container.resolve(FirebaseUserServiceProtocol.self)!,
+            dataSource: container.resolve(RealmDataSourceProtocol.self)!
+        )
     }
     
     // MARK: - Repository - FileUpload
