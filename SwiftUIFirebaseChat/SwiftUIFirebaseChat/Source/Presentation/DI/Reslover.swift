@@ -80,7 +80,9 @@ func buildContatier() -> Container {
     // MARK: - Repository - ChatListener
 
     container.register(ChatListenerRepositoryProtocol.self) { _ in
-        return ChatListenerRepository(firebaseSerivce: container.resolve(FirebaseChatListenerProtocol.self)!)
+        return ChatListenerRepository(
+            firebaseSerivce: container.resolve(FirebaseChatListenerProtocol.self)!,
+            dataSource: container.resolve(RealmDataSourceProtocol.self)!)
     }
     
     // MARK: - Repository - FileSave

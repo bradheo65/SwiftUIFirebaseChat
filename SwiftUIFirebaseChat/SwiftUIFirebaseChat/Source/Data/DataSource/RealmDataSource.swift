@@ -12,7 +12,8 @@ import RealmSwift
 final class RealmDataSource: RealmDataSourceProtocol {
     
     static let shared = RealmDataSource()
-        
+    private var chatLogsToken: NotificationToken?
+
     private init() {
         getLocationRealm()
     }

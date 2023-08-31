@@ -12,11 +12,13 @@ import RealmSwift
 final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     
     private let firebaseSerivce: FirebaseChatListenerProtocol
-    private let realm = try! Realm()
+    private let dataSource: RealmDataSourceProtocol
+
     private var chatLogsToken: NotificationToken?
-    
-    init(firebaseSerivce: FirebaseChatListenerProtocol) {
+
+    init(firebaseSerivce: FirebaseChatListenerProtocol, dataSource: RealmDataSourceProtocol) {
         self.firebaseSerivce = firebaseSerivce
+        self.dataSource = dataSource
     }
     
     /**
@@ -71,8 +73,8 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     func startRecentMessageListener(completion: @escaping (Result<[ChatList], Error>) -> Void) {
         firebaseRecentMessageListener()
         
-        let chatLogs = self.realm.objects(ChatList.self)
-        
+        let chatLogs = dataSource.read(ChatList.self)
+
         self.chatLogsToken = chatLogs.observe { changes in
             switch changes {
             case .initial(let collectionType):
@@ -94,15 +96,11 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                 }
                 switch documentChange.type {
                 case .added:
-                    let docId = documentChange.document.documentID
                     let filterQuery = "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)"
+                    let filterChatList = self.dataSource.read(ChatList.self).filter(filterQuery, chatRoom.toId, chatRoom.fromId, chatRoom.fromId, chatRoom.toId)
                     
                     // 이미 저장되어 있다면 저장하지 않습니다.
-                    if self.realm.objects(ChatList.self)
-                        .filter(
-                            filterQuery,
-                            chatRoom.toId, chatRoom.fromId, chatRoom.fromId, chatRoom.toId
-                        ).isEmpty {
+                    if filterChatList.isEmpty {
                         self.createChatListLog(from: chatRoom, id: nil)
                     }
                 case .modified:
@@ -141,13 +139,9 @@ extension ChatListenerRepository {
      */
     private func generateChatLogId(fromId: String, toId: String) -> String {
         let filterQuery = "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)"
+        let filterChatList =  dataSource.read(ChatList.self).filter(filterQuery, toId, fromId, fromId, toId)
         
-        let id = self.realm.objects(ChatList.self)
-            .filter(
-                filterQuery,
-                toId, fromId, fromId, toId
-            )
-            .first?.id
+        let id = filterChatList.first?.id
 
         return id ?? UUID().uuidString
     }
@@ -174,22 +168,15 @@ extension ChatListenerRepository {
     
     private func saveChatLog(_ chatLog: ChatLog, with id: String) {
         let filterQuery = "id == %@"
+        let filterChatLog = dataSource.read(ChatLog.self).filter(filterQuery, id)
         
-        if realm.objects(ChatLog.self)
-            .filter(filterQuery, id)
-            .isEmpty {
-            // 중복된 ChatLog가 없을 경우 ChatLog를 Realm에 추가합니다.
-            self.realm.writeAsync {
-                self.realm.add(chatLog)
-            }
-        } else if let date = realm.objects(ChatLog.self)
-            .filter(filterQuery, id)
-            .last?.timestamp {
+        // 중복된 ChatLog가 없을 경우 ChatLog를 Realm에 추가합니다.
+        if filterChatLog.isEmpty {
+            dataSource.add(chatLog)
+        } else if let data = filterChatLog.last?.timestamp {
             // 이미 존재하는 ChatLog 중 가장 마지막 메시지의 타임스탬프와 비교하여 최신 메시지인 경우 추가합니다.
-            if date < chatLog.timestamp {
-                self.realm.writeAsync {
-                    self.realm.add(chatLog)
-                }
+            if data < chatLog.timestamp {
+                dataSource.add(chatLog)
             }
         }
     }
@@ -206,9 +193,7 @@ extension ChatListenerRepository {
         chatList.profileImageURL = chatRoom.profileImageURL
         chatList.timestamp = chatRoom.timestamp
         
-        self.realm.writeAsync {
-            self.realm.create(ChatList.self, value: chatList, update: .modified)
-        }
+        dataSource.create(ChatList.self, value: chatList)
     }
     
 }
