@@ -80,7 +80,8 @@ extension MainMessageView {
     private var currentUserTitleView: some View {
         HStack {
             ProfileImageView(url: viewModel.currentUser?.profileImageURL ?? "")
-                .frame(width: 50, height: 50)
+                .aspectRatio(0.3, contentMode: .fill)
+                .frame(width: 50, height: 50, alignment: .center)
                 .cornerRadius(50)
                 .overlay(RoundedRectangle(cornerRadius: 50)
                     .stroke(Color(.label), lineWidth: 1))
