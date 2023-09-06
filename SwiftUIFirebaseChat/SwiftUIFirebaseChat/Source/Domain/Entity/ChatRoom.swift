@@ -2,20 +2,14 @@
 //  ChatRoom.swift
 //  SwiftUIFirebaseChat
 //
-//  Created by brad on 2023/07/25.
+//  Created by PJH on 2023/09/06.
 //
 
 import Foundation
 
-import FirebaseFirestoreSwift
-
-struct ChatRoom: Codable, Identifiable, Comparable {
-
-    @DocumentID var id: String?
-    
-    let text, email: String
-    let fromId, toId: String
-    let profileImageURL: String
+struct ChatRoom {
+    let id: String?
+    let fromId, toId, text, email, profileImageURL: String
     let timestamp: Date
     
     var username: String {
@@ -27,9 +21,4 @@ struct ChatRoom: Codable, Identifiable, Comparable {
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: timestamp, relativeTo: Date())
     }
-    
-    static func < (lhs: ChatRoom, rhs: ChatRoom) -> Bool {
-        return lhs.timestamp.timeIntervalSince1970 > rhs.timestamp.timeIntervalSince1970
-    }
-    
 }

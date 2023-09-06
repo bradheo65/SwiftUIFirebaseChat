@@ -36,7 +36,7 @@ struct MainMessageView: View {
                         NavigationLink {
                             ChatLogView(
                                 chatUser: ChatUser(
-                                    uid: recentMessage.toId ?? "",
+                                    uid: recentMessage.toId ,
                                     email: recentMessage.email,
                                     profileImageURL: recentMessage.profileImageURL
                                 )
@@ -159,6 +159,7 @@ extension MainMessageView {
         var body: some View {
             HStack(spacing: 16) {
                 ProfileImageView(url: message.profileImageURL)
+                    .aspectRatio(0.3, contentMode: .fill)
                     .frame(width: 64, height: 64)
                     .cornerRadius(64)
                     .overlay(RoundedRectangle(cornerRadius: 64)

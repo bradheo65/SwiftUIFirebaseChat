@@ -5,10 +5,10 @@
 //  Created by brad on 2023/07/26.
 //
 
-import Foundation
 import SwiftUI
+import AVFoundation
 
-final class ChatLogViewModel: ObservableObject {
+final class ChatLogViewModel: NSObject, ObservableObject {
     
     @Published var chatMessages: [ChatLog] = []
     
@@ -19,8 +19,12 @@ final class ChatLogViewModel: ObservableObject {
     @Published var isSaveCompleted = false
     @Published var isErrorAlert = false
 
+    @Published var isPaused = false
+    private var audioPlayer: AVAudioPlayer?
+    private var index: Int = 0
+
     private let chatUser: ChatUser?
-    
+
     private let sendMessageUseCase: SendTextMessageUseCaseProtocol
     private let sendImageMessageUseCase: SendImageMessageUseCaseProtocol
     private let sendVideoMessageUseCase: SendVideoMessageUseCaseProtocol
@@ -263,6 +267,76 @@ final class ChatLogViewModel: ObservableObject {
                 print(error)
             }
         }
+    }
+
+    func getMessageIndex(index: Int) {
+        self.index = index
+    }
+    
+    
+    @Published var isFileLoading = false
+    
+}
+
+extension ChatLogViewModel: AVAudioPlayerDelegate {
+    
+    /* 오디오 재생 */
+    func playAudio(url: URL) {
+        if isPaused {
+            resumePlaying()
+        } else {
+            Task {
+                do {
+                    DispatchQueue.main.async {
+                        self.isFileLoading = true
+                    }
+                    let url = try await self.fileSave.excute(url: url)
+                    play(url: url)
+                } catch {
+                    print(error)
+                }
+            }
+        }
+    }
+    
+    func play(url: URL) {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+            try AVAudioSession.sharedInstance().overrideOutputAudioPort(.speaker)
+            
+            try audioPlayer = AVAudioPlayer(contentsOf: url)
+                        
+            audioPlayer?.delegate = self
+            audioPlayer?.play()
+            
+            DispatchQueue.main.async {
+                self.isFileLoading = false
+                self.isPaused = false
+                self.chatMessages[self.index].isPlay = true
+            }
+        } catch {
+            print("재생 중 오류 발생: \(error.localizedDescription)")
+        }
+    }
+    
+    func pausePlaying() {
+        audioPlayer?.pause()
+        isPaused = true
+        chatMessages[index].isPlay = false
+    }
+    
+    func resumePlaying() {
+        audioPlayer?.play()
+        isPaused = false
+        chatMessages[index].isPlay = true
+    }
+
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        isPaused = false
+        chatMessages[index].isPlay = false
+
+        print("AudioPlayerDidFinishPlaying")
     }
     
 }

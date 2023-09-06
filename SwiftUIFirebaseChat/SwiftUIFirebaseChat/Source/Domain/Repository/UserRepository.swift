@@ -203,7 +203,7 @@ final class UserRepository: UserRepositoryProtocol {
      */
     func deleteChatMessage(toId: String) async throws -> String {
         // 채팅 받는 유저의 ID에 해당하는 대화 메시지를 Realm에서 삭제합니다.
-        let deleteMessage = self.dataSource.read(ChatLog.self).filter("toId == %@", toId)
+        let deleteMessage = self.dataSource.read(ChatLogDTO.self).filter("toId == %@", toId)
         
         deleteMessage.forEach { chatLog in
             self.dataSource.delete(chatLog)

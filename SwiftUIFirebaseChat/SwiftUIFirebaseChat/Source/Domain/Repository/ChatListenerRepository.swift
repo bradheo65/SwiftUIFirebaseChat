@@ -38,13 +38,14 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
             case .success(let documentChange):
                 if documentChange.type == .added {
                     do {
-                        let chatMessage = try documentChange.document.data(as: ChatMessage.self)
+                        let chatMessage = try documentChange.document.data(as: ChatMessageResponseDTO.self).toDomain()
                                        
                         let id = self.generateChatLogId(fromId: chatMessage.fromId, toId: chatMessage.toId)
-                        let chatLog = self.createChatLog(from: chatMessage, with: id)
+                        let chatLogDTO = self.createChatLog(from: chatMessage, with: id)
                         
-                        self.saveChatLog(chatLog, with: id)
+                        self.saveChatLog(chatLogDTO, with: id)
                         
+                        let chatLog = chatLogDTO.toDomain()
                         completion(.success(chatLog))
                     } catch {
                         completion(.failure(error))
@@ -66,7 +67,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
      이 함수는 Firebase에서 최근 메시지를 감지하고, 메시지의 추가 또는 수정 사항이 발생한 경우 해당 메시지를 처리합니다.
      
      - Parameters:
-       - completion: 최근 메시지 처리 결과를 담은 Result<[ChatRoom], Error>를 반환하는 클로저
+       - completion: 최근 메시지 처리 결과를 담은 Result<[ChatRoomResponseDTO], Error>를 반환하는 클로저
      
      - Note: Firebase에서 최근 메시지를 감지하여 메시지의 추가 또는 수정 사항이 발생한 경우, 해당 메시지를 처리하고 ChatRoom 객체를 생성하여 ChatListLog를 만듭니다.
      */
@@ -91,7 +92,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
         firebaseSerivce.listenForRecentMessage { result in
             switch result {
             case .success(let documentChange):
-                guard let chatRoom = try? documentChange.document.data(as: ChatRoom.self)  else {
+                guard let chatRoom = try? documentChange.document.data(as: ChatRoomResponseDTO.self).toDomain()  else {
                     return
                 }
                 switch documentChange.type {
@@ -146,8 +147,8 @@ extension ChatListenerRepository {
         return id ?? UUID().uuidString
     }
     
-    private func createChatLog(from chatMessage: ChatMessage, with id: String) -> ChatLog {
-        let chatLog = ChatLog()
+    private func createChatLog(from chatMessage: ChatMessage, with id: String) -> ChatLogDTO {
+        let chatLog = ChatLogDTO()
         
         chatLog.id = id
         chatLog.fromId = chatMessage.fromId
@@ -166,9 +167,9 @@ extension ChatListenerRepository {
         return chatLog
     }
     
-    private func saveChatLog(_ chatLog: ChatLog, with id: String) {
+    private func saveChatLog(_ chatLog: ChatLogDTO, with id: String) {
         let filterQuery = "id == %@"
-        let filterChatLog = dataSource.read(ChatLog.self).filter(filterQuery, id)
+        let filterChatLog = dataSource.read(ChatLogDTO.self).filter(filterQuery, id)
         
         // 중복된 ChatLog가 없을 경우 ChatLog를 Realm에 추가합니다.
         if filterChatLog.isEmpty {
@@ -184,12 +185,21 @@ extension ChatListenerRepository {
     private func createChatListLog(from chatRoom: ChatRoom, id: String?) {
         let chatList = ChatList()
 
+        // id가 제공되지 않으면 UUID를 사용하여 고유한 id를 생성
         chatList.id = id ?? UUID().uuidString
         chatList.text = chatRoom.text
         chatList.username = chatRoom.username
         chatList.email = chatRoom.email
-        chatList.fromId = chatRoom.fromId
-        chatList.toId = chatRoom.toId
+        
+        // fromId와 toId를 설정 - 상대방 메세지만 보냈을 경우, id 중복 방지
+        if chatRoom.id == chatRoom.fromId {
+            chatList.fromId = chatRoom.toId
+            chatList.toId = chatRoom.fromId
+        } else {
+            chatList.fromId = chatRoom.fromId
+            chatList.toId = chatRoom.toId
+        }
+        
         chatList.profileImageURL = chatRoom.profileImageURL
         chatList.timestamp = chatRoom.timestamp
         

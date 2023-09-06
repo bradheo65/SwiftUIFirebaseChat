@@ -27,7 +27,8 @@ struct ChatLogView: View {
 
     @State private var shouldShowImagePicker = false
     @State private var shouldShowFilePicker = false
-    
+    @State private var showSheet = false
+
     @State private var shouldShowImageViewer = false
     @State private var shouldShowVideoViewer = false
     @State private var savePhoto = false
@@ -128,12 +129,15 @@ struct ChatLogView: View {
             Button("파일 선택") {
                 shouldShowFilePicker.toggle()
             }
-        }
-        .confirmationDialog("", isPresented: $shouldShowFireSaveActionSheet) {
-            Button("파일 저장") {
-                viewModel.handleFileSave(fileInfo: fileInfo)
+            Button("음성 메세지 보내기") {
+                showSheet.toggle()
             }
         }
+//        .confirmationDialog("", isPresented: $shouldShowFireSaveActionSheet) {
+//            Button("파일 저장") {
+//                viewModel.handleFileSave(fileInfo: fileInfo)
+//            }
+//        }
         .alert("사진 앱에 저장하시겠습니까?", isPresented: $savePhoto) {
             Button { } label: {
                 Text("Cancel")
@@ -167,7 +171,7 @@ extension ChatLogView {
         ScrollView {
             ScrollViewReader { scollViewProxy in
                 VStack {
-                    ForEach(viewModel.chatMessages, id: \.uid) { message in
+                    ForEach(viewModel.chatMessages, id: \.self) { message in
                         messageView(message: message)
                     }
                     Spacer()
@@ -289,38 +293,7 @@ extension ChatLogView {
                 height: CGFloat(message.imageHeight ?? .zero)
             )
         }
-        
-        var fileMessage: some View {
-            HStack {
-                Image(systemName: "folder.circle.fill")
-                    .foregroundColor(.purple)
-                    .font(.system(size: 40))
-
-                VStack(alignment: .leading) {
-                    Text(message.fileTitle ?? "")
-                        .font(.system(size: 14))
-                        .lineLimit(2)
-                    Text(message.fileSizes ?? "")
-                        .foregroundColor(.secondary)
-                        .font(.system(size: 14))
-                }
-                Spacer()
-            }
-            .padding()
-            .frame(maxWidth: 250)
-            .background(.white)
-            .onTapGesture {
-                shouldShowFireSaveActionSheet.toggle()
-                
-                fileInfo = FileInfo(
-                    url: URL(string: message.fileUrl ?? "")!,
-                    name: message.fileTitle ?? "",
-                    contentType:  message.fileType ?? "",
-                    size: message.fileSizes ?? ""
-                )
-            }
-        }
-        
+   
         var body: some View {
             VStack {
                 if message.toId == chatUser?.uid {
@@ -334,7 +307,12 @@ extension ChatLogView {
                                     .padding()
                                     .background(Color.purple)
                             } else if message.fileUrl != nil {
-                                fileMessage
+                                FileMessageView(
+                                    viewModel: viewModel,
+                                    message: message,
+                                    chatUser: chatUser,
+                                    showSheet: $showSheet
+                                )
                             } else {
                                 imageMessage
                             }
@@ -352,7 +330,12 @@ extension ChatLogView {
                                     .padding()
                                     .background(Color.white)
                             } else if message.fileUrl != nil {
-                                fileMessage
+                                FileMessageView(
+                                    viewModel: viewModel,
+                                    message: message,
+                                    chatUser: chatUser,
+                                    showSheet: $showSheet
+                                )
                             } else {
                                 imageMessage
                             }
@@ -376,4 +359,77 @@ struct ChatLogVIew_Previews: PreviewProvider {
     static var previews: some View {
         MainMessageView()
     }
+}
+
+struct FileMessageView: View {
+    @ObservedObject var viewModel: ChatLogViewModel
+    @State private var shouldShowFireSaveActionSheet = false
+    @State private var fileInfo: FileInfo? = nil
+
+    private var message: ChatLog
+    private let chatUser: ChatUser?
+    @Binding private var showSheet: Bool
+
+    init(viewModel: ChatLogViewModel, message: ChatLog, chatUser: ChatUser?,  showSheet: Binding<Bool>) {
+        self.viewModel = viewModel
+        self.message = message
+        self.chatUser = chatUser
+        self._showSheet = showSheet
+    }
+    
+    var body: some View {
+        HStack {
+            if message.fileType == "application/pdf" {
+                Image(systemName: "folder.circle.fill")
+                    .foregroundColor(.purple)
+                    .font(.system(size: 40))
+                    .onTapGesture {
+                        shouldShowFireSaveActionSheet.toggle()
+                        
+                        fileInfo = FileInfo(
+                            url: URL(string: message.fileUrl ?? "")!,
+                            name: message.fileTitle ?? "",
+                            contentType: message.fileType ?? "",
+                            size: message.fileSizes ?? ""
+                        )
+                    }
+            } else {
+                Image(systemName: (message.isPlay ?? false) ? "pause.circle.fill" : "play.circle.fill")
+                    .foregroundColor(.purple)
+                    .font(.system(size: 40))
+                    .onTapGesture {
+                        if let index = viewModel.chatMessages.firstIndex(where: {$0.uid == message.uid}) {
+                            viewModel.getMessageIndex(index: index)
+                        }
+                        (message.isPlay ?? false)
+                        ? viewModel.pausePlaying()
+                        : viewModel.playAudio(url: URL(string: "\(message.fileUrl!).m4a")!)
+                    }
+            }
+            
+            VStack(alignment: .leading) {
+                Text(message.fileTitle ?? "")
+                    .font(.system(size: 14))
+                    .lineLimit(2)
+                Text(message.fileSizes ?? "")
+                    .foregroundColor(.secondary)
+                    .font(.system(size: 14))
+            }
+            Spacer()
+        }
+        .padding()
+        .frame(maxWidth: 250)
+        .background(.white)
+        .sheet(isPresented: $showSheet) {
+            AudioRecorderView(chatUser: chatUser)
+                .presentationDetents([.fraction(0.3)])
+                .presentationDragIndicator(.visible)
+        }
+        .confirmationDialog("", isPresented: $shouldShowFireSaveActionSheet) {
+            Button("파일 저장") {
+                viewModel.handleFileSave(fileInfo: fileInfo)
+            }
+        }
+    }
+    
 }

@@ -2,23 +2,18 @@
 //  ChatMessage.swift
 //  SwiftUIFirebaseChat
 //
-//  Created by brad on 2023/07/25.
+//  Created by PJH on 2023/09/06.
 //
 
 import Foundation
 
-import FirebaseFirestoreSwift
-
-struct ChatMessage: Codable, Identifiable {
-    
-    @DocumentID var id: String?
-    
+struct ChatMessage {
+    let id: String?
     let fromId, toId: String
     let text, imageUrl, videoUrl, fileUrl : String?
     let imageWidth, imageHeight: Float?
-    let timestamp: Date
-    
     let fileName, fileType, fileSize: String?
+    let timestamp: Date
     
     var fileTitle: String? {
         if let fileName = fileName {
@@ -36,5 +31,4 @@ struct ChatMessage: Codable, Identifiable {
             return nil
         }
     }
-    
 }

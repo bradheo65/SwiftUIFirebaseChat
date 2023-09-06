@@ -147,7 +147,7 @@ extension MainMessageViewModel {
     private func logoutFirebaseCurrentUser() {
         do {
             let logoutResultMessage = try logoutUseCase.excute()
-            
+            print(logoutResultMessage)
             self.isUserCurrentlyLoggedOut.toggle()
         } catch {
             print(error)
@@ -181,7 +181,7 @@ extension MainMessageViewModel {
         Task {
             do {
                 let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(toId: chatRoom.toId)
-                
+                print(deleteMessageResultMessage)
             } catch {
                 print(error)
             }

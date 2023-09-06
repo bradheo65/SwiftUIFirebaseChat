@@ -7,8 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		004F443D2AA8269300E9E28D /* Extention+UINavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004F443C2AA8269300E9E28D /* Extention+UINavigationController.swift */; };
+		004F443F2AA8547300E9E28D /* ChatRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004F443E2AA8547300E9E28D /* ChatRoom.swift */; };
+		004F44412AA854A400E9E28D /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004F44402AA854A400E9E28D /* ChatMessage.swift */; };
+		004F44432AA855B200E9E28D /* ChatLogDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 004F44422AA855B200E9E28D /* ChatLogDTO.swift */; };
 		007E8D272AA05D5300325777 /* RealmDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007E8D262AA05D5300325777 /* RealmDataSource.swift */; };
 		007E8D2A2AA05F2B00325777 /* RealmDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007E8D292AA05F2B00325777 /* RealmDataSourceProtocol.swift */; };
+		00A185462AA571070079906C /* AudioRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A185452AA571070079906C /* AudioRecorderView.swift */; };
+		00A1854B2AA5A2B00079906C /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 00A1854A2AA5A2B00079906C /* Lottie */; };
+		00A1854F2AA5CB680079906C /* AudioRecorderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A1854E2AA5CB680079906C /* AudioRecorderViewModel.swift */; };
 		00B320852A9C58B1007A038F /* MyAccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B320842A9C58B1007A038F /* MyAccountInfo.swift */; };
 		00B320872A9C58D3007A038F /* FriendAccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B320862A9C58D3007A038F /* FriendAccountInfo.swift */; };
 		00B320892A9C5903007A038F /* ChatList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B320882A9C5903007A038F /* ChatList.swift */; };
@@ -57,8 +64,8 @@
 		A357367E2A6F9D50007B0402 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A357367D2A6F9D50007B0402 /* FirebaseFirestore */; };
 		A35736802A6F9D50007B0402 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A357367F2A6F9D50007B0402 /* FirebaseFirestoreSwift */; };
 		A35736822A6F9D50007B0402 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = A35736812A6F9D50007B0402 /* FirebaseStorage */; };
-		A35736842A6F9D9D007B0402 /* ChatRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35736832A6F9D9D007B0402 /* ChatRoom.swift */; };
-		A35736862A6FAA51007B0402 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35736852A6FAA51007B0402 /* ChatMessage.swift */; };
+		A35736842A6F9D9D007B0402 /* ChatRoomResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35736832A6F9D9D007B0402 /* ChatRoomResponseDTO.swift */; };
+		A35736862A6FAA51007B0402 /* ChatMessageResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35736852A6FAA51007B0402 /* ChatMessageResponseDTO.swift */; };
 		A36EF84A2A79F3C400A7DEE2 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF8492A79F3C400A7DEE2 /* ImageCache.swift */; };
 		A36EF84C2A79F42000A7DEE2 /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF84B2A79F42000A7DEE2 /* RemoteImage.swift */; };
 		A36EF84F2A79F45100A7DEE2 /* Extention+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36EF84E2A79F45100A7DEE2 /* Extention+View.swift */; };
@@ -112,8 +119,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		004F443C2AA8269300E9E28D /* Extention+UINavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extention+UINavigationController.swift"; sourceTree = "<group>"; };
+		004F443E2AA8547300E9E28D /* ChatRoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoom.swift; sourceTree = "<group>"; };
+		004F44402AA854A400E9E28D /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		004F44422AA855B200E9E28D /* ChatLogDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatLogDTO.swift; sourceTree = "<group>"; };
+		004F44452AA8571300E9E28D /* animation_Recording.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = animation_Recording.json; sourceTree = "<group>"; };
+		004F44462AA8571300E9E28D /* animation_play.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = animation_play.json; sourceTree = "<group>"; };
 		007E8D262AA05D5300325777 /* RealmDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataSource.swift; sourceTree = "<group>"; };
 		007E8D292AA05F2B00325777 /* RealmDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataSourceProtocol.swift; sourceTree = "<group>"; };
+		00A185452AA571070079906C /* AudioRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderView.swift; sourceTree = "<group>"; };
+		00A1854E2AA5CB680079906C /* AudioRecorderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderViewModel.swift; sourceTree = "<group>"; };
 		00B320842A9C58B1007A038F /* MyAccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAccountInfo.swift; sourceTree = "<group>"; };
 		00B320862A9C58D3007A038F /* FriendAccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendAccountInfo.swift; sourceTree = "<group>"; };
 		00B320882A9C5903007A038F /* ChatList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatList.swift; sourceTree = "<group>"; };
@@ -159,8 +174,8 @@
 		A354F69A2A5460640063652A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A35736742A6EBFBA007B0402 /* CreateNewMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateNewMessageView.swift; sourceTree = "<group>"; };
 		A35736782A6F343C007B0402 /* ChatLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatLogView.swift; sourceTree = "<group>"; };
-		A35736832A6F9D9D007B0402 /* ChatRoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoom.swift; sourceTree = "<group>"; };
-		A35736852A6FAA51007B0402 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		A35736832A6F9D9D007B0402 /* ChatRoomResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomResponseDTO.swift; sourceTree = "<group>"; };
+		A35736852A6FAA51007B0402 /* ChatMessageResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageResponseDTO.swift; sourceTree = "<group>"; };
 		A36EF8492A79F3C400A7DEE2 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		A36EF84B2A79F42000A7DEE2 /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
 		A36EF84E2A79F45100A7DEE2 /* Extention+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extention+View.swift"; sourceTree = "<group>"; };
@@ -212,6 +227,7 @@
 				A35736822A6F9D50007B0402 /* FirebaseStorage in Frameworks */,
 				A357367E2A6F9D50007B0402 /* FirebaseFirestore in Frameworks */,
 				A35736802A6F9D50007B0402 /* FirebaseFirestoreSwift in Frameworks */,
+				00A1854B2AA5A2B00079906C /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,6 +245,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		004F44442AA8570500E9E28D /* AudioRecoreder */ = {
+			isa = PBXGroup;
+			children = (
+				00A1854E2AA5CB680079906C /* AudioRecorderViewModel.swift */,
+				00A185452AA571070079906C /* AudioRecorderView.swift */,
+				004F44462AA8571300E9E28D /* animation_play.json */,
+				004F44452AA8571300E9E28D /* animation_Recording.json */,
+			);
+			path = AudioRecoreder;
+			sourceTree = "<group>";
+		};
 		007E8D252AA05D0900325777 /* DataSource */ = {
 			isa = PBXGroup;
 			children = (
@@ -252,6 +279,7 @@
 				00B320862A9C58D3007A038F /* FriendAccountInfo.swift */,
 				00B320882A9C5903007A038F /* ChatList.swift */,
 				00B3208A2A9C9883007A038F /* ChatLog.swift */,
+				004F44422AA855B200E9E28D /* ChatLogDTO.swift */,
 			);
 			path = Realm;
 			sourceTree = "<group>";
@@ -464,6 +492,7 @@
 			children = (
 				A3CED45B2A70A9A0001DD436 /* ChatLogViewModel.swift */,
 				A35736782A6F343C007B0402 /* ChatLogView.swift */,
+				004F44442AA8570500E9E28D /* AudioRecoreder */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -482,6 +511,7 @@
 			isa = PBXGroup;
 			children = (
 				A36EF84E2A79F45100A7DEE2 /* Extention+View.swift */,
+				004F443C2AA8269300E9E28D /* Extention+UINavigationController.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -637,9 +667,11 @@
 			isa = PBXGroup;
 			children = (
 				A3B722512A6D682E005F713F /* ChatUser.swift */,
-				A35736832A6F9D9D007B0402 /* ChatRoom.swift */,
-				A35736852A6FAA51007B0402 /* ChatMessage.swift */,
+				004F443E2AA8547300E9E28D /* ChatRoom.swift */,
+				004F44402AA854A400E9E28D /* ChatMessage.swift */,
 				A392147D2A8319BE00BF833D /* FileInfo.swift */,
+				A35736832A6F9D9D007B0402 /* ChatRoomResponseDTO.swift */,
+				A35736852A6FAA51007B0402 /* ChatMessageResponseDTO.swift */,
 				00B320832A9C589D007A038F /* Realm */,
 			);
 			path = Entity;
@@ -702,6 +734,7 @@
 				A348F38D2A8D99A70017DD72 /* Swinject */,
 				A34989F92A983A5A00A8DE38 /* Realm */,
 				A34989FB2A983A5A00A8DE38 /* RealmSwift */,
+				00A1854A2AA5A2B00079906C /* Lottie */,
 			);
 			productName = SwiftUIFirebaseChat;
 			productReference = A354F6902A5460630063652A /* SwiftUIFirebaseChat.app */;
@@ -767,6 +800,7 @@
 				A357367A2A6F9D50007B0402 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				A348F38C2A8D99A70017DD72 /* XCRemoteSwiftPackageReference "Swinject" */,
 				A34989F82A983A5A00A8DE38 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				00A185492AA5A2B00079906C /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			productRefGroup = A354F6912A5460630063652A /* Products */;
 			projectDirPath = "";
@@ -820,6 +854,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A348F35E2A89C0640017DD72 /* StopRecentMessageListenerUseCase.swift in Sources */,
+				004F443D2AA8269300E9E28D /* Extention+UINavigationController.swift in Sources */,
 				A3CED4662A70B6FE001DD436 /* FirebaseConstants.swift in Sources */,
 				A348F3912A8DA3F60017DD72 /* Reslover.swift in Sources */,
 				A348F3802A8C5F790017DD72 /* StartChatMessageListenerUseCase.swift in Sources */,
@@ -843,15 +878,17 @@
 				A3EC4DF02A92E545008DDB02 /* FileUploadRepositoryProtocol.swift in Sources */,
 				A348F3972A8DE7B50017DD72 /* FileSaveRepositoryProtocol.swift in Sources */,
 				A310D6A22A84A9D700634DFE /* NetworkService.swift in Sources */,
-				A35736842A6F9D9D007B0402 /* ChatRoom.swift in Sources */,
+				A35736842A6F9D9D007B0402 /* ChatRoomResponseDTO.swift in Sources */,
 				A348F36A2A89D4910017DD72 /* DeleteRecentMessageUseCase.swift in Sources */,
 				A3CED45E2A70AC42001DD436 /* CreateNewMessageViewModel.swift in Sources */,
 				A392147C2A83104600BF833D /* RoundedCorner.swift in Sources */,
 				A36EF84F2A79F45100A7DEE2 /* Extention+View.swift in Sources */,
+				004F44412AA854A400E9E28D /* ChatMessage.swift in Sources */,
 				A326FB972A85D67C00794C27 /* FetchAllUserUseCase.swift in Sources */,
 				A35736752A6EBFBA007B0402 /* CreateNewMessageView.swift in Sources */,
 				A3EC4DFE2A9338CC008DDB02 /* ChatListenerRepository.swift in Sources */,
-				A35736862A6FAA51007B0402 /* ChatMessage.swift in Sources */,
+				004F44432AA855B200E9E28D /* ChatLogDTO.swift in Sources */,
+				A35736862A6FAA51007B0402 /* ChatMessageResponseDTO.swift in Sources */,
 				A3EC4DF22A92EAE0008DDB02 /* FirebaseMessagingServiceProtocol.swift in Sources */,
 				A36EF84A2A79F3C400A7DEE2 /* ImageCache.swift in Sources */,
 				A3B0291B2A59AD09008161CE /* ImagePicker.swift in Sources */,
@@ -864,6 +901,7 @@
 				A348F3822A8C5F8C0017DD72 /* StopChatMessageListenerUseCase.swift in Sources */,
 				A3CED4602A70B2FE001DD436 /* MainMessageViewModel.swift in Sources */,
 				A348F3A72A8DEDA00017DD72 /* FileSaveRepository.swift in Sources */,
+				004F443F2AA8547300E9E28D /* ChatRoom.swift in Sources */,
 				A310D6A42A84CD8000634DFE /* FileSaveManager.swift in Sources */,
 				A348F3872A8C66740017DD72 /* MessagingRepositoryProtocol.swift in Sources */,
 				00B320892A9C5903007A038F /* ChatList.swift in Sources */,
@@ -874,6 +912,7 @@
 				A3CED4632A70B6B5001DD436 /* ProfileImageView.swift in Sources */,
 				A34A6E242A7382D300440F93 /* ImageViewer.swift in Sources */,
 				00B3208B2A9C9883007A038F /* ChatLog.swift in Sources */,
+				00A1854F2AA5CB680079906C /* AudioRecorderViewModel.swift in Sources */,
 				A3B029242A5C41EB008161CE /* MainMessageView.swift in Sources */,
 				A348F3602A89C6BB0017DD72 /* LogoutUseCase.swift in Sources */,
 				A392147E2A8319BE00BF833D /* FileInfo.swift in Sources */,
@@ -883,6 +922,7 @@
 				A348F3532A89B2BA0017DD72 /* StartRecentMessageListenerUseCase.swift in Sources */,
 				A3CED45C2A70A9A0001DD436 /* ChatLogViewModel.swift in Sources */,
 				A348F37A2A8C5EF80017DD72 /* SendImageMessageUseCase.swift in Sources */,
+				00A185462AA571070079906C /* AudioRecorderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1003,7 +1043,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1058,7 +1098,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -1081,6 +1121,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SwiftUIFirebaseChat/Info.plist;
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "앨범에 저장하려면 접근권한이 필요로 합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1088,7 +1129,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1118,6 +1159,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SwiftUIFirebaseChat/Info.plist;
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "앨범에 저장하려면 접근권한이 필요로 합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1125,7 +1167,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1228,6 +1270,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		00A185492AA5A2B00079906C /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
 		A348F38C2A8D99A70017DD72 /* XCRemoteSwiftPackageReference "Swinject" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Swinject/Swinject.git";
@@ -1255,6 +1305,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		00A1854A2AA5A2B00079906C /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 00A185492AA5A2B00079906C /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
 		A348F38D2A8D99A70017DD72 /* Swinject */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A348F38C2A8D99A70017DD72 /* XCRemoteSwiftPackageReference "Swinject" */;
