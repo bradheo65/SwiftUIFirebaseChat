@@ -20,7 +20,6 @@ struct ChatLogView: View {
     
     @State private var chatText = ""
     
-    @State private var videoPlayUrl = ""
 
     @State private var shouldShowActionSheet = false
     @State private var shouldShowFireSaveActionSheet = false
@@ -30,7 +29,6 @@ struct ChatLogView: View {
     @State private var showSheet = false
 
     @State private var shouldShowImageViewer = false
-    @State private var shouldShowVideoViewer = false
     @State private var savePhoto = false
 
     @State private var shouldHideImageViewer = true
@@ -133,11 +131,6 @@ struct ChatLogView: View {
                 showSheet.toggle()
             }
         }
-//        .confirmationDialog("", isPresented: $shouldShowFireSaveActionSheet) {
-//            Button("파일 저장") {
-//                viewModel.handleFileSave(fileInfo: fileInfo)
-//            }
-//        }
         .alert("사진 앱에 저장하시겠습니까?", isPresented: $savePhoto) {
             Button { } label: {
                 Text("Cancel")
@@ -260,40 +253,7 @@ extension ChatLogView {
     }
     
     private func messageView(message: ChatLog) -> some View {
-        var imageMessage: some View {
-            ZStack {
-                RemoteImage(
-                    imageLoader: ImageLoader(url: message.imageUrl ?? ""),
-                    imageData: $imageData,
-                    imageFrame: $tapImageFrame,
-                    isImageTap: $isImageTap
-                )
-                .disabled((message.videoUrl != nil))
-                
-                if message.videoUrl != nil {
-                    if shouldShowVideoViewer {
-                        VideoPlayerView(
-                            videoUrl: $videoPlayUrl,
-                            videoEnd: $shouldShowVideoViewer
-                        )
-                    } else {
-                        Button {
-                            videoPlayUrl = message.videoUrl ?? ""
-                            shouldShowVideoViewer.toggle()
-                        } label: {
-                            Image(systemName: "play.fill")
-                                .foregroundColor(.white)
-                                .imageScale(.large)
-                        }
-                    }
-                }
-            }
-            .frame(
-                width: CGFloat(message.imageWidth ?? .zero),
-                height: CGFloat(message.imageHeight ?? .zero)
-            )
-        }
-   
+        
         var body: some View {
             VStack {
                 if message.toId == chatUser?.uid {
@@ -314,7 +274,12 @@ extension ChatLogView {
                                     showSheet: $showSheet
                                 )
                             } else {
-                                imageMessage
+                                ImageMessageView(
+                                    message: message,
+                                    imageData: $imageData,
+                                    tapImageFrame: $tapImageFrame,
+                                    isImageTap: $isImageTap
+                                )
                             }
                         }
                         .cornerRadius(12, corners: .topLeft)
@@ -337,7 +302,12 @@ extension ChatLogView {
                                     showSheet: $showSheet
                                 )
                             } else {
-                                imageMessage
+                                ImageMessageView(
+                                    message: message,
+                                    imageData: $imageData,
+                                    tapImageFrame: $tapImageFrame,
+                                    isImageTap: $isImageTap
+                                )
                             }
                         }
                         .cornerRadius(12, corners: .topRight)
@@ -430,6 +400,59 @@ struct FileMessageView: View {
                 viewModel.handleFileSave(fileInfo: fileInfo)
             }
         }
+    }
+    
+}
+
+struct ImageMessageView: View {
+    @State private var shouldShowVideoViewer = false
+    @State private var videoPlayUrl = ""
+
+    private var message: ChatLog
+
+    @Binding private var imageData: UIImage?
+    @Binding private var tapImageFrame: CGRect?
+    @Binding private var isImageTap: Bool
+
+    init(message: ChatLog, imageData: Binding<UIImage?>, tapImageFrame: Binding<CGRect?>, isImageTap: Binding<Bool>) {
+        self.message = message
+        self._imageData = imageData
+        self._tapImageFrame = tapImageFrame
+        self._isImageTap = isImageTap
+    }
+    
+    var body: some View {
+        ZStack {
+            RemoteImage(
+                imageLoader: ImageLoader(url: message.imageUrl ?? ""),
+                imageData: $imageData,
+                imageFrame: $tapImageFrame,
+                isImageTap: $isImageTap
+            )
+            .disabled((message.videoUrl != nil))
+            
+            if message.videoUrl != nil {
+                if shouldShowVideoViewer {
+                    VideoPlayerView(
+                        videoUrl: $videoPlayUrl,
+                        videoEnd: $shouldShowVideoViewer
+                    )
+                } else {
+                    Button {
+                        videoPlayUrl = message.videoUrl ?? ""
+                        shouldShowVideoViewer.toggle()
+                    } label: {
+                        Image(systemName: "play.fill")
+                            .foregroundColor(.white)
+                            .imageScale(.large)
+                    }
+                }
+            }
+        }
+        .frame(
+            width: CGFloat(message.imageWidth ?? .zero),
+            height: CGFloat(message.imageHeight ?? .zero)
+        )
     }
     
 }

@@ -18,7 +18,7 @@ struct ImageViewer: View {
     @Binding var savePhoto: Bool
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             Color.black
                 .ignoresSafeArea()
             
@@ -40,13 +40,15 @@ struct ImageViewer: View {
                                 )
                             )
                         )
-                    if showButtons {
-                        contentButtonView
-                    }
                 }
                 .onTapGesture {
                     showButtons.toggle()
                 }
+            }
+            .ignoresSafeArea()
+            
+            if showButtons {
+                contentButtonView
             }
         }
     }
@@ -54,31 +56,30 @@ struct ImageViewer: View {
 
 extension ImageViewer {
     private var contentButtonView: some View {
-        VStack {
-            HStack {
-                Button {
-                    Task {
-                        await animate(duration: 0.2, {
-                            show.toggle()
-                        })
-                        hide.toggle()
-                    }
-                } label: {
-                    Image(systemName: "chevron.backward")
-                        .font(.system(size: 25))
-                        .foregroundColor(.white)
+        HStack {
+            Button {
+                Task {
+                    await animate(duration: 0.2, {
+                        show.toggle()
+                    })
+                    hide.toggle()
                 }
-                Spacer()
-                
-                Button {
-                    savePhoto.toggle()
-                } label: {
-                    Image(systemName: "square.and.arrow.down")
-                        .font(.system(size: 25))
-                        .foregroundColor(.white)
-                }
+            } label: {
+                Image(systemName: "chevron.backward")
+                    .font(.system(size: 25))
+                    .foregroundColor(.white)
             }
+            
             Spacer()
+            
+            Button {
+                savePhoto.toggle()
+            } label: {
+                Image(systemName: "square.and.arrow.down")
+                    .font(.system(size: 25))
+                    .foregroundColor(.white)
+            }
         }
+        .padding()
     }
 }
