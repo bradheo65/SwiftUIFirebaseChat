@@ -230,10 +230,10 @@ private struct NewMessageButtonView: View {
             .shadow(radius: 15)
         }
         .fullScreenCover(isPresented: $isShowingCreateNewMessageView) {
-            CreateNewMessageView { user in
-                isShowingChatMessageView.toggle()
-                self.chatUser = user
-            }
+            CreateNewMessageView(
+                selectedChatUser: $chatUser,
+                isDismiss: $isShowingChatMessageView
+            )
         }
     }
 }
