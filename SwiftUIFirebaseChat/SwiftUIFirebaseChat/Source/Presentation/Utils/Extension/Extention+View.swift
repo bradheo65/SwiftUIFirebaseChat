@@ -8,6 +8,10 @@
 import SwiftUI
 
 extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
     func animate(duration: CGFloat, _ execute: @escaping () -> Void) async {
         await withCheckedContinuation { continuation in
             withAnimation(.linear(duration: duration)) {

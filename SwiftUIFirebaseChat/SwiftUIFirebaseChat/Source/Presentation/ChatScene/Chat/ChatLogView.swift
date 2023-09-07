@@ -45,6 +45,9 @@ struct ChatLogView: View {
                 isImageTap: $isImageTap
             )
             .opacity(isShowingImageViewer ? 0 : 1)
+            .onTapGesture {
+                hideKeyboard()
+            }
             
             MessageImageViewer(
                 viewModel: viewModel,
@@ -97,6 +100,8 @@ private struct ChatMessageListView: View {
     @Binding private var selectedImageFrame: CGRect?
     @Binding private var isImageTap: Bool
     
+    @State private var keyboardHeight: CGFloat = 0.0
+
     fileprivate init(
         viewModel: ChatLogViewModel,
         chatUser: ChatUser?,
@@ -128,6 +133,8 @@ private struct ChatMessageListView: View {
                     Spacer()
                         .id("Empty")
                 }
+                .offset(y: -keyboardHeight) // 키보드가 올라올 때 화면을 위로 이동
+                .animation(.easeInOut(duration: 0.5), value: keyboardHeight) // 애니메이션 추가
                 .onReceive(viewModel.$count) { _ in
                     withAnimation(.easeOut(duration: 0.5)) {
                         scollViewProxy.scrollTo("Empty", anchor: .bottom)
@@ -135,6 +142,14 @@ private struct ChatMessageListView: View {
                 }
             }
         }
+         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+             if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                 self.keyboardHeight = keyboardFrame.height - 30
+             }
+         }
+         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+             self.keyboardHeight = 0.0
+         }
         .background(Color(.init(white: 0.95, alpha: 1)))
         .safeAreaInset(edge: .bottom) {
             ChatInputView(
@@ -497,6 +512,7 @@ private struct MessageImageViewer: View {
             isHiddenImageViewer.toggle()
 
             withAnimation(.easeOut(duration: 0.2)) {
+                hideKeyboard()
                 isShowingImageViewer.toggle()
             }
         })
