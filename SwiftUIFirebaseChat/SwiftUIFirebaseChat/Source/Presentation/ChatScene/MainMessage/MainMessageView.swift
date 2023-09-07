@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct MainMessageView: View {
-    
     @Environment(\.dismiss) private var dismiss
 
     @StateObject private var viewModel = MainMessageViewModel(
@@ -21,42 +20,24 @@ struct MainMessageView: View {
     )
     
     @State private var shouldNavigatieToChatLogView = false
-    @State private var shouldShowNewMessageScreen = false
-    @State private var shouldShowLogoutOptions = false
 
     @State private var chatUser: ChatUser?
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
-                currentUserTitleView
-                 
-                List {
-                    ForEach(viewModel.chatRoomList, id: \.id) { recentMessage in
-                        NavigationLink {
-                            ChatLogView(
-                                chatUser: ChatUser(
-                                    uid: recentMessage.toId ,
-                                    email: recentMessage.email,
-                                    profileImageURL: recentMessage.profileImageURL
-                                )
-                            )
-                        } label: {
-                            messageListCell(message: recentMessage)
-                        }
-                    }
-                    .onDelete { indexSet in
-                        deleteAction(indexSet: indexSet)
-                    }
-                }
-                .listStyle(.plain)
+                UserProfileHeaderView(viewModel: viewModel)
                 
-                NavigationLink("", isActive: $shouldNavigatieToChatLogView) {
-                    ChatLogView(chatUser: chatUser)
-                }
+                ChatRoomListView(viewModel: viewModel)
+            }
+            .navigationDestination(isPresented: $shouldNavigatieToChatLogView) {
+                ChatLogView(chatUser: chatUser)
             }
             .overlay(alignment: .bottom) {
-                newMessageButton
+                NewMessageButtonView(
+                    chatUser: $chatUser,
+                    isShowingChatMessageView: $shouldNavigatieToChatLogView
+                )
             }
         }
         .navigationBarHidden(true)
@@ -72,12 +53,24 @@ struct MainMessageView: View {
             viewModel.removeRecentMessageListener()
         }
     }
-    
 }
 
-extension MainMessageView {
+struct MainMessageView_Previews: PreviewProvider {
+    static var previews: some View {
+        MainMessageView()
+    }
+}
+
+private struct UserProfileHeaderView: View {
+    @ObservedObject private var viewModel: MainMessageViewModel
     
-    private var currentUserTitleView: some View {
+    @State private var isShowingSettingView = false
+
+    fileprivate init(viewModel: MainMessageViewModel) {
+        self.viewModel = viewModel
+    }
+    
+    fileprivate var body: some View {
         HStack {
             ProfileImageView(url: viewModel.currentUser?.profileImageURL ?? "")
                 .aspectRatio(0.3, contentMode: .fill)
@@ -105,7 +98,7 @@ extension MainMessageView {
             Spacer()
             
             Button  {
-                shouldShowLogoutOptions.toggle()
+                isShowingSettingView.toggle()
             } label: {
                 Image(systemName: "gear")
                     .font(.system(size: 24, weight: .bold))
@@ -113,7 +106,7 @@ extension MainMessageView {
             }
         }
         .padding()
-        .actionSheet(isPresented: $shouldShowLogoutOptions) {
+        .actionSheet(isPresented: $isShowingSettingView) {
             .init(
                 title: Text("Setting"),
                 message: nil,
@@ -129,10 +122,99 @@ extension MainMessageView {
             )
         }
     }
+}
+
+private struct ChatRoomListView: View {
+    @ObservedObject private var viewModel: MainMessageViewModel
     
-    private var newMessageButton: some View {
+    fileprivate init(viewModel: MainMessageViewModel) {
+        self.viewModel = viewModel
+    }
+    
+    fileprivate var body: some View {
+        List {
+            ForEach(viewModel.chatRoomList, id: \.id) { recentMessage in
+                NavigationLink {
+                    ChatLogView(
+                        chatUser: ChatUser(
+                            uid: recentMessage.toId ,
+                            email: recentMessage.email,
+                            profileImageURL: recentMessage.profileImageURL
+                        )
+                    )
+                } label: {
+                    ChatRoomListCell(message: recentMessage)
+                }
+            }
+            .onDelete { indexSet in
+                deleteAction(indexSet: indexSet)
+            }
+        }
+        .listStyle(.plain)
+    }
+    
+    private func deleteAction(indexSet: IndexSet) {
+        viewModel.deleteRecentChatMessage(indexSet: indexSet)
+    }
+    
+}
+
+private struct ChatRoomListCell: View {
+    private var message: ChatList
+    
+    fileprivate init(message: ChatList) {
+        self.message = message
+    }
+    
+    fileprivate var body: some View {
+        HStack(spacing: 16) {
+            ProfileImageView(url: message.profileImageURL)
+                .aspectRatio(0.3, contentMode: .fill)
+                .frame(width: 64, height: 64)
+                .cornerRadius(64)
+                .overlay(RoundedRectangle(cornerRadius: 64)
+                    .stroke(Color(.label), lineWidth: 1))
+                .shadow(radius: 5)
+            
+            VStack(alignment: .leading, spacing: 6) {
+                Text(message.username)
+                    .lineLimit(1)
+                    .foregroundColor(.black)
+                    .font(.system(size: 16, weight: .bold))
+                
+                Text(message.text)
+                    .font(.system(size: 14))
+                    .foregroundColor(Color(.lightGray))
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(3)
+            }
+            
+            Spacer()
+            
+            Text(message.timeAgo)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.black)
+        }
+    }
+}
+
+private struct NewMessageButtonView: View {
+    @Binding private var chatUser: ChatUser?
+    @Binding private var isShowingChatMessageView: Bool
+
+    @State private var isShowingCreateNewMessageView = false
+    
+    fileprivate init(
+        chatUser: Binding<ChatUser?>,
+        isShowingChatMessageView: Binding<Bool>
+    ) {
+        self._chatUser = chatUser
+        self._isShowingChatMessageView = isShowingChatMessageView
+    }
+
+    fileprivate var body: some View {
         Button {
-            shouldShowNewMessageScreen.toggle()
+            isShowingCreateNewMessageView.toggle()
         } label: {
             HStack {
                 Spacer()
@@ -147,60 +229,11 @@ extension MainMessageView {
             .padding(.horizontal)
             .shadow(radius: 15)
         }
-        .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
+        .fullScreenCover(isPresented: $isShowingCreateNewMessageView) {
             CreateNewMessageView { user in
-                shouldNavigatieToChatLogView.toggle()
+                isShowingChatMessageView.toggle()
                 self.chatUser = user
             }
         }
-    }
-    
-    func messageListCell(message: ChatList) -> some View {
-        var body: some View {
-            HStack(spacing: 16) {
-                ProfileImageView(url: message.profileImageURL)
-                    .aspectRatio(0.3, contentMode: .fill)
-                    .frame(width: 64, height: 64)
-                    .cornerRadius(64)
-                    .overlay(RoundedRectangle(cornerRadius: 64)
-                        .stroke(Color(.label), lineWidth: 1))
-                    .shadow(radius: 5)
-                
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(message.username)
-                        .lineLimit(1)
-                        .foregroundColor(.black)
-                        .font(.system(size: 16, weight: .bold))
-                    
-                    Text(message.text)
-                        .font(.system(size: 14))
-                        .foregroundColor(Color(.lightGray))
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(3)
-                }
-                
-                Spacer()
-                
-                Text(message.timeAgo)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.black)
-            }
-        }
-        return body
-    }
-    
-}
-
-extension MainMessageView {
-    
-    private func deleteAction(indexSet: IndexSet) {
-        viewModel.deleteRecentChatMessage(indexSet: indexSet) 
-    }
-    
-}
-
-struct MainMessageView_Previews: PreviewProvider {
-    static var previews: some View {
-        MainMessageView()
     }
 }
