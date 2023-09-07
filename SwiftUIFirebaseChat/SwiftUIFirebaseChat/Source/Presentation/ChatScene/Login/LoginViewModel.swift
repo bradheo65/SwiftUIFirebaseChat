@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 
 final class LoginViewModel: ObservableObject {
-    
     @Published var loginStatusMessage = ""
     @Published var isLoginSuccess = false
 
@@ -28,24 +27,22 @@ final class LoginViewModel: ObservableObject {
      로그인 모드에 따른 로그인, 회원가입 선택 실행 함수
      
      - Parameters:
-        - isLoginMode: 로그인 모드(true: 로그인, false: 회원가입)
+        - loginMode: 로그인 모드(true: 로그인, false: 회원가입)
         - email: View에 입력된 이메일 주소
         - password: View에 입력된 비밀번호
         - profileImage: imagePicker로 선택한 image
      */
     @MainActor
-    func handleAction(isLoginMode: Bool, email: String, password: String, profileImage: UIImage?) {
-        if isLoginMode {
+    func handleAction(loginMode: LoginMode, email: String, password: String, profileImage: UIImage?) {
+        if loginMode == .login {
             login(email: email, password: password)
         } else {
             register(email: email, password: password, image: profileImage)
         }
     }
-   
 }
 
 extension LoginViewModel {
-    
     /**
      로그인 실행 함수
      
@@ -100,5 +97,4 @@ extension LoginViewModel {
             }
         }
     }
-    
 }
