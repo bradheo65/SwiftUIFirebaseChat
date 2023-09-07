@@ -11,33 +11,14 @@ struct ChatLogView: View {
     @Environment(\.dismiss) private var dismiss
     
     @StateObject private var viewModel: ChatLogViewModel
-    
-    @State private var fileInfo: FileInfo?
-
-    @State private var pickerImage: UIImage?
-    @State private var imageData: UIImage?
-    @State private var videoUrl: URL?
-    
-    @State private var chatText = ""
-    
-
-    @State private var shouldShowActionSheet = false
-    @State private var shouldShowFireSaveActionSheet = false
-
-    @State private var shouldShowImagePicker = false
-    @State private var shouldShowFilePicker = false
-    @State private var showSheet = false
-
-    @State private var shouldShowImageViewer = false
-    @State private var savePhoto = false
-
-    @State private var shouldHideImageViewer = true
-
-    @State private var isImageTap = false
-    @State private var tapImageFrame: CGRect?
 
     private let chatUser: ChatUser?
-    
+
+    @State private var selectedImage: UIImage?
+    @State private var selectedImageFrame: CGRect?
+    @State private var isImageTap = false
+    @State private var isShowingImageViewer = false
+
     init(chatUser: ChatUser?) {
         self.chatUser = chatUser
         self._viewModel = .init(
@@ -56,18 +37,27 @@ struct ChatLogView: View {
     
     var body: some View {
         ZStack {
-            messageView
-                .opacity(shouldShowImageViewer ? 0 : 1)
+            ChatMessageListView(
+                viewModel: viewModel,
+                chatUser: chatUser,
+                selectedImage: $selectedImage,
+                selectedImageFrame: $selectedImageFrame,
+                isImageTap: $isImageTap
+            )
+            .opacity(isShowingImageViewer ? 0 : 1)
             
-            imageViewer
-            
-            Text(viewModel.errorMessage)
+            MessageImageViewer(
+                viewModel: viewModel,
+                selectedImage: $selectedImage,
+                selectedImageFrame: $selectedImageFrame,
+                isImageTap: $isImageTap,
+                isShowingImageViewer: $isShowingImageViewer
+            )
         }
-        
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                if !shouldShowImageViewer {
+                if !isShowingImageViewer {
                     Button {
                         dismiss()
                     } label: {
@@ -75,9 +65,8 @@ struct ChatLogView: View {
                     }
                 }
             }
-            
             ToolbarItem(placement: .principal) {
-                if !shouldShowImageViewer {
+                if !isShowingImageViewer {
                     VStack {
                         Text(chatUser?.email ?? "")
                     }
@@ -90,82 +79,51 @@ struct ChatLogView: View {
         .onDisappear {
             viewModel.removeListener()
         }
-        .onChange(of: pickerImage) { newValue in
-            viewModel.handleSendImage(image: newValue)
-        }
-        .onChange(of: videoUrl) { newValue in
-            if let url = videoUrl {
-                viewModel.handleSendVideo(url: url)
-            }
-        }
-        .onChange(of: isImageTap, perform: { newValue in
-            shouldHideImageViewer.toggle()
-            
-            withAnimation(.easeOut(duration: 0.2)) {
-                shouldShowImageViewer.toggle()
-            }
-        })
-        .fileImporter(
-            isPresented: $shouldShowFilePicker,
-            allowedContentTypes: [.pdf],
-            onCompletion: { result in
-                switch result {
-                case .success(let url):
-                    viewModel.handleSendFile(url: url)
-                    
-                case .failure(let error):
-                    print(error)
-                }
-        })
-        .fullScreenCover(isPresented: $shouldShowImagePicker) {
-            ImagePicker(image: $pickerImage, videoUrl: $videoUrl)
-        }
-        .confirmationDialog("", isPresented: $shouldShowActionSheet) {
-            Button("사진 및 비디오 선택") {
-                shouldShowImagePicker.toggle()
-            }
-            Button("파일 선택") {
-                shouldShowFilePicker.toggle()
-            }
-            Button("음성 메세지 보내기") {
-                showSheet.toggle()
-            }
-        }
-        .alert("사진 앱에 저장하시겠습니까?", isPresented: $savePhoto) {
-            Button { } label: {
-                Text("Cancel")
-            }
-            Button {
-                viewModel.handleImageSave(image: imageData ?? UIImage())
-            } label: {
-                Text("OK")
-            }
-        }
-        .alert("저장이 완료되었습니다.", isPresented: $viewModel.isSaveCompleted) {
-            Button { } label: {
-                Text("OK")
-            }
-        }
-        .alert("Error", isPresented: $viewModel.isErrorAlert) {
-            Button { } label: {
-                Text("OK")
-            }
-        } message: {
-            Text(viewModel.errorMessage)
-        }
-
     }
-    
 }
 
-extension ChatLogView {
+struct ChatLogVIew_Previews: PreviewProvider {
+    static var previews: some View {
+        MainMessageView()
+    }
+}
+
+private struct ChatMessageListView: View {
+    @ObservedObject private var viewModel: ChatLogViewModel
     
-    private var messageView: some View {
+    private var chatUser: ChatUser?
+    
+    @Binding private var selectedImage: UIImage?
+    @Binding private var selectedImageFrame: CGRect?
+    @Binding private var isImageTap: Bool
+    
+    fileprivate init(
+        viewModel: ChatLogViewModel,
+        chatUser: ChatUser?,
+        selectedImage: Binding<UIImage?>,
+        selectedImageFrame: Binding<CGRect?>,
+        isImageTap: Binding<Bool>
+    ) {
+        self.viewModel = viewModel
+        self.chatUser = chatUser
+        self._selectedImage = selectedImage
+        self._selectedImageFrame = selectedImageFrame
+        self._isImageTap = isImageTap
+    }
+    
+    fileprivate var body: some View {
         ScrollView {
             ScrollViewReader { scollViewProxy in
                 VStack {
                     ForEach(viewModel.chatMessages, id: \.self) { message in
-                        messageView(message: message)
+                        ChatMessageCell(
+                            viewModel: viewModel,
+                            chatUser: chatUser,
+                            message: message,
+                            selectedImage: $selectedImage,
+                            selectedImageFrame: $selectedImageFrame,
+                            isImageTap: $isImageTap
+                        )
                     }
                     Spacer()
                         .id("Empty")
@@ -179,66 +137,175 @@ extension ChatLogView {
         }
         .background(Color(.init(white: 0.95, alpha: 1)))
         .safeAreaInset(edge: .bottom) {
-            chatBottomBar
-                .background(Color(.systemBackground))
-                .ignoresSafeArea()
+            ChatInputView(
+                viewModel: viewModel,
+                chatUser: chatUser
+            )
+            .background(Color(.systemBackground))
+            .ignoresSafeArea()
         }
     }
+}
+
+private struct ChatMessageCell: View {
+    @ObservedObject private var viewModel: ChatLogViewModel
     
-    private var imageViewer: some View {
-        GeometryReader { reader in
-            ImageViewer(
-                uIimage: $imageData,
-                show: $shouldShowImageViewer,
-                hide: $shouldHideImageViewer,
-                savePhoto: $savePhoto
-            )
-            .frame(
-                width: shouldShowImageViewer ? reader.size.width : tapImageFrame?.width,
-                height: shouldShowImageViewer ? reader.size.height : tapImageFrame?.height
-            )
-            .position(
-                x: shouldShowImageViewer ? reader.frame(in: .global).midX : tapImageFrame?.midX ?? .zero,
-                y: shouldShowImageViewer ? reader.frame(in: .global).midY : tapImageFrame?.midY ?? .zero
-            )
-            .if(shouldHideImageViewer, transform: { view in
-                view.hidden()
-            })
-                .ignoresSafeArea()
-        }
+    private var chatUser: ChatUser?
+    private var message: ChatLog
+    
+    @Binding private var selectedImage: UIImage?
+    @Binding private var selectedImageFrame: CGRect?
+    @Binding private var isImageTap: Bool
+    
+    fileprivate init(
+        viewModel: ChatLogViewModel,
+        chatUser: ChatUser?,
+        message: ChatLog,
+        selectedImage: Binding<UIImage?>,
+        selectedImageFrame: Binding<CGRect?>,
+        isImageTap: Binding<Bool>
+    ) {
+        self.viewModel = viewModel
+        self.chatUser = chatUser
+        self.message = message
+        self._selectedImage = selectedImage
+        self._selectedImageFrame = selectedImageFrame
+        self._isImageTap = isImageTap
     }
     
-    private var chatBottomBar: some View {
-        HStack(spacing: 8) {
-            Button {
-                shouldShowActionSheet.toggle()
-            } label: {
-                Image(systemName: "plus")
-                    .foregroundColor(.black)
-            }
-            
-            ZStack {
-                descriptionPlaceholder
+    fileprivate var body: some View {
+        VStack {
+            HStack {
+                if message.toId == chatUser?.uid {
+                    Spacer()
+                }
+                HStack {
+                    if let text = message.text {
+                        Text(text)
+                            .foregroundColor(message.toId == chatUser?.uid ? .white : .black)
+                            .padding()
+                            .background(message.toId == chatUser?.uid ? Color.purple : Color.white)
+                    } else if message.fileUrl != nil {
+                        FileMessageView(
+                            viewModel: viewModel,
+                            chatUser: chatUser,
+                            message: message
+                        )
+                    } else {
+                        ImageMessageView(
+                            message: message,
+                            selectedImage: $selectedImage,
+                            selectedImageFrame: $selectedImageFrame,
+                            isImageTap: $isImageTap
+                        )
+                    }
+                }
+                .cornerRadius(12, corners: [.topLeft, .bottomLeft, .bottomRight])
                 
-                TextEditor(text: $chatText)
-                    .opacity(chatText.isEmpty ? 0.5 : 1)
+                if message.toId != chatUser?.uid {
+                    Spacer()
+                }
             }
-            .frame(height: 40)
-            
-            Button {
-                viewModel.handleSendText(text: self.chatText)
-                chatText = ""
-            } label: {
-                Text("Send")
-                    .foregroundColor(.white)
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+    }
+}
+
+private struct ChatInputView: View {
+    @ObservedObject private var viewModel: ChatLogViewModel
+    
+    private var chatUser: ChatUser?
+    
+    @State private var chatText = ""
+    @State private var pickerImage: UIImage?
+    @State private var videoUrl: URL?
+
+    @State private var isShowingActionSheet = false
+    @State private var isShowingImagePicker = false
+    @State private var isShowingFileImporter = false
+    @State private var isShowingAudioRecorderView = false
+    
+    fileprivate init(
+        viewModel: ChatLogViewModel,
+        chatUser: ChatUser?
+    ) {
+        self.viewModel = viewModel
+        self.chatUser = chatUser
+    }
+    
+    fileprivate var body: some View {
+        VStack {
+            HStack(spacing: 8) {
+                Button {
+                    isShowingActionSheet.toggle()
+                } label: {
+                    Image(systemName: "plus")
+                        .foregroundColor(.black)
+                }
+                
+                ZStack {
+                    descriptionPlaceholder
+                    
+                    TextEditor(text: $chatText)
+                        .opacity(chatText.isEmpty ? 0.5 : 1)
+                }
+                .frame(height: 40)
+                
+                Button {
+                    viewModel.handleSendText(text: self.chatText)
+                    chatText = ""
+                } label: {
+                    Text("보내기")
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(Color.purple)
+                .cornerRadius(4)
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(Color.purple)
-            .cornerRadius(4)
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
+        .onChange(of: pickerImage) { newValue in
+            viewModel.handleSendImage(image: newValue)
+        }
+        .onChange(of: videoUrl) { newValue in
+            if let url = videoUrl {
+                viewModel.handleSendVideo(url: url)
+            }
+        }
+        .confirmationDialog("", isPresented: $isShowingActionSheet) {
+            Button("사진 및 비디오 선택") {
+                isShowingImagePicker.toggle()
+            }
+            Button("파일 선택") {
+                isShowingFileImporter.toggle()
+            }
+            Button("음성 메세지 보내기") {
+                isShowingAudioRecorderView.toggle()
+            }
+        }
+        .fullScreenCover(isPresented: $isShowingImagePicker) {
+            ImagePicker(image: $pickerImage, videoUrl: $videoUrl)
+        }
+        .fileImporter(
+            isPresented: $isShowingFileImporter,
+            allowedContentTypes: [.pdf],
+            onCompletion: { result in
+                switch result {
+                case .success(let url):
+                    viewModel.handleSendFile(url: url)
+                    
+                case .failure(let error):
+                    print(error)
+                }
+        })
+        .sheet(isPresented: $isShowingAudioRecorderView) {
+            AudioRecorderView(chatUser: chatUser)
+                .presentationDetents([.fraction(0.3)])
+                .presentationDragIndicator(.visible)
+        }
     }
     
     private var descriptionPlaceholder: some View {
@@ -251,110 +318,35 @@ extension ChatLogView {
             Spacer()
         }
     }
-    
-    private func messageView(message: ChatLog) -> some View {
-        
-        var body: some View {
-            VStack {
-                if message.toId == chatUser?.uid {
-                    HStack {
-                        Spacer()
-                        
-                        HStack {
-                            if let text = message.text {
-                                Text(text)
-                                    .foregroundColor(.white)
-                                    .padding()
-                                    .background(Color.purple)
-                            } else if message.fileUrl != nil {
-                                FileMessageView(
-                                    viewModel: viewModel,
-                                    message: message,
-                                    chatUser: chatUser,
-                                    showSheet: $showSheet
-                                )
-                            } else {
-                                ImageMessageView(
-                                    message: message,
-                                    imageData: $imageData,
-                                    tapImageFrame: $tapImageFrame,
-                                    isImageTap: $isImageTap
-                                )
-                            }
-                        }
-                        .cornerRadius(12, corners: .topLeft)
-                        .cornerRadius(12, corners: .bottomLeft)
-                        .cornerRadius(12, corners: .bottomRight)
-                    }
-                } else {
-                    HStack {
-                        HStack {
-                            if let text = message.text {
-                                Text(text)
-                                    .foregroundColor(.black)
-                                    .padding()
-                                    .background(Color.white)
-                            } else if message.fileUrl != nil {
-                                FileMessageView(
-                                    viewModel: viewModel,
-                                    message: message,
-                                    chatUser: chatUser,
-                                    showSheet: $showSheet
-                                )
-                            } else {
-                                ImageMessageView(
-                                    message: message,
-                                    imageData: $imageData,
-                                    tapImageFrame: $tapImageFrame,
-                                    isImageTap: $isImageTap
-                                )
-                            }
-                        }
-                        .cornerRadius(12, corners: .topRight)
-                        .cornerRadius(12, corners: .bottomLeft)
-                        .cornerRadius(12, corners: .bottomRight)
-                        
-                        Spacer()
-                    }
-                }
-            }
-            .padding(.horizontal)
-            .padding(.top, 8)
-        }
-        return body
-    }
 }
 
-struct ChatLogVIew_Previews: PreviewProvider {
-    static var previews: some View {
-        MainMessageView()
-    }
-}
-
-struct FileMessageView: View {
+private struct FileMessageView: View {
     @ObservedObject var viewModel: ChatLogViewModel
-    @State private var shouldShowFireSaveActionSheet = false
-    @State private var fileInfo: FileInfo? = nil
-
-    private var message: ChatLog
+    
     private let chatUser: ChatUser?
-    @Binding private var showSheet: Bool
+    private var message: ChatLog
+    
+    @State private var isShowingFileSaveSheet = false
+    @State private var fileInfo: FileInfo?
 
-    init(viewModel: ChatLogViewModel, message: ChatLog, chatUser: ChatUser?,  showSheet: Binding<Bool>) {
+    fileprivate init(
+        viewModel: ChatLogViewModel,
+        chatUser: ChatUser?,
+        message: ChatLog
+    ) {
         self.viewModel = viewModel
-        self.message = message
         self.chatUser = chatUser
-        self._showSheet = showSheet
+        self.message = message
     }
     
-    var body: some View {
+    fileprivate var body: some View {
         HStack {
             if message.fileType == "application/pdf" {
                 Image(systemName: "folder.circle.fill")
                     .foregroundColor(.purple)
                     .font(.system(size: 40))
                     .onTapGesture {
-                        shouldShowFireSaveActionSheet.toggle()
+                        isShowingFileSaveSheet.toggle()
                         
                         fileInfo = FileInfo(
                             url: URL(string: message.fileUrl ?? "")!,
@@ -390,46 +382,45 @@ struct FileMessageView: View {
         .padding()
         .frame(maxWidth: 250)
         .background(.white)
-        .sheet(isPresented: $showSheet) {
-            AudioRecorderView(chatUser: chatUser)
-                .presentationDetents([.fraction(0.3)])
-                .presentationDragIndicator(.visible)
-        }
-        .confirmationDialog("", isPresented: $shouldShowFireSaveActionSheet) {
+        .confirmationDialog("", isPresented: $isShowingFileSaveSheet) {
             Button("파일 저장") {
                 viewModel.handleFileSave(fileInfo: fileInfo)
             }
         }
     }
-    
 }
 
-struct ImageMessageView: View {
+private struct ImageMessageView: View {
+    private var message: ChatLog
+
+    @Binding private var selectedImage: UIImage?
+    @Binding private var selectedImageFrame: CGRect?
+    @Binding private var isImageTap: Bool
+    
     @State private var shouldShowVideoViewer = false
     @State private var videoPlayUrl = ""
 
-    private var message: ChatLog
-
-    @Binding private var imageData: UIImage?
-    @Binding private var tapImageFrame: CGRect?
-    @Binding private var isImageTap: Bool
-
-    init(message: ChatLog, imageData: Binding<UIImage?>, tapImageFrame: Binding<CGRect?>, isImageTap: Binding<Bool>) {
+    fileprivate init(
+        message: ChatLog,
+        selectedImage: Binding<UIImage?>,
+        selectedImageFrame: Binding<CGRect?>,
+        isImageTap: Binding<Bool>
+    ) {
         self.message = message
-        self._imageData = imageData
-        self._tapImageFrame = tapImageFrame
+        self._selectedImage = selectedImage
+        self._selectedImageFrame = selectedImageFrame
         self._isImageTap = isImageTap
     }
     
-    var body: some View {
+    fileprivate var body: some View {
         ZStack {
             RemoteImage(
                 imageLoader: ImageLoader(url: message.imageUrl ?? ""),
-                imageData: $imageData,
-                imageFrame: $tapImageFrame,
+                imageData: $selectedImage,
+                imageFrame: $selectedImageFrame,
                 isImageTap: $isImageTap
             )
-            .disabled((message.videoUrl != nil))
+            .disabled(message.videoUrl != nil)
             
             if message.videoUrl != nil {
                 if shouldShowVideoViewer {
@@ -454,5 +445,75 @@ struct ImageMessageView: View {
             height: CGFloat(message.imageHeight ?? .zero)
         )
     }
+}
+
+private struct MessageImageViewer: View {
+    @ObservedObject private var viewModel: ChatLogViewModel
+
+    @Binding private var selectedImage: UIImage?
+    @Binding private var selectedImageFrame: CGRect?
+    @Binding private var isImageTap: Bool
+    @Binding private var isShowingImageViewer: Bool
     
+    @State private var isHiddenImageViewer = true
+    @State private var savePhoto = false
+    
+    fileprivate init(
+        viewModel: ChatLogViewModel,
+        selectedImage: Binding<UIImage?>,
+        selectedImageFrame: Binding<CGRect?>,
+        isImageTap: Binding<Bool>,
+                        isShowingImageViewer: Binding<Bool>
+    ) {
+        self.viewModel = viewModel
+        self._selectedImage = selectedImage
+        self._selectedImageFrame = selectedImageFrame
+        self._isImageTap = isImageTap
+        self._isShowingImageViewer = isShowingImageViewer
+    }
+    
+    fileprivate var body: some View {
+        GeometryReader { reader in
+            ImageViewer(
+                uIimage: $selectedImage,
+                show: $isShowingImageViewer,
+                hide: $isHiddenImageViewer,
+                savePhoto: $savePhoto
+            )
+            .frame(
+                width: isShowingImageViewer ? reader.size.width : selectedImageFrame?.width,
+                height: isShowingImageViewer ? reader.size.height : selectedImageFrame?.height
+            )
+            .position(
+                x: isShowingImageViewer ? reader.frame(in: .global).midX : selectedImageFrame?.midX ?? .zero,
+                y: isShowingImageViewer ? reader.frame(in: .global).midY : selectedImageFrame?.midY ?? .zero
+            )
+            .if(isHiddenImageViewer, transform: { view in
+                view.hidden()
+            })
+                .ignoresSafeArea()
+        }
+        .onChange(of: isImageTap, perform: { newValue in
+            isHiddenImageViewer.toggle()
+
+            withAnimation(.easeOut(duration: 0.2)) {
+                isShowingImageViewer.toggle()
+            }
+        })
+        .alert("사진 앱에 저장하시겠습니까?", isPresented: $savePhoto) {
+            Button { } label: {
+                Text("Cancel")
+            }
+            Button {
+                viewModel.handleImageSave(image: selectedImage ?? UIImage())
+            } label: {
+                Text("OK")
+            }
+        }
+        .alert("저장이 완료되었습니다.", isPresented: $viewModel.isSaveCompleted) {
+            Button { } label: {
+                Text("OK")
+            }
+        }
+    }
 }
