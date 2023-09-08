@@ -100,8 +100,6 @@ private struct ChatMessageListView: View {
     @Binding private var selectedImageFrame: CGRect?
     @Binding private var isImageTap: Bool
     
-    @State private var keyboardHeight: CGFloat = 0.0
-
     fileprivate init(
         viewModel: ChatLogViewModel,
         chatUser: ChatUser?,
@@ -117,41 +115,33 @@ private struct ChatMessageListView: View {
     }
     
     fileprivate var body: some View {
-        ScrollView {
-            ScrollViewReader { scollViewProxy in
-                VStack {
-                    ForEach(viewModel.chatMessages, id: \.self) { message in
-                        ChatMessageCell(
-                            viewModel: viewModel,
-                            chatUser: chatUser,
-                            message: message,
-                            selectedImage: $selectedImage,
-                            selectedImageFrame: $selectedImageFrame,
-                            isImageTap: $isImageTap
-                        )
+        VStack {
+            ScrollView {
+                ScrollViewReader { scollViewProxy in
+                    VStack {
+                        ForEach(viewModel.chatMessages, id: \.self) { message in
+                            ChatMessageCell(
+                                viewModel: viewModel,
+                                chatUser: chatUser,
+                                message: message,
+                                selectedImage: $selectedImage,
+                                selectedImageFrame: $selectedImageFrame,
+                                isImageTap: $isImageTap
+                            )
+                        }
+                        Spacer()
+                            .id("Empty")
                     }
-                    Spacer()
-                        .id("Empty")
-                }
-                .offset(y: -keyboardHeight) // 키보드가 올라올 때 화면을 위로 이동
-                .animation(.easeInOut(duration: 0.5), value: keyboardHeight) // 애니메이션 추가
-                .onReceive(viewModel.$count) { _ in
-                    withAnimation(.easeOut(duration: 0.5)) {
-                        scollViewProxy.scrollTo("Empty", anchor: .bottom)
+                    .onReceive(viewModel.$count) { _ in
+                        withAnimation(.easeOut(duration: 0.5)) {
+                            scollViewProxy.scrollTo("Empty", anchor: .bottom)
+                        }
                     }
                 }
             }
-        }
-         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-             if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                 self.keyboardHeight = keyboardFrame.height - 30
-             }
-         }
-         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-             self.keyboardHeight = 0.0
-         }
-        .background(Color(.init(white: 0.95, alpha: 1)))
-        .safeAreaInset(edge: .bottom) {
+            .background(Color(.init(white: 0.95, alpha: 1)))
+            .clipped()
+            
             ChatInputView(
                 viewModel: viewModel,
                 chatUser: chatUser
