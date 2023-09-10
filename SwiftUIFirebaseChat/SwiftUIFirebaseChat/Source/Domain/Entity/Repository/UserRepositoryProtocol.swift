@@ -15,7 +15,7 @@ protocol UserRepositoryProtocol {
     func logoutUser() throws -> String
     func fetchCurrentUser() async throws -> ChatUser?
     func fetchAllUsers() async throws -> [ChatUser]
-    func deleteChatMessage(toId: String) async throws -> String
-    func deleteRecentMessage(toId: String) async throws -> String
+    func deleteChatMessage(id: String, toId: String) async throws -> String
+    func deleteRecentMessage(id: String, toId: String) async throws -> String
     
 }

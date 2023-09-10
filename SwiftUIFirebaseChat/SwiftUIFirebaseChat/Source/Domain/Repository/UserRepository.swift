@@ -201,9 +201,9 @@ final class UserRepository: UserRepositoryProtocol {
 
      - Returns: 대화 메시지 삭제 결과 메시지
      */
-    func deleteChatMessage(toId: String) async throws -> String {
+    func deleteChatMessage(id: String, toId: String) async throws -> String {
         // 채팅 받는 유저의 ID에 해당하는 대화 메시지를 Realm에서 삭제합니다.
-        let deleteMessage = self.dataSource.read(ChatLogDTO.self).filter("toId == %@", toId)
+        let deleteMessage = self.dataSource.read(ChatLogDTO.self).filter("id == %@", id)
         
         deleteMessage.forEach { chatLog in
             self.dataSource.delete(chatLog)
@@ -225,9 +225,9 @@ final class UserRepository: UserRepositoryProtocol {
 
      - Returns: 대화 메시지 삭제 결과 메시지
      */
-    func deleteRecentMessage(toId: String) async throws -> String {
+    func deleteRecentMessage(id: String, toId: String) async throws -> String {
         // 채팅 받는 유저의 ID에 해당하는 최근 대화 목록을 Realm에서 가져옵니다. Realm에서 삭제합니다.
-        if let deleteMessage = self.dataSource.read(ChatList.self).filter("toId == %@", toId).first {
+        if let deleteMessage = self.dataSource.read(ChatList.self).filter("id == %@", id).first {
             self.dataSource.delete(deleteMessage)
         }
         

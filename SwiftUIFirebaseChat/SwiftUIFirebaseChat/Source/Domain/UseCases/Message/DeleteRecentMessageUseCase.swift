@@ -9,7 +9,7 @@ import Foundation
 
 protocol DeleteRecentMessageUseCaseProtocol {
     
-    func execute(toId: String) async throws -> String
+    func execute(id: String, toId: String) async throws -> String
 
 }
 
@@ -35,12 +35,12 @@ final class DeleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol {
 
      - Returns: 삭제 결과 메시지
      */
-    func execute(toId: String) async throws -> String {
+    func execute(id: String, toId: String) async throws -> String {
         // 채팅 메시지를 삭제하고 결과를 관리하지 않습니다.
-        let (_) = try await userRepo.deleteChatMessage(toId: toId)
+        let (_) = try await userRepo.deleteChatMessage(id: id, toId: toId)
         
         // 최근 메시지를 삭제하고 결과 메시지를 받아옵니다.
-        let deleteRecentMessage = try await userRepo.deleteRecentMessage(toId: toId)
+        let deleteRecentMessage = try await userRepo.deleteRecentMessage(id: id, toId: toId)
         
         return deleteRecentMessage
     }

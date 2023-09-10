@@ -180,7 +180,7 @@ extension MainMessageViewModel {
         
         Task {
             do {
-                let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(toId: chatRoom.toId)
+                let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(id: chatRoom.id, toId: chatRoom.toId)
                 print(deleteMessageResultMessage)
             } catch {
                 print(error)
