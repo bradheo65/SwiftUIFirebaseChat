@@ -19,7 +19,7 @@ struct ChatRoomResponseDTO: Codable, Identifiable {
 }
 
 extension ChatRoomResponseDTO {
-    func toDomain() -> ChatRoom {
+    func toDomain() -> ChatRoomResponse {
         return .init(
             id: id,
             fromId: fromId,

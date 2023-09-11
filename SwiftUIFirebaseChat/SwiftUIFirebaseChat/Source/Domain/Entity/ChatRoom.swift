@@ -2,23 +2,27 @@
 //  ChatRoom.swift
 //  SwiftUIFirebaseChat
 //
-//  Created by PJH on 2023/09/06.
+//  Created by brad on 2023/09/11.
 //
 
 import Foundation
 
-struct ChatRoom {
-    let id: String?
-    let fromId, toId, text, email, profileImageURL: String
+struct ChatRoom: Identifiable, Comparable, Hashable {
+    let id, text, username, email, fromId, toId, profileImageURL: String
     let timestamp: Date
     
-    var username: String {
-        email.components(separatedBy: "@").first ?? email
+    var timeAgo: String {
+        let formatter = DateFormatter()
+        
+        if Calendar.current.isDateInToday(timestamp) {
+            formatter.dateFormat = "hh:mm"
+        } else {
+            formatter.dateFormat = "MM. dd"
+        }
+        return formatter.string(from: timestamp)
     }
     
-    var timeAgo: String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: timestamp, relativeTo: Date())
+    static func < (lhs: ChatRoom, rhs: ChatRoom) -> Bool {
+        return lhs.timestamp.timeIntervalSince1970 > rhs.timestamp.timeIntervalSince1970
     }
 }

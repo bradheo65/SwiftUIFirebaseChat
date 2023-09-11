@@ -36,19 +36,19 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     func startChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void) {
         startChatMessageListener(chatUser: chatUser)
         
-        let chatLogsDTO = dataSource.read(ChatLogDTO.self)
+        let chatLogDTO = dataSource.read(ChatLogDTO.self)
         
-        self.chetMessageToken = chatLogsDTO.observe { changes in
+        self.chetMessageToken = chatLogDTO.observe { changes in
             switch changes {
             case .initial(_):
-                let filterChatLogs = chatLogsDTO.filter("fromId = %@ OR toId == %@", chatUser.uid, chatUser.uid)
+                let filterChatLog = chatLogDTO.filter("fromId = %@ OR toId == %@", chatUser.uid, chatUser.uid)
                 
-                filterChatLogs.forEach { logs in
-                    completion(.success(logs.toDomain()))
+                filterChatLog.forEach { log in
+                    completion(.success(log.toDomain()))
                 }
-            case .update(let collectionType, _, let insertions, _):
+            case .update(let chatLogDTO, _, let insertions, _):
                 if insertions.count > 0 {
-                    completion(.success((Array(collectionType).last?.toDomain())!))
+                    completion(.success((chatLogDTO.last?.toDomain())!))
                 }
             case .error(let error):
                 completion(.failure(error))
@@ -56,7 +56,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
         }
     }
     
-    func startChatMessageListener(chatUser: ChatUser) {
+    private func startChatMessageListener(chatUser: ChatUser) {
         firebaseSerivce.listenForChatMessage(chatUser: chatUser) { result in
             switch result {
             case .success(let documentChange):
@@ -93,23 +93,23 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
      
      - Note: Firebase에서 최근 메시지를 감지하여 메시지의 추가 또는 수정 사항이 발생한 경우, 해당 메시지를 처리하고 ChatRoom 객체를 생성하여 ChatListLog를 만듭니다.
      */
-    func startRecentMessageListener(completion: @escaping (Result<ChatList, Error>) -> Void) {
+    func startRecentMessageListener(completion: @escaping (Result<ChatRoom, Error>) -> Void) {
         firebaseRecentMessageListener()
         
-        let chatLogs = dataSource.read(ChatList.self)
+        let chatRoomDTO = dataSource.read(ChatRoomDTO.self)
 
-        self.recentChatListToken = chatLogs.observe { changes in
+        self.recentChatListToken = chatRoomDTO.observe { changes in
             switch changes {
-            case .initial(let collectionType):
-                collectionType.forEach { list in
-                    completion(.success(list))
+            case .initial(let chatRoomDTO):
+                chatRoomDTO.forEach { list in
+                    completion(.success(list.toDomain()))
                 }
-            case .update(let collectionType, _, let insertions, let modifer):
+            case .update(let chatRoomDTO, _, let insertions, let modifer):
                 if insertions.count > 0 {
-                    completion(.success(collectionType[insertions.first!]))
+                    completion(.success(chatRoomDTO[insertions.first!].toDomain()))
                 }
                 if modifer.count > 0 {
-                    completion(.success(collectionType[modifer.first!]))
+                    completion(.success(chatRoomDTO[modifer.first!].toDomain()))
                 }
             case .error(let error):
                 completion(.failure(error))
@@ -117,25 +117,27 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
         }
     }
     
-    func firebaseRecentMessageListener() {
+    private func firebaseRecentMessageListener() {
         firebaseSerivce.listenForRecentMessage { result in
             switch result {
             case .success(let documentChange):
-                guard let chatRoom = try? documentChange.document.data(as: ChatRoomResponseDTO.self).toDomain()  else {
+                guard let chatRoomResponseDTO = try? documentChange.document.data(as: ChatRoomResponseDTO.self).toDomain() else {
                     return
                 }
                 switch documentChange.type {
                 case .added:
                     let filterQuery = "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)"
-                    let filterChatList = self.dataSource.read(ChatList.self).filter(filterQuery, chatRoom.toId, chatRoom.fromId, chatRoom.fromId, chatRoom.toId)
+                    let filterChatRoomDTO = self.dataSource.read(ChatRoomDTO.self).filter(
+                        filterQuery, chatRoomResponseDTO.toId, chatRoomResponseDTO.fromId, chatRoomResponseDTO.fromId, chatRoomResponseDTO.toId
+                    )
                     
                     // 이미 저장되어 있다면 저장하지 않습니다.
-                    if filterChatList.isEmpty {
-                        self.createChatListLog(from: chatRoom, id: nil)
+                    if filterChatRoomDTO.isEmpty {
+                        self.createChatListLog(from: chatRoomResponseDTO, id: nil)
                     }
                 case .modified:
-                    let id = self.generateChatLogId(fromId: chatRoom.fromId, toId: chatRoom.toId)
-                    self.createChatListLog(from: chatRoom, id: id)
+                    let id = self.generateChatLogId(fromId: chatRoomResponseDTO.fromId, toId: chatRoomResponseDTO.toId)
+                    self.createChatListLog(from: chatRoomResponseDTO, id: id)
                 case .removed:
                     return
                 }
@@ -169,41 +171,39 @@ extension ChatListenerRepository {
      */
     private func generateChatLogId(fromId: String, toId: String) -> String {
         let filterQuery = "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)"
-        let filterChatList =  dataSource.read(ChatList.self).filter(filterQuery, toId, fromId, fromId, toId)
+        let filterChatList = dataSource.read(ChatRoomDTO.self).filter(filterQuery, toId, fromId, fromId, toId)
         
         let id = filterChatList.first?.id
 
         return id ?? UUID().uuidString
     }
     
-    private func createChatLog(from chatMessage: ChatMessage, with id: String) -> ChatLogDTO {
-        let chatLog = ChatLogDTO()
+    private func createChatLog(from chatMessageResponse: ChatMessageResponse, with id: String) -> ChatLogDTO {
+        let chatLogDTO = ChatLogDTO()
         
-        chatLog.id = id
-        chatLog.fromId = chatMessage.fromId
-        chatLog.toId = chatMessage.toId
-        chatLog.text = chatMessage.text
-        chatLog.imageUrl = chatMessage.imageUrl
-        chatLog.videoUrl = chatMessage.videoUrl
-        chatLog.imageWidth = chatMessage.imageWidth
-        chatLog.imageHeight = chatMessage.imageHeight
-        chatLog.fileTitle = chatMessage.fileTitle
-        chatLog.fileSizes = chatMessage.fileSizes
-        chatLog.fileType = chatMessage.fileType
-        chatLog.fileUrl = chatMessage.fileUrl
-        chatLog.timestamp = chatMessage.timestamp
+        chatLogDTO.id = id
+        chatLogDTO.fromId = chatMessageResponse.fromId
+        chatLogDTO.toId = chatMessageResponse.toId
+        chatLogDTO.text = chatMessageResponse.text
+        chatLogDTO.imageUrl = chatMessageResponse.imageUrl
+        chatLogDTO.videoUrl = chatMessageResponse.videoUrl
+        chatLogDTO.imageWidth = chatMessageResponse.imageWidth
+        chatLogDTO.imageHeight = chatMessageResponse.imageHeight
+        chatLogDTO.fileType = chatMessageResponse.fileType
+        chatLogDTO.fileUrl = chatMessageResponse.fileUrl
+        chatLogDTO.timestamp = chatMessageResponse.timestamp
 
-        return chatLog
+        return chatLogDTO
     }
     
     private func saveChatLog(_ chatLog: ChatLogDTO, with id: String) {
         let filterQuery = "id == %@"
-        let filterChatLog = dataSource.read(ChatLogDTO.self).filter(filterQuery, id)
+        let filterChatLogDTO = dataSource.read(ChatLogDTO.self).filter(filterQuery, id)
         
         // 중복된 ChatLog가 없을 경우 ChatLog를 Realm에 추가합니다.
-        if filterChatLog.isEmpty {
+        if filterChatLogDTO.isEmpty {
             dataSource.add(chatLog)
-        } else if let data = filterChatLog.last?.timestamp {
+        } else if let data = filterChatLogDTO.last?.timestamp {
             // 이미 존재하는 ChatLog 중 가장 마지막 메시지의 타임스탬프와 비교하여 최신 메시지인 경우 추가합니다.
             if data < chatLog.timestamp {
                 dataSource.add(chatLog)
@@ -211,28 +211,28 @@ extension ChatListenerRepository {
         }
     }
     
-    private func createChatListLog(from chatRoom: ChatRoom, id: String?) {
-        let chatList = ChatList()
+    private func createChatListLog(from chatRoomResponse: ChatRoomResponse, id: String?) {
+        let chatList = ChatRoomDTO()
 
         // id가 제공되지 않으면 UUID를 사용하여 고유한 id를 생성
         chatList.id = id ?? UUID().uuidString
-        chatList.text = chatRoom.text
-        chatList.username = chatRoom.username
-        chatList.email = chatRoom.email
+        chatList.text = chatRoomResponse.text
+        chatList.username = chatRoomResponse.username
+        chatList.email = chatRoomResponse.email
         
         // fromId와 toId를 설정 - 상대방 메세지만 보냈을 경우, id 중복 방지
-        if chatRoom.id == chatRoom.fromId {
-            chatList.fromId = chatRoom.toId
-            chatList.toId = chatRoom.fromId
+        if chatRoomResponse.id == chatRoomResponse.fromId {
+            chatList.fromId = chatRoomResponse.toId
+            chatList.toId = chatRoomResponse.fromId
         } else {
-            chatList.fromId = chatRoom.fromId
-            chatList.toId = chatRoom.toId
+            chatList.fromId = chatRoomResponse.fromId
+            chatList.toId = chatRoomResponse.toId
         }
         
-        chatList.profileImageURL = chatRoom.profileImageURL
-        chatList.timestamp = chatRoom.timestamp
+        chatList.profileImageURL = chatRoomResponse.profileImageURL
+        chatList.timestamp = chatRoomResponse.timestamp
         
-        dataSource.create(ChatList.self, value: chatList)
+        dataSource.create(ChatRoomDTO.self, value: chatList)
     }
     
 }

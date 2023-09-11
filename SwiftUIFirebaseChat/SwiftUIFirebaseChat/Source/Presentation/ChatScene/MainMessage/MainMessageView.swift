@@ -133,7 +133,7 @@ private struct ChatRoomListView: View {
     
     fileprivate var body: some View {
         List {
-            ForEach(viewModel.chatRoomList.sorted(), id: \.id) { recentMessage in
+            ForEach(viewModel.chatRoom.sorted(), id: \.self) { recentMessage in
                 NavigationLink {
                     ChatLogView(
                         chatUser: ChatUser(
@@ -143,7 +143,7 @@ private struct ChatRoomListView: View {
                         )
                     )
                 } label: {
-                    ChatRoomListCell(message: recentMessage)
+                    ChatRoomListCell(chatRoom: recentMessage)
                 }
             }
             .onDelete { indexSet in
@@ -160,15 +160,15 @@ private struct ChatRoomListView: View {
 }
 
 private struct ChatRoomListCell: View {
-    private var message: ChatList
+    private var chatRoom: ChatRoom
     
-    fileprivate init(message: ChatList) {
-        self.message = message
+    fileprivate init(chatRoom: ChatRoom) {
+        self.chatRoom = chatRoom
     }
     
     fileprivate var body: some View {
         HStack(spacing: 16) {
-            ProfileImageView(url: message.profileImageURL)
+            ProfileImageView(url: chatRoom.profileImageURL)
                 .aspectRatio(0.3, contentMode: .fill)
                 .frame(width: 64, height: 64)
                 .cornerRadius(64)
@@ -177,12 +177,12 @@ private struct ChatRoomListCell: View {
                 .shadow(radius: 5)
             
             VStack(alignment: .leading, spacing: 6) {
-                Text(message.username)
+                Text(chatRoom.username)
                     .lineLimit(1)
                     .foregroundColor(.black)
                     .font(.system(size: 16, weight: .bold))
                 
-                Text(message.text)
+                Text(chatRoom.text)
                     .font(.system(size: 14))
                     .foregroundColor(Color(.lightGray))
                     .multilineTextAlignment(.leading)
@@ -191,7 +191,7 @@ private struct ChatRoomListCell: View {
             
             Spacer()
             
-            Text(message.timeAgo)
+            Text(chatRoom.timeAgo)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.black)
         }

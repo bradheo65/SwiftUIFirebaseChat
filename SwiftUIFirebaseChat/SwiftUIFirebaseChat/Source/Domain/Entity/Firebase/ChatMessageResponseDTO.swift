@@ -20,7 +20,7 @@ struct ChatMessageResponseDTO: Codable, Identifiable {
 }
 
 extension ChatMessageResponseDTO {
-    func toDomain() -> ChatMessage {
+    func toDomain() -> ChatMessageResponse {
         return .init(
             id: id,
             fromId: fromId,

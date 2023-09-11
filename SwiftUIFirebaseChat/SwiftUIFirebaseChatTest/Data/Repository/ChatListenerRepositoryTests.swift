@@ -27,7 +27,7 @@ final class ChatListenerRepositoryTests: XCTestCase {
     }
     
     func testStartChatMessageListener_Success() {
-        let mockChatMessage = ChatMessage(
+        let mockChatMessage = ChatMessageResponse(
             fromId: "mockFromId",
             toId: "mockToId",
             text: "mockText",

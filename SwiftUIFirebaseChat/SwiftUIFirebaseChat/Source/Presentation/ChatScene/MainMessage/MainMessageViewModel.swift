@@ -9,7 +9,7 @@ import Foundation
 
 final class MainMessageViewModel: ObservableObject {
     
-    @Published var chatRoomList: [ChatList] = []
+    @Published var chatRoom: [ChatRoom] = []
     @Published var users: [ChatUser] = []
     
     @Published var currentUser: ChatUser?
@@ -123,14 +123,14 @@ extension MainMessageViewModel {
         startRecentMessageListenerUseCase.excute { result in
             switch result {
             case .success(let list):
-                if self.chatRoomList.isEmpty {
-                    self.chatRoomList.append(list)
+                if self.chatRoom.isEmpty {
+                    self.chatRoom.append(list)
                 } else {
-                    self.chatRoomList.forEach { lists in
-                        if let index = self.chatRoomList.firstIndex(where: { $0.id == list.id }) {
-                            self.chatRoomList[index] = list
+                    self.chatRoom.forEach { lists in
+                        if let index = self.chatRoom.firstIndex(where: { $0.id == list.id }) {
+                            self.chatRoom[index] = list
                         } else {
-                            self.chatRoomList.append(list)
+                            self.chatRoom.append(list)
                         }
                     }
                 }
@@ -176,21 +176,21 @@ extension MainMessageViewModel {
      */
     @MainActor
     private func deleteFirebaseRecentMessage(indexSet: IndexSet) {
-        guard let firestIndex = indexSet.first else {
+        guard let firstIndex = indexSet.first else {
             print("Fail to Load first data")
             return
         }
-        let chatRoom = chatRoomList[firestIndex]
+        let firstChatRoom = chatRoom[firstIndex]
 
-        if let index = chatRoomList.firstIndex(of: chatRoom) {
-            chatRoomList.remove(at: index)
+        if let index = chatRoom.firstIndex(of: firstChatRoom) {
+            chatRoom.remove(at: index)
         } else {
-            chatRoomList.remove(atOffsets: indexSet)
+            chatRoom.remove(atOffsets: indexSet)
         }
         
         Task {
             do {
-                let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(id: chatRoom.id, toId: chatRoom.toId)
+                let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(id: firstChatRoom.id, toId: firstChatRoom.toId)
                 print(deleteMessageResultMessage)
             } catch {
                 print(error)
