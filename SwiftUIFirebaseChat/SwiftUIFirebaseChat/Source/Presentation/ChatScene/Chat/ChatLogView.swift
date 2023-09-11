@@ -205,15 +205,18 @@ private struct ChatMessageCell: View {
                         )
                     }
                 }
-                .cornerRadius(12, corners: [.topLeft, .bottomLeft, .bottomRight])
+                .cornerRadius(12, corners: message.toId == chatUser?.uid
+                              ? [.topLeft, .bottomLeft, .bottomRight]
+                              : [.topRight, .bottomLeft, .bottomRight]
+                )
                 
                 if message.toId != chatUser?.uid {
                     Spacer()
                 }
             }
         }
+        .padding([.top, .bottom], 4)
         .padding(.horizontal)
-        .padding(.top, 8)
     }
 }
 
