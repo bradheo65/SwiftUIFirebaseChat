@@ -33,7 +33,11 @@ final class FetchAllUserUseCase: FetchAllUserUseCaseProtocol {
      - Returns: 모든 채팅 사용자의 정보 배열
      */
     func excute() async throws -> [ChatUser] {
-        return try await userRepo.fetchAllUsers()
+        let result = try await userRepo.fetchFirebaseFriendList()
+        userRepo.saveRealmFriendList(chatUser: result)
+        let friendList = userRepo.fetchRealmFriendList()
+        
+        return friendList
     }
     
 }

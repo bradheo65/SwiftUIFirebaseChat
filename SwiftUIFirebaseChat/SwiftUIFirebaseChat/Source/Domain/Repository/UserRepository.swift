@@ -150,27 +150,11 @@ final class UserRepository: UserRepositoryProtocol {
 
      - Returns: 모든 사용자의 정보 (ChatUser 배열)
      */
-    func fetchAllUsers() async throws -> [ChatUser] {
-        let allUsers = try await firebaseService.fetchAllUsers()
-        saveUserToRealm(chatUser: allUsers)
-        
-        let friendAccountInfo = fetchSaveUserToRealm()
-        
-        var FriendList: [ChatUser] = []
-        
-        friendAccountInfo.forEach { info in
-            let user = ChatUser(
-                uid: info.uid,
-                email: info.email,
-                profileImageURL: info.profileImageURL
-            )
-            FriendList.append(user)
-        }
-        
-        return FriendList
+    func fetchFirebaseFriendList() async throws -> [ChatUser] {
+        return try await firebaseService.fetchAllUsers()
     }
     
-    func saveUserToRealm(chatUser: [ChatUser]) {
+    func saveRealmFriendList(chatUser: [ChatUser]) {
         chatUser.forEach { user in
             let friendAccountInfo = FriendAccountInfo()
             
@@ -182,10 +166,20 @@ final class UserRepository: UserRepositoryProtocol {
         }
     }
     
-    func fetchSaveUserToRealm() -> [FriendAccountInfo] {
+    func fetchRealmFriendList() -> [ChatUser] {
         let friendAccountInfo = dataSource.read(FriendAccountInfo.self)
+        var friendList: [ChatUser] = []
         
-        return Array(friendAccountInfo)
+        friendAccountInfo.forEach { info in
+            let user = ChatUser(
+                uid: info.uid,
+                email: info.email,
+                profileImageURL: info.profileImageURL
+            )
+            friendList.append(user)
+        }
+        
+        return friendList
     }
     
     /**

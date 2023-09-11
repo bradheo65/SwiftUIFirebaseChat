@@ -14,7 +14,9 @@ protocol UserRepositoryProtocol {
     func loginUser(email: String, password: String) async throws -> String
     func logoutUser() throws -> String
     func fetchCurrentUser() async throws -> ChatUser?
-    func fetchAllUsers() async throws -> [ChatUser]
+    func fetchFirebaseFriendList() async throws -> [ChatUser]
+    func saveRealmFriendList(chatUser: [ChatUser])
+    func fetchRealmFriendList() -> [ChatUser]
     func deleteChatMessage(id: String, toId: String) async throws -> String
     func deleteRecentMessage(id: String, toId: String) async throws -> String
     

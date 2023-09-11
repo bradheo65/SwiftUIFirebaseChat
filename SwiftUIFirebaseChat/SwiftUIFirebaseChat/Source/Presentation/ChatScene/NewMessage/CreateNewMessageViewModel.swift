@@ -10,7 +10,6 @@ import Foundation
 final class CreateNewMessageViewModel: ObservableObject {
     
     @Published var users: [ChatUser] = []
-    @Published var errorMessage = ""
     
     private let fetchAllUserUseCase: FetchAllUserUseCaseProtocol
     
@@ -18,15 +17,6 @@ final class CreateNewMessageViewModel: ObservableObject {
         self.fetchAllUserUseCase = fetchAllUserUseCase
     }
     
-    @MainActor
-    func fetchAllUser() {
-        fetchFirebaseAllUser()
-    }
-    
-}
-
-extension CreateNewMessageViewModel {
-
     /**
     모든 사용자 정보를 가져오는 함수
      
@@ -34,16 +24,15 @@ extension CreateNewMessageViewModel {
      
      - Throws: 'fetchAllUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
      */
-    @MainActor
-    private func fetchFirebaseAllUser() {
-        Task {
-            do {
-                let users = try await fetchAllUserUseCase.excute()
-                
+    func fetchAllUser() async {
+        do {
+            let users = try await fetchAllUserUseCase.excute()
+            
+            DispatchQueue.main.async {
                 self.users = users
-            } catch {
-                print(error)
             }
+        } catch {
+            print(error)
         }
     }
     

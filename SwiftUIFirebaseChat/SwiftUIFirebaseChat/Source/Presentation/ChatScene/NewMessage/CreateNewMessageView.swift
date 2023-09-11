@@ -35,8 +35,8 @@ struct CreateNewMessageView: View {
                 }
             }
         }
-        .onAppear {
-            viewModel.fetchAllUser()
+        .task {
+            await viewModel.fetchAllUser()
         }
     }
 }
