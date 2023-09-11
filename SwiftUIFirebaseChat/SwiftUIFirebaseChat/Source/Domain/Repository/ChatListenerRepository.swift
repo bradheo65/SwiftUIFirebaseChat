@@ -14,7 +14,8 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     private let firebaseSerivce: FirebaseChatListenerProtocol
     private let dataSource: RealmDataSourceProtocol
 
-    private var chatLogsToken: NotificationToken?
+    private var chetMessageToken: NotificationToken?
+    private var recentChatListToken: NotificationToken?
 
     init(firebaseSerivce: FirebaseChatListenerProtocol, dataSource: RealmDataSourceProtocol) {
         self.firebaseSerivce = firebaseSerivce
@@ -33,6 +34,29 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
      - Note: Firebase에서 채팅 메시지를 감지하여 새로운 메시지가 추가되었을 경우, 해당 메시지를 처리하고 ChatLog 객체를 Realm에 저장합니다.
      */
     func startChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void) {
+        startChatMessageListener(chatUser: chatUser)
+        
+        let chatLogsDTO = dataSource.read(ChatLogDTO.self)
+        
+        self.chetMessageToken = chatLogsDTO.observe { changes in
+            switch changes {
+            case .initial(_):
+                let filterChatLogs = chatLogsDTO.filter("fromId = %@ OR toId == %@", chatUser.uid, chatUser.uid)
+                
+                filterChatLogs.forEach { logs in
+                    completion(.success(logs.toDomain()))
+                }
+            case .update(let collectionType, _, let insertions, _):
+                if insertions.count > 0 {
+                    completion(.success((Array(collectionType).last?.toDomain())!))
+                }
+            case .error(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    func startChatMessageListener(chatUser: ChatUser) {
         firebaseSerivce.listenForChatMessage(chatUser: chatUser) { result in
             switch result {
             case .success(let documentChange):
@@ -45,14 +69,12 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                         
                         self.saveChatLog(chatLogDTO, with: id)
                         
-                        let chatLog = chatLogDTO.toDomain()
-                        completion(.success(chatLog))
                     } catch {
-                        completion(.failure(error))
+                        print(error.localizedDescription)
                     }
                 }
             case .failure(let error):
-                completion(.failure(error))
+                print(error.localizedDescription)
             }
         }
     }
@@ -71,17 +93,24 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
      
      - Note: Firebase에서 최근 메시지를 감지하여 메시지의 추가 또는 수정 사항이 발생한 경우, 해당 메시지를 처리하고 ChatRoom 객체를 생성하여 ChatListLog를 만듭니다.
      */
-    func startRecentMessageListener(completion: @escaping (Result<[ChatList], Error>) -> Void) {
+    func startRecentMessageListener(completion: @escaping (Result<ChatList, Error>) -> Void) {
         firebaseRecentMessageListener()
         
         let chatLogs = dataSource.read(ChatList.self)
 
-        self.chatLogsToken = chatLogs.observe { changes in
+        self.recentChatListToken = chatLogs.observe { changes in
             switch changes {
             case .initial(let collectionType):
-                completion(.success(Array(collectionType)))
-            case .update(let collectionType, _, _, _):
-                completion(.success(Array(collectionType)))
+                collectionType.forEach { list in
+                    completion(.success(list))
+                }
+            case .update(let collectionType, _, let insertions, let modifer):
+                if insertions.count > 0 {
+                    completion(.success(collectionType[insertions.first!]))
+                }
+                if modifer.count > 0 {
+                    completion(.success(collectionType[modifer.first!]))
+                }
             case .error(let error):
                 completion(.failure(error))
             }
@@ -118,7 +147,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     
     func stopRecentMessageListener() {
         firebaseSerivce.stopListenForRecentMessage()
-        chatLogsToken?.invalidate()
+        recentChatListToken?.invalidate()
     }
     
 }

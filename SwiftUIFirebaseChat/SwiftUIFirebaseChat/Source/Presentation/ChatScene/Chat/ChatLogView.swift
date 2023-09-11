@@ -119,7 +119,7 @@ private struct ChatMessageListView: View {
             ScrollView {
                 ScrollViewReader { scollViewProxy in
                     VStack {
-                        ForEach(viewModel.chatMessages, id: \.self) { message in
+                        ForEach(Array(viewModel.chatMessages.enumerated()), id: \.offset) { index, message in
                             ChatMessageCell(
                                 viewModel: viewModel,
                                 chatUser: chatUser,
@@ -128,6 +128,7 @@ private struct ChatMessageListView: View {
                                 selectedImageFrame: $selectedImageFrame,
                                 isImageTap: $isImageTap
                             )
+                            .id(index)
                         }
                         Spacer()
                             .id("Empty")

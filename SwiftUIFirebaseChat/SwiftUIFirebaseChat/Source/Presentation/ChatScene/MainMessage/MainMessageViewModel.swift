@@ -122,8 +122,18 @@ extension MainMessageViewModel {
     private func activeFirebaseRecentMessagesListener() {
         startRecentMessageListenerUseCase.excute { result in
             switch result {
-            case .success(let chatRoomList):
-                self.chatRoomList = chatRoomList.sorted(by: <)
+            case .success(let list):
+                if self.chatRoomList.isEmpty {
+                    self.chatRoomList.append(list)
+                } else {
+                    self.chatRoomList.forEach { lists in
+                        if let index = self.chatRoomList.firstIndex(where: { $0.id == list.id }) {
+                            self.chatRoomList[index] = list
+                        } else {
+                            self.chatRoomList.append(list)
+                        }
+                    }
+                }
             case .failure(let error):
                 print(error)
             }

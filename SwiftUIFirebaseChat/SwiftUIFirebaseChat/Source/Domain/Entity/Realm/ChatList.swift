@@ -25,9 +25,14 @@ final class ChatList: Object, Identifiable, Comparable {
     }
     
     var timeAgo: String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: timestamp, relativeTo: Date())
+        let formatter = DateFormatter()
+        
+        if Calendar.current.isDateInToday(timestamp) {
+            formatter.dateFormat = "hh:mm"
+        } else {
+            formatter.dateFormat = "MM. dd"
+        }
+        return formatter.string(from: timestamp)
     }
     
     static func < (lhs: ChatList, rhs: ChatList) -> Bool {
