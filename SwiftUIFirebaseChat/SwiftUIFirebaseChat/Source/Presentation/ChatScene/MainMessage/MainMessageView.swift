@@ -13,13 +13,12 @@ struct MainMessageView: View {
     @StateObject private var viewModel = MainMessageViewModel(
         logoutUseCase: Reslover.shared.resolve(LogoutUseCaseProtocol.self),
         deleteRecentMessageUseCase: Reslover.shared.resolve(DeleteRecentMessageUseCaseProtocol.self),
-        fetchAllUserUseCase: Reslover.shared.resolve(FetchAllUserUseCaseProtocol.self),
         fetchCurrentUserUseCase: Reslover.shared.resolve(FetchCurrentUserUseCaseProtocol.self),
         startRecentMessageListenerUseCase: Reslover.shared.resolve(StartRecentMessageListenerUseCaseProtocol.self),
         stopRecentMessageListenerUseCase: Reslover.shared.resolve(StopRecentMessageListenerUseCaseProtocol.self)
     )
     
-    @State private var shouldNavigatieToChatLogView = false
+    @State private var isShowingChatLogView = false
 
     @State private var chatUser: ChatUser?
 
@@ -30,13 +29,13 @@ struct MainMessageView: View {
                 
                 ChatRoomListView(viewModel: viewModel)
             }
-            .navigationDestination(isPresented: $shouldNavigatieToChatLogView) {
+            .navigationDestination(isPresented: $isShowingChatLogView) {
                 ChatLogView(chatUser: chatUser)
             }
             .overlay(alignment: .bottom) {
                 NewMessageButtonView(
                     chatUser: $chatUser,
-                    isShowingChatMessageView: $shouldNavigatieToChatLogView
+                    isShowingChatMessageView: $isShowingChatLogView
                 )
             }
         }
@@ -44,13 +43,13 @@ struct MainMessageView: View {
         .onChange(of: viewModel.isUserCurrentlyLoggedOut) { newValue in
             dismiss()
         }
-        .onAppear {
-            viewModel.fetchAllUser()
-            viewModel.fetchCurrentUser()
-            viewModel.addRecentMessageListener()
-        }
         .onDisappear {
+            print("onDisappear")
             viewModel.removeRecentMessageListener()
+        }
+        .task {
+            await viewModel.fetchCurrentUser()
+            viewModel.addRecentMessageListener()
         }
     }
 }

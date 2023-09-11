@@ -8,9 +8,7 @@
 import Foundation
 
 final class MainMessageViewModel: ObservableObject {
-    
     @Published var chatRoom: [ChatRoom] = []
-    @Published var users: [ChatUser] = []
     
     @Published var currentUser: ChatUser?
     
@@ -20,7 +18,6 @@ final class MainMessageViewModel: ObservableObject {
 
     private let logoutUseCase: LogoutUseCaseProtocol
     private let deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol
-    private let fetchAllUserUseCase: FetchAllUserUseCaseProtocol
     private let fetchCurrentUserUseCase: FetchCurrentUserUseCaseProtocol
     private let startRecentMessageListenerUseCase: StartRecentMessageListenerUseCaseProtocol
     private let stopRecentMessageListenerUseCase: StopRecentMessageListenerUseCaseProtocol
@@ -28,70 +25,15 @@ final class MainMessageViewModel: ObservableObject {
     init(
         logoutUseCase: LogoutUseCaseProtocol,
         deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol,
-        fetchAllUserUseCase: FetchAllUserUseCaseProtocol,
         fetchCurrentUserUseCase: FetchCurrentUserUseCaseProtocol,
         startRecentMessageListenerUseCase: StartRecentMessageListenerUseCaseProtocol,
         stopRecentMessageListenerUseCase: StopRecentMessageListenerUseCaseProtocol
     ) {
         self.logoutUseCase = logoutUseCase
         self.deleteRecentMessageUseCase = deleteRecentMessageUseCase
-        self.fetchAllUserUseCase = fetchAllUserUseCase
         self.fetchCurrentUserUseCase = fetchCurrentUserUseCase
         self.startRecentMessageListenerUseCase = startRecentMessageListenerUseCase
         self.stopRecentMessageListenerUseCase = stopRecentMessageListenerUseCase
-    }
-    
-    @MainActor
-    func fetchAllUser() {
-        fetchFirebaseAllUser()
-    }
-    
-    @MainActor
-    func fetchCurrentUser() {
-        fetchFirebaseCurrentUser()
-    }
-    
-    func addRecentMessageListener() {
-        activeFirebaseRecentMessagesListener()
-    }
-    
-    func removeRecentMessageListener() {
-        removeFirebaseRecentMessageListener()
-    }
-    
-    func handleLogout() {
-        logoutFirebaseCurrentUser()
-    }
-    
-    @MainActor
-    func deleteRecentChatMessage(indexSet: IndexSet) {
-        deleteFirebaseRecentMessage(indexSet: indexSet)
-    }
-    
-}
-
-extension MainMessageViewModel {
-    
-    /**
-    모든 사용자 정보를 가져오는 함수
-     
-     가져온 정보는 'users' 프로퍼티에 저장
-     
-     - Throws: 'fetchAllUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
-    */
-    @MainActor
-    private func fetchFirebaseAllUser() {
-        Task {
-            do {
-                let chatUserList = try await fetchAllUserUseCase.excute()
-                
-                DispatchQueue.main.async {
-                    self.users = chatUserList
-                }
-            } catch {
-                print(error)
-            }
-        }
     }
     
     /**
@@ -101,17 +43,15 @@ extension MainMessageViewModel {
      
      - Throws: 'fetchCurrentUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
      */
-    private func fetchFirebaseCurrentUser() {
-        Task {
-            do {
-                let chatUser = try await fetchCurrentUserUseCase.excute()
-                
-                DispatchQueue.main.async {
-                    self.currentUser = chatUser
-                }
-            } catch {
-                print(error)
+    func fetchCurrentUser() async {
+        do {
+            let chatUser = try await fetchCurrentUserUseCase.excute()
+            
+            DispatchQueue.main.async {
+                self.currentUser = chatUser
             }
+        } catch {
+            print(error)
         }
     }
     
@@ -122,21 +62,12 @@ extension MainMessageViewModel {
      
      - Throws: 'startRecentMessageListenerUseCase.excute()' 메서드가 실패한 경우 에러를 출력
      */
-    private func activeFirebaseRecentMessagesListener() {
+    func addRecentMessageListener() {
         startRecentMessageListenerUseCase.excute { result in
             switch result {
             case .success(let list):
-                if self.chatRoom.isEmpty {
-                    self.chatRoom.append(list)
-                } else {
-                    self.chatRoom.forEach { lists in
-                        if let index = self.chatRoom.firstIndex(where: { $0.id == list.id }) {
-                            self.chatRoom[index] = list
-                        } else {
-                            self.chatRoom.append(list)
-                        }
-                    }
-                }
+                self.updateChatRoom(list: list)
+                
             case .failure(let error):
                 print(error)
             }
@@ -146,7 +77,7 @@ extension MainMessageViewModel {
     /**
     최근 메시지 리스너 비활성화하는 함수
      */
-    private func removeFirebaseRecentMessageListener() {
+    func removeRecentMessageListener() {
         stopRecentMessageListenerUseCase.excute()
     }
     
@@ -157,16 +88,18 @@ extension MainMessageViewModel {
      
      - Throws: 'logoutUseCase.excute()' 메서드가 실패한 경우 에러를 출력
      */
-    private func logoutFirebaseCurrentUser() {
+    func handleLogout() {
         do {
             let logoutResultMessage = try logoutUseCase.excute()
             print(logoutResultMessage)
-            self.isUserCurrentlyLoggedOut.toggle()
+            DispatchQueue.main.async {
+                self.isUserCurrentlyLoggedOut.toggle()
+            }
         } catch {
             print(error)
         }
     }
-    
+        
     /**
     최근 메세지 삭제하는 함수
      
@@ -177,7 +110,7 @@ extension MainMessageViewModel {
      
      - Throws: 'deleteRecentMessageUseCase.execute(toId: toId)' 메서드가 실패한 경우 에러를 출력
      */
-    private func deleteFirebaseRecentMessage(indexSet: IndexSet) {
+    func deleteRecentChatMessage(indexSet: IndexSet) {
         guard let firstIndex = indexSet.first else {
             print("Fail to Load first data")
             return
@@ -199,5 +132,16 @@ extension MainMessageViewModel {
             }
         }
     }
-    
+}
+
+extension MainMessageViewModel {
+    private func updateChatRoom(list: ChatRoom) {
+        if chatRoom.isEmpty {
+            chatRoom.append(list)
+        } else if let index = chatRoom.firstIndex(where: { $0.id == list.id }) {
+            chatRoom[index] = list // 이미 존재하는 경우 해당 객체를 업데이트
+        } else {
+            chatRoom.append(list) // 존재하지 않는 경우 추가
+        }
+    }
 }
