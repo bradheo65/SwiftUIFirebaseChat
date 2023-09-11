@@ -14,8 +14,8 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     private let firebaseSerivce: FirebaseChatListenerProtocol
     private let dataSource: RealmDataSourceProtocol
 
-    private var chetMessageToken: NotificationToken?
-    private var recentChatListToken: NotificationToken?
+    private var chetMessageListenerToken: NotificationToken?
+    private var chatRoomListenerToken: NotificationToken?
 
     init(firebaseSerivce: FirebaseChatListenerProtocol, dataSource: RealmDataSourceProtocol) {
         self.firebaseSerivce = firebaseSerivce
@@ -33,12 +33,10 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
 
      - Note: Firebase에서 채팅 메시지를 감지하여 새로운 메시지가 추가되었을 경우, 해당 메시지를 처리하고 ChatLog 객체를 Realm에 저장합니다.
      */
-    func startChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void) {
-        startChatMessageListener(chatUser: chatUser)
-        
+    func startRealmChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void) {
         let chatLogDTO = dataSource.read(ChatLogDTO.self)
         
-        self.chetMessageToken = chatLogDTO.observe { changes in
+        self.chetMessageListenerToken = chatLogDTO.observe { changes in
             switch changes {
             case .initial(_):
                 let filterChatLog = chatLogDTO.filter("fromId = %@ OR toId == %@", chatUser.uid, chatUser.uid)
@@ -56,7 +54,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
         }
     }
     
-    private func startChatMessageListener(chatUser: ChatUser) {
+    func startFirebaseChatMessageListener(chatUser: ChatUser) {
         firebaseSerivce.listenForChatMessage(chatUser: chatUser) { result in
             switch result {
             case .success(let documentChange):
@@ -81,6 +79,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     
     func stopChatMessageListener() {
         firebaseSerivce.stopListenForChatMessage()
+        chetMessageListenerToken?.invalidate()
     }
     
     /**
@@ -93,12 +92,10 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
      
      - Note: Firebase에서 최근 메시지를 감지하여 메시지의 추가 또는 수정 사항이 발생한 경우, 해당 메시지를 처리하고 ChatRoom 객체를 생성하여 ChatListLog를 만듭니다.
      */
-    func startRecentMessageListener(completion: @escaping (Result<ChatRoom, Error>) -> Void) {
-        firebaseRecentMessageListener()
-        
+    func startRealmChatRoomListener(completion: @escaping (Result<ChatRoom, Error>) -> Void) {        
         let chatRoomDTO = dataSource.read(ChatRoomDTO.self)
 
-        self.recentChatListToken = chatRoomDTO.observe { changes in
+        self.chatRoomListenerToken = chatRoomDTO.observe { changes in
             switch changes {
             case .initial(let chatRoomDTO):
                 chatRoomDTO.forEach { list in
@@ -117,7 +114,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
         }
     }
     
-    private func firebaseRecentMessageListener() {
+    func startFirebaseChatRoomListener() {
         firebaseSerivce.listenForRecentMessage { result in
             switch result {
             case .success(let documentChange):
@@ -149,7 +146,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     
     func stopRecentMessageListener() {
         firebaseSerivce.stopListenForRecentMessage()
-        recentChatListToken?.invalidate()
+        chatRoomListenerToken?.invalidate()
     }
     
 }

@@ -34,7 +34,8 @@ final class StartChatMessageListenerUseCase: StartChatMessageListenerUseCaseProt
          - Parameter result: 리스너 실행 결과 (`Result<ChatMessage, Error>`)
      */
     func excute(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void) {
-        chatListenerRepo.startChatMessageListener(chatUser: chatUser) { result in
+        chatListenerRepo.startFirebaseChatMessageListener(chatUser: chatUser)
+        chatListenerRepo.startRealmChatMessageListener(chatUser: chatUser) { result in
             switch result {
             case .success(let chatMessage):
                 completion(.success(chatMessage))

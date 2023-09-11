@@ -85,7 +85,9 @@ extension MainMessageViewModel {
             do {
                 let chatUserList = try await fetchAllUserUseCase.excute()
                 
-                self.users = chatUserList
+                DispatchQueue.main.async {
+                    self.users = chatUserList
+                }
             } catch {
                 print(error)
             }
@@ -99,13 +101,14 @@ extension MainMessageViewModel {
      
      - Throws: 'fetchCurrentUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
      */
-    @MainActor
     private func fetchFirebaseCurrentUser() {
         Task {
             do {
                 let chatUser = try await fetchCurrentUserUseCase.excute()
                 
-                self.currentUser = chatUser
+                DispatchQueue.main.async {
+                    self.currentUser = chatUser
+                }
             } catch {
                 print(error)
             }
@@ -174,7 +177,6 @@ extension MainMessageViewModel {
      
      - Throws: 'deleteRecentMessageUseCase.execute(toId: toId)' 메서드가 실패한 경우 에러를 출력
      */
-    @MainActor
     private func deleteFirebaseRecentMessage(indexSet: IndexSet) {
         guard let firstIndex = indexSet.first else {
             print("Fail to Load first data")

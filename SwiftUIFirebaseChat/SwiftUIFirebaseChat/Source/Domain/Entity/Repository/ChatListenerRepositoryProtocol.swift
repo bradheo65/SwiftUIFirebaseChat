@@ -10,9 +10,11 @@ import Firebase
 
 protocol ChatListenerRepositoryProtocol {
     
-    func startChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void)
+    func startRealmChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void)
+    func startFirebaseChatMessageListener(chatUser: ChatUser)
     func stopChatMessageListener()
-    func startRecentMessageListener(completion: @escaping (Result<ChatRoom, Error>) -> Void)
+    func startRealmChatRoomListener(completion: @escaping (Result<ChatRoom, Error>) -> Void)
+    func startFirebaseChatRoomListener()
     func stopRecentMessageListener()
     
 }

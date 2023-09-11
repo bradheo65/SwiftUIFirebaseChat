@@ -35,7 +35,8 @@ final class StartRecentMessageListenerUseCase: StartRecentMessageListenerUseCase
          - Parameter result: 리스너 실행 결과 (`Result<[ChatRoom], Error>`)
      */
     func excute(completion: @escaping (Result<ChatRoom, Error>) -> Void) {
-        chatListenerRepo.startRecentMessageListener { result in
+        chatListenerRepo.startFirebaseChatRoomListener()
+        chatListenerRepo.startRealmChatRoomListener { result in
             switch result {
             case .success(let chatRoomList):
                 completion(.success(chatRoomList))
