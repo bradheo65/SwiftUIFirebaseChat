@@ -132,7 +132,7 @@ private struct ChatRoomListView: View {
     
     fileprivate var body: some View {
         List {
-            ForEach(viewModel.chatRoom.sorted(), id: \.self) { recentMessage in
+            ForEach(viewModel.chatRoom, id: \.self) { recentMessage in
                 NavigationLink {
                     ChatLogView(
                         chatUser: ChatUser(

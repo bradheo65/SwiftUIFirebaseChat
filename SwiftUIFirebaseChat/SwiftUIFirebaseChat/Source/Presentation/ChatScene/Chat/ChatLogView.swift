@@ -77,6 +77,7 @@ struct ChatLogView: View {
             }
         }
         .onAppear {
+            viewModel.fetchChatMessage(dateOffset: 0)
             viewModel.addListener()
         }
         .onDisappear {
@@ -100,6 +101,8 @@ private struct ChatMessageListView: View {
     @Binding private var selectedImageFrame: CGRect?
     @Binding private var isImageTap: Bool
     
+    @State private var fetchCount = 0
+    
     fileprivate init(
         viewModel: ChatLogViewModel,
         chatUser: ChatUser?,
@@ -116,39 +119,43 @@ private struct ChatMessageListView: View {
     
     fileprivate var body: some View {
         VStack {
-            ScrollView {
-                ScrollViewReader { scollViewProxy in
-                    VStack {
-                        ForEach(Array(viewModel.chatMessages.enumerated()), id: \.offset) { index, message in
+            ScrollViewReader { scollViewProxy in
+                ScrollView {
+                    LazyVStack {
+                        ForEach(0..<viewModel.chatMessages.count, id: \.self) { index in
                             ChatMessageCell(
                                 viewModel: viewModel,
                                 chatUser: chatUser,
-                                message: message,
+                                message: viewModel.chatMessages.reversed()[index],
                                 selectedImage: $selectedImage,
                                 selectedImageFrame: $selectedImageFrame,
                                 isImageTap: $isImageTap
                             )
-                            .id(index)
+                            .onAppear {
+                                if index == viewModel.chatMessages.count - 1 {
+                                    fetchCount += 1
+                                    viewModel.fetchChatMessage(dateOffset: fetchCount)
+                                }
+                            }
                         }
+                        .rotationEffect(Angle(degrees: 180))
+                        .scaleEffect(x: -1.0, y: 1.0, anchor: .center)
+                        
                         Spacer()
                             .id("Empty")
                     }
-                    .onReceive(viewModel.$count) { _ in
-                        withAnimation(.easeOut(duration: 0.5)) {
-                            scollViewProxy.scrollTo("Empty", anchor: .bottom)
-                        }
-                    }
                 }
+                .rotationEffect(Angle(degrees: 180))
+                .scaleEffect(x: -1.0, y: 1.0, anchor: .center)
+                .background(Color(.init(white: 0.95, alpha: 1)))
             }
-            .background(Color(.init(white: 0.95, alpha: 1)))
-            .clipped()
-            
-            ChatInputView(
-                viewModel: viewModel,
-                chatUser: chatUser
-            )
-            .background(Color(.systemBackground))
-            .ignoresSafeArea()
+            .safeAreaInset(edge: .bottom) {
+                ChatInputView(
+                    viewModel: viewModel,
+                    chatUser: chatUser
+                )
+                .background(Color(.systemBackground))
+            }
         }
     }
 }
@@ -270,8 +277,9 @@ private struct ChatInputView: View {
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 8)
-                .background(Color.purple)
+                .background(chatText.isEmpty ? Color.secondary : Color.purple)
                 .cornerRadius(4)
+                .disabled(chatText.isEmpty)
             }
             .padding(.horizontal)
             .padding(.vertical, 8)

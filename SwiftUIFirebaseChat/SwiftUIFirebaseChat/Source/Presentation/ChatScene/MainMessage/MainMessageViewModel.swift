@@ -143,5 +143,6 @@ extension MainMessageViewModel {
         } else {
             chatRoom.append(list) // 존재하지 않는 경우 추가
         }
+        chatRoom.sort(by: <)
     }
 }

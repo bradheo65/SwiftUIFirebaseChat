@@ -60,13 +60,22 @@ final class ChatLogViewModel: NSObject, ObservableObject {
      
      - Throws: 'startChatMessageListener.excute(chatUser: chatUser)' 메서드가 실패한 경우 에러를 출력
      */
+    func fetchChatMessage(dateOffset: Int) {
+        guard let chatUser = chatUser else {
+            print("no Chat User")
+            return
+        }
+        
+        startChatMessageListener.fetch(chatUser: chatUser, dateOffset: dateOffset) { chatLog in
+            self.chatMessages.append(chatLog)
+        }
+    }
+    
     func addListener() {
         guard let chatUser = chatUser else {
             print("no Chat User")
             return
         }
-        chatMessages.removeAll()
-        
         startChatMessageListener.excute(chatUser: chatUser) { result in
             switch result {
             case .success(let chatMessage):
