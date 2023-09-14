@@ -25,6 +25,8 @@ final class ChatLogViewModel: NSObject, ObservableObject {
 
     private let chatUser: ChatUser?
 
+    private let fetchChatMessageUseCase: FetchChatMessageUseCaseProtocol
+    private let fetchNextChatMessageUseCase: FetchNextChatMessageUseCaseProtocol
     private let sendMessageUseCase: SendTextMessageUseCaseProtocol
     private let sendImageMessageUseCase: SendImageMessageUseCaseProtocol
     private let sendVideoMessageUseCase: SendVideoMessageUseCaseProtocol
@@ -35,6 +37,8 @@ final class ChatLogViewModel: NSObject, ObservableObject {
 
     init(
         chatUser: ChatUser?,
+        fetchChatMessage: FetchChatMessageUseCaseProtocol,
+        fetchNextChatMessage: FetchNextChatMessageUseCaseProtocol,
         sendTextMessage: SendTextMessageUseCaseProtocol,
         sendImageMessage: SendImageMessageUseCaseProtocol,
         sendVideoMessage: SendVideoMessageUseCaseProtocol,
@@ -44,6 +48,8 @@ final class ChatLogViewModel: NSObject, ObservableObject {
         stopChatMessageListener: StopChatMessageListenerUseCaseProtocol
     ) {
         self.chatUser = chatUser
+        self.fetchChatMessageUseCase = fetchChatMessage
+        self.fetchNextChatMessageUseCase = fetchNextChatMessage
         self.sendMessageUseCase = sendTextMessage
         self.sendImageMessageUseCase = sendImageMessage
         self.sendVideoMessageUseCase = sendVideoMessage
@@ -60,13 +66,24 @@ final class ChatLogViewModel: NSObject, ObservableObject {
      
      - Throws: 'startChatMessageListener.excute(chatUser: chatUser)' 메서드가 실패한 경우 에러를 출력
      */
-    func fetchChatMessage(dateOffset: Int) {
+    func fetchChatMessage() {
         guard let chatUser = chatUser else {
             print("no Chat User")
             return
         }
         
-        startChatMessageListener.fetch(chatUser: chatUser, dateOffset: dateOffset) { chatLog in
+        fetchChatMessageUseCase.excute(chatUser: chatUser) { chatLog in
+            self.chatMessages.append(chatLog)
+        }
+    }
+    
+    func fetchNextChatMessage(from date: Date?) {
+        guard let chatUser = chatUser else {
+            print("no Chat User")
+            return
+        }
+        
+        fetchNextChatMessageUseCase.excute(from: date, chatUser: chatUser) { chatLog in
             self.chatMessages.append(chatLog)
         }
     }

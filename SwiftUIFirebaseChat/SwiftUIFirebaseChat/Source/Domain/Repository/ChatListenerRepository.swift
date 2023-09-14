@@ -21,43 +21,7 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
         self.firebaseSerivce = firebaseSerivce
         self.dataSource = dataSource
     }
-     
-    func fetchChatMessage(chatUser: ChatUser, dateOffset: Int, completion: @escaping (ChatLog) -> Void) {
-        let filterQuery = "(fromId = %@ OR toId == %@) AND (timestamp >= %@ AND timestamp < %@)"
-        let chatLogDTO = dataSource.read(ChatLogDTO.self)
-        
-        // 현재 날짜 가져오기
-        let currentDate = Date()
-
-        // 어제의 날짜 계산
-        var currentDateOffset = -dateOffset
-        
-        var today = Calendar.current.date(byAdding: .day, value: currentDateOffset, to: currentDate)!
-        var yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
-        
-        while currentDateOffset <= 0 {
-            let filterChatLog = chatLogDTO.filter(
-                filterQuery,
-                chatUser.uid, chatUser.uid, yesterday, today
-            )
-
-            if filterChatLog.isEmpty == false {
-                filterChatLog.forEach { log in
-                    completion(log.toDomain())
-                }
-                break
-            }
-            
-            // 데이터를 찾지 못한 경우 다음 날짜로 이동
-            currentDateOffset -= 1
-            today = Calendar.current.date(byAdding: .day, value: currentDateOffset, to: currentDate)!
-            yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
-            
-            if currentDateOffset == -10 {
-                break
-            }
-        }
-    }
+    
     /**
      채팅 메시지를 감지하여 처리하는 함수
 

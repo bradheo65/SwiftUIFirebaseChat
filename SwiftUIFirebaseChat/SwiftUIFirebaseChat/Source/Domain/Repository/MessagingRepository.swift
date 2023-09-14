@@ -11,9 +11,64 @@ import SwiftUI
 final class MessagingRepository: MessagingRepositoryProtocol {
  
     private let firebaseService: FirebaseMessagingServiceProtocol
-    
-    init(firebaseService: FirebaseMessagingServiceProtocol) {
+    private let dataSource: RealmDataSourceProtocol
+
+    init(
+        firebaseService: FirebaseMessagingServiceProtocol,
+        dataSource: RealmDataSourceProtocol
+    ) {
         self.firebaseService = firebaseService
+        self.dataSource = dataSource
+    }
+    
+    /**
+     Realm에 저장되어 있는 메시지를 가져오는 함수
+     
+     이 함수는 Realm에 저장되어 있는 메시지를 반환하는 역할을 합니다.
+     
+     - Parameters:
+     - chatUser: 대화 상대의 ChatUser 정보
+     
+     - Returns: 메시지
+     */
+    func fetchChatMessage(chatUser: ChatUser, completion: @escaping (ChatLog) -> Void) {
+        let filterQuery = "fromId = %@ OR toId == %@"
+        
+        // 기준 10개씩
+        let chatLogDTO = dataSource.read(ChatLogDTO.self)
+            .filter(filterQuery, chatUser.uid, chatUser.uid).sorted(byKeyPath: "timestamp", ascending: false).prefix(10)
+        
+        if chatLogDTO.isEmpty == false {
+            chatLogDTO.forEach { log in
+                completion(log.toDomain())
+            }
+        }
+    }
+        
+    /**
+     Realm에 저장되어 있는 메시지를 date의 기준으로 가져오는 함수
+     
+     이 함수는 Realm에 저장되어 있는 메시지를 date의 기준으로 반환하는 역할을 합니다.
+     
+     - Parameters:
+     - date: 가져오는 메세지의 날짜 기준 정보
+     - chatUser: 대화 상대의 ChatUser 정보
+     
+     - Returns: 메시지
+     */
+    func fetchNextChatMessage(from date: Date?, chatUser: ChatUser, completion: @escaping (ChatLog) -> Void) {
+        guard let date = date else {
+            return
+        }
+        let filterQuery = "(fromId = %@ OR toId == %@) AND timestamp < %@"
+        
+        // 기준 10개씩
+        let chatLogDTO = dataSource.read(ChatLogDTO.self)
+            .filter(filterQuery, chatUser.uid, chatUser.uid, date).sorted(byKeyPath: "timestamp", ascending: false).prefix(10)
+                            
+        chatLogDTO.forEach { log in
+            completion(log.toDomain())
+        }
     }
     
     /**

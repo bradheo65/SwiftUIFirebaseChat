@@ -24,6 +24,8 @@ struct ChatLogView: View {
         self._viewModel = .init(
             wrappedValue: .init(
                 chatUser: chatUser,
+                fetchChatMessage: Reslover.shared.resolve(FetchChatMessageUseCaseProtocol.self),
+                fetchNextChatMessage: Reslover.shared.resolve(FetchNextChatMessageUseCaseProtocol.self),
                 sendTextMessage: Reslover.shared.resolve(SendTextMessageUseCaseProtocol.self),
                 sendImageMessage: Reslover.shared.resolve(SendImageMessageUseCaseProtocol.self),
                 sendVideoMessage: Reslover.shared.resolve(SendVideoMessageUseCaseProtocol.self),
@@ -77,7 +79,7 @@ struct ChatLogView: View {
             }
         }
         .onAppear {
-            viewModel.fetchChatMessage(dateOffset: 0)
+            viewModel.fetchChatMessage()
             viewModel.addListener()
         }
         .onDisappear {
@@ -100,9 +102,7 @@ private struct ChatMessageListView: View {
     @Binding private var selectedImage: UIImage?
     @Binding private var selectedImageFrame: CGRect?
     @Binding private var isImageTap: Bool
-    
-    @State private var fetchCount = 0
-    
+        
     fileprivate init(
         viewModel: ChatLogViewModel,
         chatUser: ChatUser?,
@@ -126,15 +126,16 @@ private struct ChatMessageListView: View {
                             ChatMessageCell(
                                 viewModel: viewModel,
                                 chatUser: chatUser,
-                                message: viewModel.chatMessages.reversed()[index],
+                                message: viewModel.chatMessages[index],
                                 selectedImage: $selectedImage,
                                 selectedImageFrame: $selectedImageFrame,
                                 isImageTap: $isImageTap
                             )
                             .onAppear {
                                 if index == viewModel.chatMessages.count - 1 {
-                                    fetchCount += 1
-                                    viewModel.fetchChatMessage(dateOffset: fetchCount)
+                                     viewModel.fetchNextChatMessage(
+                                        from: viewModel.chatMessages.last?.timestamp
+                                     )
                                 }
                             }
                         }

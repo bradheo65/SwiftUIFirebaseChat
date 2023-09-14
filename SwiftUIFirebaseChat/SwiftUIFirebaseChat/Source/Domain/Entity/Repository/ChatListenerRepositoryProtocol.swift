@@ -9,7 +9,7 @@ import Foundation
 import Firebase
 
 protocol ChatListenerRepositoryProtocol {
-    func fetchChatMessage(chatUser: ChatUser, dateOffset: Int, completion: @escaping (ChatLog) -> Void)
+    
     func startRealmChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void)
     func startFirebaseChatMessageListener(chatUser: ChatUser)
     func stopChatMessageListener()

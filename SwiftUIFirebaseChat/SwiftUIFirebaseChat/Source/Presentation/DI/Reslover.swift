@@ -74,7 +74,9 @@ func buildContatier() -> Container {
     // MARK: - Repository - Messaging
 
     container.register(MessagingRepositoryProtocol.self) { _ in
-        return MessagingRepository(firebaseService: container.resolve(FirebaseMessagingServiceProtocol.self)!)
+        return MessagingRepository(
+            firebaseService: container.resolve(FirebaseMessagingServiceProtocol.self)!,
+            dataSource: container.resolve(RealmDataSourceProtocol.self)!)
     }
     
     // MARK: - Repository - ChatListener
@@ -122,6 +124,14 @@ func buildContatier() -> Container {
   
     // MARK: - UserCase - Message
 
+    container.register(FetchChatMessageUseCaseProtocol.self) { _ in
+        return FetchChatMessageUseCase(messageRepo: container.resolve(MessagingRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+    
+    container.register(FetchNextChatMessageUseCaseProtocol.self) { _ in
+        return FetchNextChatMessageUseCase(messageRepo: container.resolve(MessagingRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+    
     container.register(SendTextMessageUseCaseProtocol.self) { _ in
         return SendTextMessageUseCase(sendMessageRepo: container.resolve(MessagingRepositoryProtocol.self)!)
     }.inObjectScope(.container)

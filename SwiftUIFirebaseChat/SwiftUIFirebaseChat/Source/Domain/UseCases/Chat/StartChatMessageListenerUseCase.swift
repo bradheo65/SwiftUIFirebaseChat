@@ -9,7 +9,6 @@ import Foundation
 
 protocol StartChatMessageListenerUseCaseProtocol {
     
-    func fetch(chatUser: ChatUser, dateOffset: Int, completion: @escaping (ChatLog) -> Void)
     func excute(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void)
     
 }
@@ -43,12 +42,6 @@ final class StartChatMessageListenerUseCase: StartChatMessageListenerUseCaseProt
             case .failure(let error):
                 completion(.failure(error))
             }
-        }
-    }
-    
-    func fetch(chatUser: ChatUser, dateOffset: Int, completion: @escaping (ChatLog) -> Void) {
-        chatListenerRepo.fetchChatMessage(chatUser: chatUser, dateOffset: dateOffset) { chatLog in
-            completion(chatLog)
         }
     }
     
