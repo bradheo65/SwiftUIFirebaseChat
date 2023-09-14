@@ -96,7 +96,7 @@ final class ChatLogViewModel: NSObject, ObservableObject {
         startChatMessageListener.excute(chatUser: chatUser) { result in
             switch result {
             case .success(let chatMessage):
-                self.chatMessages.append(chatMessage)
+                self.chatMessages.insert(chatMessage, at: 0)
                 
                 // ScollViewProxy receiver 업데이트
                 DispatchQueue.main.async {

@@ -141,9 +141,6 @@ private struct ChatMessageListView: View {
                         }
                         .rotationEffect(Angle(degrees: 180))
                         .scaleEffect(x: -1.0, y: 1.0, anchor: .center)
-                        
-                        Spacer()
-                            .id("Empty")
                     }
                 }
                 .rotationEffect(Angle(degrees: 180))
