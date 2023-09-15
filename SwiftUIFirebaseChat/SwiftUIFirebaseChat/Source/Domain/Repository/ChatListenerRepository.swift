@@ -62,7 +62,8 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                         let chatLogDTO = self.createChatLog(from: chatMessage, with: id)
                         
                         self.saveChatLog(chatLogDTO, with: id)
-                        
+                        self.createNewMessage(chatMessageResponse: chatMessage, id: id)
+
                     } catch {
                         print(error.localizedDescription)
                     }
@@ -171,6 +172,28 @@ extension ChatListenerRepository {
         return id ?? UUID().uuidString
     }
     
+    private func createNewMessage(chatMessageResponse: ChatMessageResponse, id: String) {
+        let newMessage = Message()
+
+        newMessage.sender = chatMessageResponse.fromId
+        newMessage.text = chatMessageResponse.text ?? ""
+        newMessage.timestamp = chatMessageResponse.timestamp
+        
+        if let roomConversatcions = dataSource.read(Conversation.self).filter("room.id == %@", id).first {
+            if roomConversatcions.messages.isEmpty {
+                dataSource.update {
+                    roomConversatcions.messages.append(newMessage)
+                }
+            } else {
+                if chatMessageResponse.timestamp > roomConversatcions.messages.last?.timestamp ?? Date() {
+                    dataSource.update {
+                        roomConversatcions.messages.append(newMessage)
+                    }
+                }
+            }
+        }
+    }
+    
     private func createChatLog(from chatMessageResponse: ChatMessageResponse, with id: String) -> ChatLogDTO {
         let chatLogDTO = ChatLogDTO()
         
@@ -207,8 +230,10 @@ extension ChatListenerRepository {
     private func createChatListLog(from chatRoomResponse: ChatRoomResponse, id: String?) {
         let chatList = ChatRoomDTO()
 
+        let uuid = UUID().uuidString
+        
         // id가 제공되지 않으면 UUID를 사용하여 고유한 id를 생성
-        chatList.id = id ?? UUID().uuidString
+        chatList.id = id ?? uuid
         chatList.text = chatRoomResponse.text
         chatList.username = chatRoomResponse.username
         chatList.email = chatRoomResponse.email
@@ -226,6 +251,67 @@ extension ChatListenerRepository {
         chatList.timestamp = chatRoomResponse.timestamp
         
         dataSource.create(ChatRoomDTO.self, value: chatList)
+        
+        /// ----
+        ///
+        let user = User()
+        
+        user.displayName = chatRoomResponse.username
+        user.username = chatRoomResponse.toId
+        
+        dataSource.create(User.self, value: user)
+        
+        let newRoom = Room()
+        
+        newRoom.id = id ?? uuid
+        newRoom.name = chatRoomResponse.toId
+        newRoom.profileImageURL = chatRoomResponse.profileImageURL
+        newRoom.participants.append(user)
+        newRoom.timestamp = chatRoomResponse.timestamp
+        
+        dataSource.create(Room.self, value: newRoom)
+        
+        if let myCover = dataSource.read(Conversation.self).filter("room.id == %@", id ?? uuid).first {
+            dataSource.update {
+                myCover.timestamp = chatRoomResponse.timestamp
+            }
+            dataSource.create(Conversation.self, value: myCover)
+        } else {
+            let newConversation = Conversation()
+            newConversation.room = newRoom
+            newConversation.timestamp = newRoom.timestamp
+            
+            dataSource.create(Conversation.self, value: newConversation)
+        }
     }
     
+}
+
+class Message: Object {
+    @Persisted(primaryKey: true) var id: ObjectId
+    @Persisted var text: String = ""
+    @Persisted var sender: String = ""
+    @Persisted var timestamp: Date = Date()
+}
+
+class User: Object {
+    @Persisted(primaryKey: true) var username: String = ""
+    @Persisted var displayName: String = ""
+    // 다른 사용자 정보 저장
+}
+
+class Room: Object {
+    @Persisted(primaryKey: true) var id: String = ""
+    @Persisted var name: String = ""
+    @Persisted var profileImageURL: String = ""
+    @Persisted var participants = List<User>() // 채팅방 참여자 목록
+    @Persisted var latestMessage: Message?
+    @Persisted var timestamp: Date = Date()
+}
+
+class Conversation: Object {
+    @Persisted(primaryKey: true) var id: ObjectId
+    @Persisted var room: Room? // 해당 대화의 채팅방
+    @Persisted var messages = List<Message>() // 대화 메시지 목록
+    @Persisted var timestamp: Date = Date()
 }

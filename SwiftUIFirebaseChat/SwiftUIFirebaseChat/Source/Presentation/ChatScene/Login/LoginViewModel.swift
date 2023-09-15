@@ -5,12 +5,14 @@
 //  Created by brad on 2023/07/08.
 //
 
-import Foundation
 import SwiftUI
 
 final class LoginViewModel: ObservableObject {
     @Published var loginStatusMessage = ""
+
     @Published var isLoginSuccess = false
+    @Published var isLoading = false
+    @Published var isErrorAlert = false
 
     private let registerUserUseCase: RegisterUserUseCaseProtocol
     private let loginUserUseCase: LoginUserUseCaseProtocol
@@ -56,16 +58,17 @@ extension LoginViewModel {
      */
     @MainActor
     private func login(email: String, password: String) {
+        isLoading = true
         Task {
             do {
-                let loginResultMessage = try await loginUserUseCase.execute(
+                let _ = try await loginUserUseCase.execute(
                     email: email,
                     password: password
                 )
-                self.loginStatusMessage = loginResultMessage
+                self.isLoading = false
                 self.isLoginSuccess = true
             } catch {
-                self.loginStatusMessage = error.localizedDescription
+                self.failProcess(errorMessage: error.localizedDescription)
             }
         }
     }
@@ -84,17 +87,25 @@ extension LoginViewModel {
      */
     @MainActor
     private func register(email: String, password: String, image: UIImage?) {
+        isLoading = true
         Task {
             do {
-                let registerUserResultMessage = try await registerUserUseCase.execute(
+                let _ = try await registerUserUseCase.execute(
                     email: email,
                     password: password,
                     image: image
                 )
-                self.loginStatusMessage = registerUserResultMessage
+                self.isLoading = false
             } catch {
-                self.loginStatusMessage = error.localizedDescription
+                self.failProcess(errorMessage: error.localizedDescription)
             }
         }
+    }
+    
+    @MainActor
+    private func failProcess(errorMessage: String) {
+        isLoading = false
+        isErrorAlert = true
+        loginStatusMessage = errorMessage
     }
 }

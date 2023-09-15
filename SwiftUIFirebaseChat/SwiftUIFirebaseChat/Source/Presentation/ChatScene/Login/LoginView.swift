@@ -26,13 +26,12 @@ struct LoginView: View {
         createAccountUseCase: Reslover.shared.resolve(RegisterUserUseCaseProtocol.self),
         loginUseCase: Reslover.shared.resolve(LoginUserUseCaseProtocol.self)
     )
-
     @State private var loginMode: LoginMode = .login
-
+    
+    @State private var profileImage: UIImage?
+    
     @State private var email = ""
     @State private var password = ""
-
-    @State private var profileImage: UIImage?
 
     var body: some View {
         NavigationView {
@@ -78,20 +77,21 @@ struct LoginView: View {
                         .background(.purple)
                         .cornerRadius(6)
                     }
-                    
-                    Text(viewModel.loginStatusMessage)
-                        .foregroundColor(.red)
                 }
                 .padding()
             }
             .navigationTitle(loginMode.title)
             .background(
                 Color(uiColor: .secondarySystemBackground)
-                    .ignoresSafeArea()
             )
-            .fullScreenCover(isPresented: $viewModel.isLoginSuccess) {
-                MainMessageView()
-            }
+            .showLoading(isLoading: viewModel.isLoading)
+        }
+        .showErrorMessage(
+            showAlert: $viewModel.isErrorAlert,
+            message: viewModel.loginStatusMessage
+        )
+        .fullScreenCover(isPresented: $viewModel.isLoginSuccess) {
+            MainMessageView()
         }
     }
     
@@ -139,5 +139,4 @@ private struct ProfileImageSelectButtonView: View {
             ImagePicker(image: $profileImage, videoUrl: .constant(nil))
         }
     }
-
 }

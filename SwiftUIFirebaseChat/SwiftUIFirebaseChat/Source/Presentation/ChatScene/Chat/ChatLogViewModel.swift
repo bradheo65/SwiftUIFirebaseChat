@@ -20,6 +20,8 @@ final class ChatLogViewModel: NSObject, ObservableObject {
     @Published var isErrorAlert = false
 
     @Published var isPaused = false
+    @Published var isLoading = false
+    
     private var audioPlayer: AVAudioPlayer?
     private var index: Int = 0
 
@@ -164,14 +166,17 @@ final class ChatLogViewModel: NSObject, ObservableObject {
             print("no Chat User")
             return
         }
-        
+        isLoading = true
+
         Task {
             do {
                 let sendImageMessageResultMessage = try await sendImageMessageUseCase.excute(
                     image: image,
                     chatUser: chatUser
                 )
-                
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                }
                 print(sendImageMessageResultMessage)
             } catch {
                 print(error)
@@ -194,14 +199,17 @@ final class ChatLogViewModel: NSObject, ObservableObject {
             print("no Chat User")
             return
         }
-        
+        isLoading = true
+
         Task {
             do {
                 let sendVideoMessageResultMessage = try await sendVideoMessageUseCase.excute(
                     url: url,
                     chatUser: chatUser
                 )
-                
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                }
                 print(sendVideoMessageResultMessage)
             } catch {
                 print(error)
@@ -224,14 +232,17 @@ final class ChatLogViewModel: NSObject, ObservableObject {
             print("no Chat User")
             return
         }
-        
+        isLoading = true
+
         Task {
             do {
                 let sendFileMessageResultMessage = try await sendFileMessageUseCase.excute(
                     url: url,
                     chatUser: chatUser
                 )
-                
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                }
                 print(sendFileMessageResultMessage)
             } catch {
                 print(error)
@@ -311,12 +322,17 @@ extension ChatLogViewModel: AVAudioPlayerDelegate {
         if isPaused {
             resumePlaying()
         } else {
+            isLoading = true
+
             Task {
                 do {
                     DispatchQueue.main.async {
                         self.isFileLoading = true
                     }
                     let url = try await self.fileSave.excute(url: url)
+                    DispatchQueue.main.sync {
+                        self.isSaveCompleted.toggle()
+                    }
                     play(url: url)
                 } catch {
                     print(error)

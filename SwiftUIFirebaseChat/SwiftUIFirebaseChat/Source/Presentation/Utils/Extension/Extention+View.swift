@@ -41,4 +41,11 @@ extension View {
         clipShape( RoundedCorner(radius: radius, corners: corners) )
     }
     
+    func showErrorMessage(showAlert: Binding<Bool>, message: String) -> some View {
+        self.modifier(ErrorAlertModifier(isPresented: showAlert, message: message))
+    }
+    
+    func showLoading(isLoading: Bool) -> some View {
+        modifier(LoadingViewModifier(isLoading: isLoading))
+    }
 }

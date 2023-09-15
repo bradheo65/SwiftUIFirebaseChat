@@ -76,6 +76,8 @@
 		A37674862A8E006400BDC235 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A37674852A8E006400BDC235 /* FirebaseAuth */; };
 		A37674882A8E007100BDC235 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = A37674872A8E007100BDC235 /* FirebaseStorage */; };
 		A376748C2A8E061500BDC235 /* MockFirebaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A376748B2A8E061500BDC235 /* MockFirebaseService.swift */; };
+		A38FC45A2AB4006A00D2C144 /* LoadingViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38FC4592AB4006A00D2C144 /* LoadingViewModifier.swift */; };
+		A38FC45D2AB400AD00D2C144 /* ErrorAlertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38FC45C2AB400AD00D2C144 /* ErrorAlertModifier.swift */; };
 		A392147C2A83104600BF833D /* RoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A392147B2A83104600BF833D /* RoundedCorner.swift */; };
 		A392147E2A8319BE00BF833D /* FileInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A392147D2A8319BE00BF833D /* FileInfo.swift */; };
 		A39214852A832ED200BF833D /* RegisterUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A39214842A832ED200BF833D /* RegisterUserUseCase.swift */; };
@@ -187,6 +189,8 @@
 		A37674792A8DFDF100BDC235 /* SwiftUIFirebaseChatTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftUIFirebaseChatTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A376747B2A8DFDF100BDC235 /* UserRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepositoryTests.swift; sourceTree = "<group>"; };
 		A376748B2A8E061500BDC235 /* MockFirebaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFirebaseService.swift; sourceTree = "<group>"; };
+		A38FC4592AB4006A00D2C144 /* LoadingViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingViewModifier.swift; sourceTree = "<group>"; };
+		A38FC45C2AB400AD00D2C144 /* ErrorAlertModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorAlertModifier.swift; sourceTree = "<group>"; };
 		A392147B2A83104600BF833D /* RoundedCorner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedCorner.swift; sourceTree = "<group>"; };
 		A392147D2A8319BE00BF833D /* FileInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileInfo.swift; sourceTree = "<group>"; };
 		A39214842A832ED200BF833D /* RegisterUserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterUserUseCase.swift; sourceTree = "<group>"; };
@@ -510,6 +514,7 @@
 				A3B0291F2A59AD3E008161CE /* Manager */,
 				A36EF84D2A79F44000A7DEE2 /* Extension */,
 				A3CED4612A70B6A8001DD436 /* View */,
+				A38FC45B2AB4008500D2C144 /* ViewModifier */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -563,6 +568,15 @@
 				A35192D32A8F009800BE5E21 /* Repository */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		A38FC45B2AB4008500D2C144 /* ViewModifier */ = {
+			isa = PBXGroup;
+			children = (
+				A38FC4592AB4006A00D2C144 /* LoadingViewModifier.swift */,
+				A38FC45C2AB400AD00D2C144 /* ErrorAlertModifier.swift */,
+			);
+			path = ViewModifier;
 			sourceTree = "<group>";
 		};
 		A39214802A832DE900BF833D /* Domain */ = {
@@ -881,6 +895,7 @@
 				A348F3952A8DE7980017DD72 /* FileSaveUseCase.swift in Sources */,
 				A3EC4E002A933936008DDB02 /* FirebaseChatListenerProtocol.swift in Sources */,
 				A3B722522A6D682E005F713F /* ChatUser.swift in Sources */,
+				A38FC45A2AB4006A00D2C144 /* LoadingViewModifier.swift in Sources */,
 				A3B029192A59AAF7008161CE /* LoginViewModel.swift in Sources */,
 				A36EF84C2A79F42000A7DEE2 /* RemoteImage.swift in Sources */,
 				A34A6E222A73829700440F93 /* ImageModifier.swift in Sources */,
@@ -927,6 +942,7 @@
 				A348F3552A89B3CE0017DD72 /* UserRepositoryProtocol.swift in Sources */,
 				A35736792A6F343C007B0402 /* ChatLogView.swift in Sources */,
 				A348F3702A89EC8D0017DD72 /* FirebaseService.swift in Sources */,
+				A38FC45D2AB400AD00D2C144 /* ErrorAlertModifier.swift in Sources */,
 				A354F6942A5460630063652A /* SwiftUIFirebaseChatApp.swift in Sources */,
 				A3CED4632A70B6B5001DD436 /* ProfileImageView.swift in Sources */,
 				A34A6E242A7382D300440F93 /* ImageViewer.swift in Sources */,

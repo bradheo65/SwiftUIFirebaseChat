@@ -133,9 +133,9 @@ private struct ChatMessageListView: View {
                             )
                             .onAppear {
                                 if index == viewModel.chatMessages.count - 1 {
-                                     viewModel.fetchNextChatMessage(
+                                    viewModel.fetchNextChatMessage(
                                         from: viewModel.chatMessages.last?.timestamp
-                                     )
+                                    )
                                 }
                             }
                         }
@@ -146,6 +146,7 @@ private struct ChatMessageListView: View {
                 .rotationEffect(Angle(degrees: 180))
                 .scaleEffect(x: -1.0, y: 1.0, anchor: .center)
                 .background(Color(.init(white: 0.95, alpha: 1)))
+                .showLoading(isLoading: viewModel.isLoading)
             }
             .safeAreaInset(edge: .bottom) {
                 ChatInputView(

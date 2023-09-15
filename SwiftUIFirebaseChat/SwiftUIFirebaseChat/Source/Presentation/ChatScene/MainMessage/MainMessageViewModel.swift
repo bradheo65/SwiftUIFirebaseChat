@@ -15,6 +15,7 @@ final class MainMessageViewModel: ObservableObject {
     @Published var errorMessage = ""
     
     @Published var isUserCurrentlyLoggedOut = false
+    @Published var isLoading = false
 
     private let logoutUseCase: LogoutUseCaseProtocol
     private let deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol
@@ -43,13 +44,14 @@ final class MainMessageViewModel: ObservableObject {
      
      - Throws: 'fetchCurrentUserUseCase.excute()' 메서드가 실패한 경우 에러를 출력
      */
+    @MainActor
     func fetchCurrentUser() async {
+        isLoading = true
         do {
             let chatUser = try await fetchCurrentUserUseCase.excute()
             
-            DispatchQueue.main.async {
-                self.currentUser = chatUser
-            }
+            self.currentUser = chatUser
+            self.isLoading = false
         } catch {
             print(error)
         }
