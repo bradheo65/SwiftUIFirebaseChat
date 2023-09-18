@@ -318,21 +318,16 @@ final class ChatLogViewModel: NSObject, ObservableObject {
 extension ChatLogViewModel: AVAudioPlayerDelegate {
     
     /* 오디오 재생 */
+    @MainActor
     func playAudio(url: URL) {
         if isPaused {
             resumePlaying()
         } else {
-            isLoading = true
-
             Task {
                 do {
-                    DispatchQueue.main.async {
-                        self.isFileLoading = true
-                    }
+                    self.isFileLoading = true
+                    
                     let url = try await self.fileSave.excute(url: url)
-                    DispatchQueue.main.sync {
-                        self.isSaveCompleted.toggle()
-                    }
                     play(url: url)
                 } catch {
                     print(error)
