@@ -14,6 +14,8 @@ struct MainMessageView: View {
         logoutUseCase: Reslover.shared.resolve(LogoutUseCaseProtocol.self),
         deleteRecentMessageUseCase: Reslover.shared.resolve(DeleteRecentMessageUseCaseProtocol.self),
         fetchCurrentUserUseCase: Reslover.shared.resolve(FetchCurrentUserUseCaseProtocol.self),
+        fetchAllUserUseCase: Reslover.shared.resolve(FetchAllUserUseCaseProtocol.self),
+        fetchAllChatMessageUseCase: Reslover.shared.resolve(FetchAllChatMessageUseCaseProtocol.self),
         startRecentMessageListenerUseCase: Reslover.shared.resolve(StartRecentMessageListenerUseCaseProtocol.self),
         stopRecentMessageListenerUseCase: Reslover.shared.resolve(StopRecentMessageListenerUseCaseProtocol.self)
     )
@@ -40,16 +42,29 @@ struct MainMessageView: View {
             }
         }
         .navigationBarHidden(true)
+        .showLoadingMessage(
+            isLoading: viewModel.isLoading,
+            text: $viewModel.loadingMessage
+        )
+        .showErrorMessage(
+            showAlert: $viewModel.isErrorAlert,
+            message: viewModel.errorMessage
+        )
         .onChange(of: viewModel.isUserCurrentlyLoggedOut) { newValue in
             dismiss()
         }
+        .onAppear {
+            viewModel.addRecentMessageListener()
+        }
         .onDisappear {
-            print("onDisappear")
             viewModel.removeRecentMessageListener()
         }
         .task {
+            viewModel.isLoading = true
             await viewModel.fetchCurrentUser()
-            viewModel.addRecentMessageListener()
+            await viewModel.fetchAllUser()
+            await viewModel.fetchAllMessage()
+            viewModel.isLoading = false
         }
     }
 }

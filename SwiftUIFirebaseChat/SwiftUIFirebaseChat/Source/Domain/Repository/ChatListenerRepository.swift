@@ -22,6 +22,22 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
         self.dataSource = dataSource
     }
     
+    func fetchFirebaseChatMessage(chatUser: ChatUser) async throws {
+        do {
+            let result = try await firebaseSerivce.fetchMessage(chatUser: chatUser)
+            
+            result.forEach { response in
+                let id = self.generateChatLogId(fromId: response.toDomain().fromId, toId: response.toDomain().toId)
+                let chatLogDTO = self.createChatLog(from: response.toDomain(), with: id)
+                
+                self.saveChatLog(chatLogDTO, with: id)
+                self.createNewMessage(chatMessageResponse: response.toDomain(), id: id)
+            }
+        } catch {
+            throw error
+        }
+    }
+    
     /**
      채팅 메시지를 감지하여 처리하는 함수
 
@@ -51,19 +67,35 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
     }
     
     func startFirebaseChatMessageListener(chatUser: ChatUser) {
+        guard let recentChatMessageDate = fetchRecentChatMessageDate(chatUser: chatUser) else {
+            return
+        }
+        
         firebaseSerivce.listenForChatMessage(chatUser: chatUser) { result in
             switch result {
             case .success(let documentChange):
                 if documentChange.type == .added {
                     do {
                         let chatMessage = try documentChange.document.data(as: ChatMessageResponseDTO.self).toDomain()
-                                       
-                        let id = self.generateChatLogId(fromId: chatMessage.fromId, toId: chatMessage.toId)
-                        let chatLogDTO = self.createChatLog(from: chatMessage, with: id)
                         
-                        self.saveChatLog(chatLogDTO, with: id)
-                        self.createNewMessage(chatMessageResponse: chatMessage, id: id)
-
+                        if chatMessage.timestamp > recentChatMessageDate {
+                            let id = self.generateChatLogId(
+                                fromId: chatMessage.fromId,
+                                toId: chatMessage.toId
+                            )
+                            let chatLogDTO = self.createChatLog(
+                                from: chatMessage,
+                                with: id
+                            )
+                            self.saveChatLog(
+                                chatLogDTO,
+                                with: id
+                            )
+                            self.createNewMessage(
+                                chatMessageResponse: chatMessage,
+                                id: id
+                            )
+                        }
                     } catch {
                         print(error.localizedDescription)
                     }
@@ -149,6 +181,15 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
 }
 
 extension ChatListenerRepository {
+    
+    private func fetchRecentChatMessageDate(chatUser: ChatUser) -> Date? {
+        let filterQuery = "fromId = %@ OR toId == %@"
+        
+        let recentMessageDate = dataSource.read(ChatLogDTO.self)
+            .filter(filterQuery, chatUser.uid, chatUser.uid).sorted(byKeyPath: "timestamp", ascending: false).first?.timestamp
+        
+        return recentMessageDate
+    }
     
     /**
      채팅 메시지로부터 고유한 채팅 로그 ID를 생성하는 함수

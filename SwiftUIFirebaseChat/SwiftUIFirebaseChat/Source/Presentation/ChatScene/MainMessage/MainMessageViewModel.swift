@@ -11,15 +11,20 @@ final class MainMessageViewModel: ObservableObject {
     @Published var chatRoom: [ChatRoom] = []
     
     @Published var currentUser: ChatUser?
-    
-    @Published var errorMessage = ""
-    
+    @Published var allUser: [ChatUser] = []
+
+    @Published var errorMessage: String = ""
+    @Published var loadingMessage: String = ""
+
     @Published var isUserCurrentlyLoggedOut = false
+    @Published var isErrorAlert = false
     @Published var isLoading = false
 
     private let logoutUseCase: LogoutUseCaseProtocol
     private let deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol
     private let fetchCurrentUserUseCase: FetchCurrentUserUseCaseProtocol
+    private let fetchAllUserUseCase: FetchAllUserUseCaseProtocol
+    private let fetchAllChatMessageUseCase: FetchAllChatMessageUseCaseProtocol
     private let startRecentMessageListenerUseCase: StartRecentMessageListenerUseCaseProtocol
     private let stopRecentMessageListenerUseCase: StopRecentMessageListenerUseCaseProtocol
     
@@ -27,12 +32,16 @@ final class MainMessageViewModel: ObservableObject {
         logoutUseCase: LogoutUseCaseProtocol,
         deleteRecentMessageUseCase: DeleteRecentMessageUseCaseProtocol,
         fetchCurrentUserUseCase: FetchCurrentUserUseCaseProtocol,
+        fetchAllUserUseCase: FetchAllUserUseCaseProtocol,
+        fetchAllChatMessageUseCase: FetchAllChatMessageUseCaseProtocol,
         startRecentMessageListenerUseCase: StartRecentMessageListenerUseCaseProtocol,
         stopRecentMessageListenerUseCase: StopRecentMessageListenerUseCaseProtocol
     ) {
         self.logoutUseCase = logoutUseCase
         self.deleteRecentMessageUseCase = deleteRecentMessageUseCase
         self.fetchCurrentUserUseCase = fetchCurrentUserUseCase
+        self.fetchAllUserUseCase = fetchAllUserUseCase
+        self.fetchAllChatMessageUseCase = fetchAllChatMessageUseCase
         self.startRecentMessageListenerUseCase = startRecentMessageListenerUseCase
         self.stopRecentMessageListenerUseCase = stopRecentMessageListenerUseCase
     }
@@ -46,14 +55,38 @@ final class MainMessageViewModel: ObservableObject {
      */
     @MainActor
     func fetchCurrentUser() async {
-        isLoading = true
         do {
+            loadingMessage = "Load Current User..."
             let chatUser = try await fetchCurrentUserUseCase.excute()
             
             self.currentUser = chatUser
-            self.isLoading = false
         } catch {
-            print(error)
+            isErrorAlert.toggle()
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    @MainActor
+    func fetchAllUser() async {
+        do {
+            loadingMessage = "Load All Users..."
+            let allUser = try await fetchAllUserUseCase.excute()
+            
+            self.allUser = allUser
+        } catch {
+            isErrorAlert.toggle()
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    @MainActor
+    func fetchAllMessage() async {
+        do {
+            loadingMessage = "Load Messages..."
+            try await fetchAllChatMessageUseCase.excute(chatUser: allUser)
+        } catch {
+            isErrorAlert.toggle()
+            errorMessage = error.localizedDescription
         }
     }
     
@@ -71,7 +104,10 @@ final class MainMessageViewModel: ObservableObject {
                 self.updateChatRoom(list: list)
                 
             case .failure(let error):
-                print(error)
+                DispatchQueue.main.async {
+                    self.isErrorAlert.toggle()
+                    self.errorMessage = error.localizedDescription
+                }
             }
         }
     }
@@ -98,7 +134,8 @@ final class MainMessageViewModel: ObservableObject {
                 self.isUserCurrentlyLoggedOut.toggle()
             }
         } catch {
-            print(error)
+            isErrorAlert.toggle()
+            errorMessage = error.localizedDescription
         }
     }
         
@@ -130,7 +167,10 @@ final class MainMessageViewModel: ObservableObject {
                 let deleteMessageResultMessage = try await deleteRecentMessageUseCase.execute(id: firstChatRoom.id, toId: firstChatRoom.toId)
                 print(deleteMessageResultMessage)
             } catch {
-                print(error)
+                DispatchQueue.main.async {
+                    self.isErrorAlert.toggle()
+                    self.errorMessage = error.localizedDescription
+                }
             }
         }
     }

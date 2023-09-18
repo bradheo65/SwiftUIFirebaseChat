@@ -162,7 +162,11 @@ func buildContatier() -> Container {
     }.inObjectScope(.container)
     
     // MARK: - UserCase - MessageListener
-
+    
+    container.register(FetchAllChatMessageUseCaseProtocol.self) { _ in
+        return FetchAllChatMessageUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+    
     container.register(StartChatMessageListenerUseCaseProtocol.self) { _ in
         return StartChatMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
     }.inObjectScope(.container)

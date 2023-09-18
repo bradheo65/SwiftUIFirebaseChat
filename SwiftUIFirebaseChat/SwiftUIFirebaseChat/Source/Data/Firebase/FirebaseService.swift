@@ -325,6 +325,32 @@ extension FirebaseService: FirebaseFileUploadServiceProtocol {
 
 extension FirebaseService: FirebaseChatListenerProtocol {
     
+    func fetchMessage(chatUser: ChatUser) async throws -> [ChatMessageResponseDTO] {
+        guard let currentUser = currentUser else {
+            throw FirebaseError.authUserNotFound
+        }
+        
+        var chatMessageResponseDTOStore: [ChatMessageResponseDTO] = []
+        
+        do {
+            let querySnapshot = try await firestore
+                .collection(FirebaseConstants.messages)
+                .document(currentUser.uid)
+                .collection(chatUser.uid)
+                .order(by: FirebaseConstants.timestamp)
+                .getDocuments()
+            
+            try querySnapshot.documents.forEach { snapshot in
+                let chatMessageResponseDTO = try snapshot.data(as: ChatMessageResponseDTO.self)
+                
+                chatMessageResponseDTOStore.append(chatMessageResponseDTO)
+            }
+        } catch {
+            throw error
+        }
+        return chatMessageResponseDTOStore
+    }
+    
     func listenForChatMessage(chatUser: ChatUser, completion: @escaping (Result<DocumentChange, Error>) -> Void) {
         guard let currentUser = currentUser else {
             print("Send Message Error no Current User Data")

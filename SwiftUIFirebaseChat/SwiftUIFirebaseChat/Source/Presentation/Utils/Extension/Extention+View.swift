@@ -48,4 +48,8 @@ extension View {
     func showLoading(isLoading: Bool) -> some View {
         modifier(LoadingViewModifier(isLoading: isLoading))
     }
+    
+    func showLoadingMessage(isLoading: Bool, text: Binding<String>) -> some View {
+        modifier(LoadingMessageViewModifier(isLoading: isLoading, loadingMessage: text))
+    }
 }

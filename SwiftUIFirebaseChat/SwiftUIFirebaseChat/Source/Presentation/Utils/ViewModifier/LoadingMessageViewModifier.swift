@@ -1,17 +1,22 @@
 //
-//  LoadingViewModifier.swift
+//  LoadingMessageViewModifier.swift
 //  SwiftUIFirebaseChat
 //
-//  Created by brad on 2023/09/15.
+//  Created by brad on 2023/09/18.
 //
 
 import SwiftUI
 
-struct LoadingViewModifier: ViewModifier {
+struct LoadingMessageViewModifier: ViewModifier {
     private var isLoading: Bool
+    @Binding var loadingMessage: String
 
-    init(isLoading: Bool) {
+    init(
+        isLoading: Bool,
+        loadingMessage: Binding<String>
+    ) {
         self.isLoading = isLoading
+        self._loadingMessage = loadingMessage
     }
     
     func body(content: Content) -> some View {
@@ -22,7 +27,7 @@ struct LoadingViewModifier: ViewModifier {
                         content
                             .disabled(self.isLoading)
                         
-                        ProgressView()
+                        ProgressView(loadingMessage)
                             .controlSize(.regular)
                             .frame(
                                 width: geometry.size.width,
