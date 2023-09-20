@@ -23,7 +23,7 @@ final class FetchAllChatMessageUseCase: FetchAllChatMessageUseCaseProtocol {
     
     func excute(chatUser: [ChatUser]) async throws {
         try await chatUser.asyncForEach { user in
-            try await self.chatListenerRepo.fetchFirebaseChatMessage(chatUser: user)
+            try await self.chatListenerRepo.fetchUserChatMessage(chatUser: user)
         }
     }
 }

@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 
 final class MessagingRepository: MessagingRepositoryProtocol {
- 
     private let firebaseService: FirebaseMessagingServiceProtocol
     private let dataSource: RealmDataSourceProtocol
 
@@ -31,15 +30,11 @@ final class MessagingRepository: MessagingRepositoryProtocol {
      
      - Returns: 메시지
      */
-    func fetchChatMessage(chatUser: ChatUser, completion: @escaping (ChatLog) -> Void) {
-        let filterQuery = "fromId = %@ OR toId == %@"
+    func fetchChatMessage(chatRoomID: String, completion: @escaping (ChatLog) -> Void) {
+        let messages = dataSource.read(Conversation.self).filter("room.id == %@", chatRoomID).first?.messages.reversed().prefix(10)
         
-        // 기준 10개씩
-        let chatLogDTO = dataSource.read(ChatLogDTO.self)
-            .filter(filterQuery, chatUser.uid, chatUser.uid).sorted(byKeyPath: "timestamp", ascending: false).prefix(10)
-        
-        if chatLogDTO.isEmpty == false {
-            chatLogDTO.forEach { log in
+        if messages?.isEmpty == false {
+            messages?.forEach { log in
                 completion(log.toDomain())
             }
         }
@@ -56,18 +51,18 @@ final class MessagingRepository: MessagingRepositoryProtocol {
      
      - Returns: 메시지
      */
-    func fetchNextChatMessage(from date: Date?, chatUser: ChatUser, completion: @escaping (ChatLog) -> Void) {
+    func fetchNextChatMessage(from date: Date?, chatRoomID: String, completion: @escaping (ChatLog) -> Void) {
         guard let date = date else {
+            print("no Date")
             return
         }
-        let filterQuery = "(fromId = %@ OR toId == %@) AND timestamp < %@"
         
-        // 기준 10개씩
-        let chatLogDTO = dataSource.read(ChatLogDTO.self)
-            .filter(filterQuery, chatUser.uid, chatUser.uid, date).sorted(byKeyPath: "timestamp", ascending: false).prefix(10)
-                            
-        chatLogDTO.forEach { log in
-            completion(log.toDomain())
+        let messages = dataSource.read(Conversation.self).filter("room.id == %@", chatRoomID, date).first?.messages.filter("timestamp < %@", date).reversed().prefix(10)
+        
+        if messages?.isEmpty == false {
+            messages?.forEach { log in
+                completion(log.toDomain())
+            }
         }
     }
     
@@ -275,5 +270,4 @@ final class MessagingRepository: MessagingRepositoryProtocol {
         
         return sendMessage
     }
-    
 }

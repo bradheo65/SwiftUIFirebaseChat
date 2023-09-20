@@ -12,7 +12,6 @@ enum UserError: Error {
 }
 
 final class UserRepository: UserRepositoryProtocol {
-    
     private let firebaseService: FirebaseUserServiceProtocol
     private let dataSource: RealmDataSourceProtocol
 
@@ -75,21 +74,21 @@ final class UserRepository: UserRepositoryProtocol {
      */
     func loginUser(email: String, password: String) async throws -> String {
         let userUid = try await firebaseService.loginUser(email: email, password: password)
-        let existingUser = self.dataSource.read(MyAccountInfo.self).first?.email
+        let recentLoginUserEmail = self.dataSource.read(LoginUser.self).first?.email
         
         // 이메일이 다른 사용자가 로그인했을 경우 기존 Realm 데이터를 삭제합니다.
-        if email != existingUser {
+        if email != recentLoginUserEmail {
             self.dataSource.deleteAll()
         }
         
         // 로그인한 사용자 정보를 MyAccountInfo 모델로 구성하여 Realm에 저장합니다.
-        let user = MyAccountInfo()
+        let loginUser = LoginUser()
         
-        user.uid = userUid
-        user.email = email
-        user.password = password
+        loginUser.uid = userUid
+        loginUser.email = email
+        loginUser.password = password
         
-        self.dataSource.create(MyAccountInfo.self, value: user)
+        self.dataSource.create(LoginUser.self, value: loginUser)
                 
         return userUid
     }
@@ -121,18 +120,19 @@ final class UserRepository: UserRepositoryProtocol {
      */
     func fetchCurrentUser() async throws -> ChatUser? {
         let currentUser = try await firebaseService.fetchCurrentUser()
-        guard let myAccountInfo = self.dataSource.read(MyAccountInfo.self).first else {
+        
+        guard let loginUser = self.dataSource.read(LoginUser.self).first else {
             throw UserError.currentUserNotFound
         }
 
         self.dataSource.update {
-            myAccountInfo.profileImageUrl = currentUser?.profileImageURL ?? ""
+            loginUser.profileImageURL = currentUser?.profileImageURL ?? ""
         }
         
         let user = ChatUser(
-            uid: myAccountInfo.uid,
-            email: myAccountInfo.email,
-            profileImageURL: myAccountInfo.profileImageUrl
+            uid: loginUser.uid,
+            email: loginUser.email,
+            profileImageURL: loginUser.profileImageURL
         )
         
         return user
@@ -154,32 +154,31 @@ final class UserRepository: UserRepositoryProtocol {
         return try await firebaseService.fetchAllUsers()
     }
     
-    func saveRealmFriendList(chatUser: [ChatUser]) {
+    func saveRealmFriendUser(chatUser: [ChatUser]) {
         chatUser.forEach { user in
-            let friendAccountInfo = FriendAccountInfo()
+            let friendUser = FriendUser()
             
-            friendAccountInfo.uid = user.uid
-            friendAccountInfo.email = user.email
-            friendAccountInfo.profileImageURL = user.profileImageURL
+            friendUser.uid = user.uid
+            friendUser.email = user.email
+            friendUser.profileImageURL = user.profileImageURL
             
-            self.dataSource.create(FriendAccountInfo.self, value: friendAccountInfo)
+            self.dataSource.create(FriendUser.self, value: friendUser)
         }
     }
     
-    func fetchRealmFriendList() -> [ChatUser] {
-        let friendAccountInfo = dataSource.read(FriendAccountInfo.self)
-        var friendList: [ChatUser] = []
+    func fetchRealmFriendUser() -> [ChatUser] {
+        var friendUsers: [ChatUser] = []
         
-        friendAccountInfo.forEach { info in
+        dataSource.read(FriendUser.self).forEach { info in
             let user = ChatUser(
                 uid: info.uid,
                 email: info.email,
                 profileImageURL: info.profileImageURL
             )
-            friendList.append(user)
+            friendUsers.append(user)
         }
         
-        return friendList
+        return friendUsers
     }
     
     /**
@@ -197,11 +196,19 @@ final class UserRepository: UserRepositoryProtocol {
      */
     func deleteChatMessage(id: String, toId: String) async throws -> String {
         // 채팅 받는 유저의 ID에 해당하는 대화 메시지를 Realm에서 삭제합니다.
-        let deleteMessage = self.dataSource.read(ChatLogDTO.self).filter("id == %@", id)
         
-        deleteMessage.forEach { chatLog in
-            self.dataSource.delete(chatLog)
+        // Message 삭제
+        let conversation = dataSource.read(Conversation.self).filter("room.id == %@", id)
+        
+        conversation.first?.messages.forEach { message in
+            dataSource.delete(dataSource.read(Message.self).filter("id == %@", message.id).first!)
         }
+        dataSource.delete(conversation.first!)
+
+        // Room 삭제
+        let room = dataSource.read(Room.self).filter("id == %@", id)
+        
+        dataSource.delete(room.first!)
         
         return try await firebaseService.deleteChatMessage(toId: toId)
     }
@@ -221,11 +228,10 @@ final class UserRepository: UserRepositoryProtocol {
      */
     func deleteRecentMessage(id: String, toId: String) async throws -> String {
         // 채팅 받는 유저의 ID에 해당하는 최근 대화 목록을 Realm에서 가져옵니다. Realm에서 삭제합니다.
-        if let deleteMessage = self.dataSource.read(ChatRoomDTO.self).filter("id == %@", id).first {
+        if let deleteMessage = self.dataSource.read(Room.self).filter("id == %@", id).first {
             self.dataSource.delete(deleteMessage)
         }
         
         return try await firebaseService.deleteRecentMessage(toId: toId)
     }
-    
 }

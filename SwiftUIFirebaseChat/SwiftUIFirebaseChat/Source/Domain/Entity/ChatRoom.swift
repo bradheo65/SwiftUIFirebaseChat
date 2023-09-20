@@ -8,8 +8,11 @@
 import Foundation
 
 struct ChatRoom: Identifiable, Comparable, Hashable {
-    let id, text, username, email, fromId, toId, profileImageURL: String
+    let id, text, email, fromId, toId, profileImageURL: String
     let timestamp: Date
+    var username: String {
+        email.components(separatedBy: "@").first ?? email
+    }
     
     var timeAgo: String {
         let formatter = DateFormatter()

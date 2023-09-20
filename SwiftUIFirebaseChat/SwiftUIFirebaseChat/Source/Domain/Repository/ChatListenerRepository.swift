@@ -10,31 +10,66 @@ import Foundation
 import RealmSwift
 
 final class ChatListenerRepository: ChatListenerRepositoryProtocol {
-    
     private let firebaseSerivce: FirebaseChatListenerProtocol
     private let dataSource: RealmDataSourceProtocol
 
     private var chetMessageListenerToken: NotificationToken?
     private var chatRoomListenerToken: NotificationToken?
+    private var conversationListenerToken: NotificationToken?
 
     init(firebaseSerivce: FirebaseChatListenerProtocol, dataSource: RealmDataSourceProtocol) {
         self.firebaseSerivce = firebaseSerivce
         self.dataSource = dataSource
     }
     
-    func fetchFirebaseChatMessage(chatUser: ChatUser) async throws {
+    func fetchUserChatMessage(chatUser: ChatUser) async throws {
         do {
-            let result = try await firebaseSerivce.fetchMessage(chatUser: chatUser)
+            let chatMessageResponseDTO = try await firebaseSerivce.fetchMessage(chatUser: chatUser)
             
-            result.forEach { response in
-                let id = self.generateChatLogId(fromId: response.toDomain().fromId, toId: response.toDomain().toId)
-                let chatLogDTO = self.createChatLog(from: response.toDomain(), with: id)
-                
-                self.saveChatLog(chatLogDTO, with: id)
-                self.createNewMessage(chatMessageResponse: response.toDomain(), id: id)
+            chatMessageResponseDTO.forEach { chatMessage in
+                let id = self.generateRoomId(
+                    fromId: chatMessage.toDomain().fromId,
+                    toId: chatMessage.toDomain().toId
+                )
+                self.saveMessage(
+                    chatMessageResponse: chatMessage.toDomain(),
+                    id: id
+                )
             }
         } catch {
             throw error
+        }
+    }
+    
+    func checkChatUserUID(chatUserUID: String?, completion: @escaping (String) -> Void) {
+        if chatUserUID != nil {
+            dataSource.read(Conversation.self).forEach { conver in
+                if conver.room?.name == chatUserUID {
+                    completion(conver.room?.id ?? "")
+                }
+            }
+        }
+    }
+    
+    func startRealmConversationListener(chatUserUID: String?, completion: @escaping (String) -> Void) {
+        let conversation = dataSource.read(Conversation.self)
+        
+        conversationListenerToken = conversation.observe { changes in
+            switch changes {
+            case .initial(_):
+                return
+            case .update(let conversation, _, let insertions, _):
+                if insertions.count > 0 {
+                    conversation.forEach { conver in
+                        if conver.room?.name ?? "" == chatUserUID! {
+                            self.conversationListenerToken?.invalidate()
+                            completion(conver.room?.id ?? "")
+                        }
+                    }
+                }
+            case .error(let error):
+                print(error.localizedDescription)
+            }
         }
     }
     
@@ -49,10 +84,10 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
 
      - Note: Firebase에서 채팅 메시지를 감지하여 새로운 메시지가 추가되었을 경우, 해당 메시지를 처리하고 ChatLog 객체를 Realm에 저장합니다.
      */
-    func startRealmChatMessageListener(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void) {
-        let chatLogDTO = dataSource.read(ChatLogDTO.self)
+    func startRealmChatMessageListener(chatRoomID: String, completion: @escaping (Result<ChatLog, Error>) -> Void) {
+        let chatMessage = dataSource.read(Conversation.self).filter("room.id == %@", chatRoomID).first?.messages
         
-        self.chetMessageListenerToken = chatLogDTO.observe { changes in
+        chetMessageListenerToken = chatMessage?.observe { changes in
             switch changes {
             case .initial(_):
                 return
@@ -66,10 +101,8 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
         }
     }
     
-    func startFirebaseChatMessageListener(chatUser: ChatUser) {
-        guard let recentChatMessageDate = fetchRecentChatMessageDate(chatUser: chatUser) else {
-            return
-        }
+    func startFirebaseChatMessageListener(chatUser: ChatUser, chatRoomID: String) {
+        let recentChatMessageDate = fetchRecentChatMessageDate(chatRoomID: chatRoomID)
         
         firebaseSerivce.listenForChatMessage(chatUser: chatUser) { result in
             switch result {
@@ -79,19 +112,11 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                         let chatMessage = try documentChange.document.data(as: ChatMessageResponseDTO.self).toDomain()
                         
                         if chatMessage.timestamp > recentChatMessageDate {
-                            let id = self.generateChatLogId(
+                            let id = self.generateRoomId(
                                 fromId: chatMessage.fromId,
                                 toId: chatMessage.toId
                             )
-                            let chatLogDTO = self.createChatLog(
-                                from: chatMessage,
-                                with: id
-                            )
-                            self.saveChatLog(
-                                chatLogDTO,
-                                with: id
-                            )
-                            self.createNewMessage(
+                            self.saveMessage(
                                 chatMessageResponse: chatMessage,
                                 id: id
                             )
@@ -122,9 +147,9 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
      - Note: Firebase에서 최근 메시지를 감지하여 메시지의 추가 또는 수정 사항이 발생한 경우, 해당 메시지를 처리하고 ChatRoom 객체를 생성하여 ChatListLog를 만듭니다.
      */
     func startRealmChatRoomListener(completion: @escaping (Result<ChatRoom, Error>) -> Void) {        
-        let chatRoomDTO = dataSource.read(ChatRoomDTO.self)
+        let room = dataSource.read(Room.self)
 
-        self.chatRoomListenerToken = chatRoomDTO.observe { changes in
+        self.chatRoomListenerToken = room.observe { changes in
             switch changes {
             case .initial(let chatRoomDTO):
                 chatRoomDTO.forEach { list in
@@ -153,17 +178,17 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
                 switch documentChange.type {
                 case .added:
                     let filterQuery = "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)"
-                    let filterChatRoomDTO = self.dataSource.read(ChatRoomDTO.self).filter(
+                    let filterRoom = self.dataSource.read(Room.self).filter(
                         filterQuery, chatRoomResponseDTO.toId, chatRoomResponseDTO.fromId, chatRoomResponseDTO.fromId, chatRoomResponseDTO.toId
                     )
                     
                     // 이미 저장되어 있다면 저장하지 않습니다.
-                    if filterChatRoomDTO.isEmpty {
-                        self.createChatListLog(from: chatRoomResponseDTO, id: nil)
+                    if filterRoom.isEmpty {
+                        self.saveRoom(from: chatRoomResponseDTO, id: nil)
                     }
                 case .modified:
-                    let id = self.generateChatLogId(fromId: chatRoomResponseDTO.fromId, toId: chatRoomResponseDTO.toId)
-                    self.createChatListLog(from: chatRoomResponseDTO, id: id)
+                    let id = self.generateRoomId(fromId: chatRoomResponseDTO.fromId, toId: chatRoomResponseDTO.toId)
+                    self.saveRoom(from: chatRoomResponseDTO, id: id)
                 case .removed:
                     return
                 }
@@ -182,13 +207,14 @@ final class ChatListenerRepository: ChatListenerRepositoryProtocol {
 
 extension ChatListenerRepository {
     
-    private func fetchRecentChatMessageDate(chatUser: ChatUser) -> Date? {
-        let filterQuery = "fromId = %@ OR toId == %@"
-        
-        let recentMessageDate = dataSource.read(ChatLogDTO.self)
-            .filter(filterQuery, chatUser.uid, chatUser.uid).sorted(byKeyPath: "timestamp", ascending: false).first?.timestamp
-        
-        return recentMessageDate
+    private func fetchRecentChatMessageDate(chatRoomID: String) -> Date {
+        let recentDate = dataSource.read(Conversation.self)
+            .filter("room.id == %@", chatRoomID)
+            .first?
+            .messages.last?
+            .timestamp
+
+        return recentDate ?? Date()
     }
     
     /**
@@ -204,114 +230,77 @@ extension ChatListenerRepository {
      
      - Returns: 생성된 채팅 로그 ID
      */
-    private func generateChatLogId(fromId: String, toId: String) -> String {
-        let filterQuery = "(toId == %@ AND fromId == %@) OR (toId == %@ AND fromId == %@)"
-        let filterChatList = dataSource.read(ChatRoomDTO.self).filter(filterQuery, toId, fromId, fromId, toId)
+    private func generateRoomId(fromId: String, toId: String) -> String {
+        let roomID = dataSource.read(Room.self)
+            .filter("(name == %@) OR (name == %@)", fromId, toId)
+            .first?
+            .id
         
-        let id = filterChatList.first?.id
-
-        return id ?? UUID().uuidString
+        return roomID ?? UUID().uuidString
     }
     
-    private func createNewMessage(chatMessageResponse: ChatMessageResponse, id: String) {
-        let newMessage = Message()
+    private func saveMessage(chatMessageResponse: ChatMessageResponse, id: String) {
+        let message = Message()
 
-        newMessage.sender = chatMessageResponse.fromId
-        newMessage.text = chatMessageResponse.text ?? ""
-        newMessage.timestamp = chatMessageResponse.timestamp
-        
+        message.fromId = chatMessageResponse.fromId
+        message.toId = chatMessageResponse.toId
+        message.text = chatMessageResponse.text
+        message.imageUrl = chatMessageResponse.imageUrl
+        message.videoUrl = chatMessageResponse.videoUrl
+        message.imageWidth = chatMessageResponse.imageWidth
+        message.imageHeight = chatMessageResponse.imageHeight
+        message.fileTitle = chatMessageResponse.fileName
+        message.fileSizes = chatMessageResponse.fileSize
+        message.fileType = chatMessageResponse.fileType
+        message.fileUrl = chatMessageResponse.fileUrl
+        message.timestamp = chatMessageResponse.timestamp
+
         if let roomConversatcions = dataSource.read(Conversation.self).filter("room.id == %@", id).first {
             if roomConversatcions.messages.isEmpty {
                 dataSource.update {
-                    roomConversatcions.messages.append(newMessage)
+                    roomConversatcions.messages.append(message)
                 }
             } else {
                 if chatMessageResponse.timestamp > roomConversatcions.messages.last?.timestamp ?? Date() {
                     dataSource.update {
-                        roomConversatcions.messages.append(newMessage)
+                        roomConversatcions.messages.append(message)
                     }
                 }
             }
         }
     }
     
-    private func createChatLog(from chatMessageResponse: ChatMessageResponse, with id: String) -> ChatLogDTO {
-        let chatLogDTO = ChatLogDTO()
-        
-        chatLogDTO.id = id
-        chatLogDTO.fromId = chatMessageResponse.fromId
-        chatLogDTO.toId = chatMessageResponse.toId
-        chatLogDTO.text = chatMessageResponse.text
-        chatLogDTO.imageUrl = chatMessageResponse.imageUrl
-        chatLogDTO.videoUrl = chatMessageResponse.videoUrl
-        chatLogDTO.imageWidth = chatMessageResponse.imageWidth
-        chatLogDTO.imageHeight = chatMessageResponse.imageHeight
-        chatLogDTO.fileType = chatMessageResponse.fileType
-        chatLogDTO.fileUrl = chatMessageResponse.fileUrl
-        chatLogDTO.timestamp = chatMessageResponse.timestamp
-
-        return chatLogDTO
-    }
-    
-    private func saveChatLog(_ chatLog: ChatLogDTO, with id: String) {
-        let filterQuery = "id == %@"
-        let filterChatLogDTO = dataSource.read(ChatLogDTO.self).filter(filterQuery, id)
-        
-        // 중복된 ChatLog가 없을 경우 ChatLog를 Realm에 추가합니다.
-        if filterChatLogDTO.isEmpty {
-            dataSource.add(chatLog)
-        } else if let data = filterChatLogDTO.last?.timestamp {
-            // 이미 존재하는 ChatLog 중 가장 마지막 메시지의 타임스탬프와 비교하여 최신 메시지인 경우 추가합니다.
-            if data < chatLog.timestamp {
-                dataSource.add(chatLog)
-            }
-        }
-    }
-    
-    private func createChatListLog(from chatRoomResponse: ChatRoomResponse, id: String?) {
-        let chatList = ChatRoomDTO()
-
+    private func saveRoom(from chatRoomResponse: ChatRoomResponse, id: String?) {
         let uuid = UUID().uuidString
+        let friendUser = FriendUser()
         
-        // id가 제공되지 않으면 UUID를 사용하여 고유한 id를 생성
-        chatList.id = id ?? uuid
-        chatList.text = chatRoomResponse.text
-        chatList.username = chatRoomResponse.username
-        chatList.email = chatRoomResponse.email
-        
-        // fromId와 toId를 설정 - 상대방 메세지만 보냈을 경우, id 중복 방지
         if chatRoomResponse.id == chatRoomResponse.fromId {
-            chatList.fromId = chatRoomResponse.toId
-            chatList.toId = chatRoomResponse.fromId
+            friendUser.uid = chatRoomResponse.fromId
         } else {
-            chatList.fromId = chatRoomResponse.fromId
-            chatList.toId = chatRoomResponse.toId
+            friendUser.uid = chatRoomResponse.toId
         }
-        
-        chatList.profileImageURL = chatRoomResponse.profileImageURL
-        chatList.timestamp = chatRoomResponse.timestamp
-        
-        dataSource.create(ChatRoomDTO.self, value: chatList)
-        
-        /// ----
-        ///
-        let user = User()
-        
-        user.displayName = chatRoomResponse.username
-        user.username = chatRoomResponse.toId
-        
-        dataSource.create(User.self, value: user)
+        dataSource.create(FriendUser.self, value: friendUser)
         
         let newRoom = Room()
         
+        // fromId와 toId를 설정 - 상대방 메세지만 보냈을 경우, id 중복 방지
         newRoom.id = id ?? uuid
-        newRoom.name = chatRoomResponse.toId
+        if chatRoomResponse.id == chatRoomResponse.fromId {
+            newRoom.name = chatRoomResponse.fromId
+            newRoom.fromId = chatRoomResponse.toId
+            newRoom.toId = chatRoomResponse.fromId
+        } else {
+            newRoom.name = chatRoomResponse.toId
+            newRoom.fromId = chatRoomResponse.toId
+            newRoom.toId = chatRoomResponse.fromId
+        }
         newRoom.profileImageURL = chatRoomResponse.profileImageURL
-        newRoom.participants.append(user)
+        newRoom.email = chatRoomResponse.email
+        newRoom.participants.append(friendUser)
+        newRoom.latestMessage = chatRoomResponse.text
         newRoom.timestamp = chatRoomResponse.timestamp
         
         dataSource.create(Room.self, value: newRoom)
-        
         if let myCover = dataSource.read(Conversation.self).filter("room.id == %@", id ?? uuid).first {
             dataSource.update {
                 myCover.timestamp = chatRoomResponse.timestamp
@@ -325,34 +314,4 @@ extension ChatListenerRepository {
             dataSource.create(Conversation.self, value: newConversation)
         }
     }
-    
-}
-
-class Message: Object {
-    @Persisted(primaryKey: true) var id: ObjectId
-    @Persisted var text: String = ""
-    @Persisted var sender: String = ""
-    @Persisted var timestamp: Date = Date()
-}
-
-class User: Object {
-    @Persisted(primaryKey: true) var username: String = ""
-    @Persisted var displayName: String = ""
-    // 다른 사용자 정보 저장
-}
-
-class Room: Object {
-    @Persisted(primaryKey: true) var id: String = ""
-    @Persisted var name: String = ""
-    @Persisted var profileImageURL: String = ""
-    @Persisted var participants = List<User>() // 채팅방 참여자 목록
-    @Persisted var latestMessage: Message?
-    @Persisted var timestamp: Date = Date()
-}
-
-class Conversation: Object {
-    @Persisted(primaryKey: true) var id: ObjectId
-    @Persisted var room: Room? // 해당 대화의 채팅방
-    @Persisted var messages = List<Message>() // 대화 메시지 목록
-    @Persisted var timestamp: Date = Date()
 }

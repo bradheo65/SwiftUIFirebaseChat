@@ -1,22 +1,19 @@
 //
-//  ChatLogDTO.swift
+//  Message.swift
 //  SwiftUIFirebaseChat
 //
-//  Created by PJH on 2023/09/06.
+//  Created by brad on 2023/09/20.
 //
 
 import Foundation
 
 import RealmSwift
 
-final class ChatLogDTO: Object, Identifiable {
-    
-    @Persisted(primaryKey: true) var uid: String = UUID().uuidString
-    @Persisted var id: String = ""
+final class Message: Object {
+    @Persisted(primaryKey: true) var id: ObjectId
     @Persisted var fromId = ""
     @Persisted var toId = ""
     @Persisted var text: String? = nil
-    
     @Persisted var imageUrl: String? = nil
     @Persisted var videoUrl: String? = nil
     @Persisted var imageWidth: Float? = nil
@@ -26,16 +23,14 @@ final class ChatLogDTO: Object, Identifiable {
     @Persisted var fileSizes: String? = nil
     @Persisted var fileType: String? = nil
     @Persisted var fileUrl: String? = nil
-
-    @Persisted var timestamp = Date()
     
+    @Persisted var timestamp = Date()
 }
 
-extension ChatLogDTO {
+extension Message {
     func toDomain() -> ChatLog {
         return .init(
-            uid: uid,
-            id: id,
+            id: UUID().uuidString,
             fromId: fromId,
             toId: toId,
             text: text,

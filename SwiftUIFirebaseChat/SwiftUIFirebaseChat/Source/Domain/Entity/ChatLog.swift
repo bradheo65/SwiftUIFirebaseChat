@@ -8,7 +8,7 @@
 import Foundation
 
 struct ChatLog: Identifiable, Hashable {
-    let uid, id, fromId, toId: String
+    let id, fromId, toId: String
     let text, imageUrl, videoUrl, fileTitle, fileSizes, fileType, fileUrl: String?
     let imageWidth, imageHeight: Float?
     

@@ -27,18 +27,24 @@ final class ChatLogViewModel: NSObject, ObservableObject {
 
     private let chatUser: ChatUser?
 
+    private var chatRoom: ChatRoom? = nil
+    private var chatRoomID = ""
+
+    private let fetchUserChatMessageUseCase: FetchUserChatMessageUseCaseProtocol
     private let fetchChatMessageUseCase: FetchChatMessageUseCaseProtocol
     private let fetchNextChatMessageUseCase: FetchNextChatMessageUseCaseProtocol
     private let sendMessageUseCase: SendTextMessageUseCaseProtocol
     private let sendImageMessageUseCase: SendImageMessageUseCaseProtocol
     private let sendVideoMessageUseCase: SendVideoMessageUseCaseProtocol
     private let sendFileMessageUseCase: SendFileMessageUseCaseProtocol
-    private let fileSave: FileSaveUseCaseProtocol
-    private let startChatMessageListener: StartChatMessageListenerUseCaseProtocol
+    private let fileSaveUseCase: FileSaveUseCaseProtocol
+    private let startChatMessageListenerUseCase: StartChatMessageListenerUseCaseProtocol
     private let stopChatMessageListenerUseCase: StopChatMessageListenerUseCaseProtocol
-
+    private let startConversationListenerUseCase: StartConversationListenerUseCaseProtocol
+    
     init(
         chatUser: ChatUser?,
+        fetchUserChatMessage: FetchUserChatMessageUseCaseProtocol,
         fetchChatMessage: FetchChatMessageUseCaseProtocol,
         fetchNextChatMessage: FetchNextChatMessageUseCaseProtocol,
         sendTextMessage: SendTextMessageUseCaseProtocol,
@@ -47,18 +53,51 @@ final class ChatLogViewModel: NSObject, ObservableObject {
         sendFileMessage: SendFileMessageUseCaseProtocol,
         fileSave: FileSaveUseCaseProtocol,
         startChatMessageListner: StartChatMessageListenerUseCaseProtocol,
-        stopChatMessageListener: StopChatMessageListenerUseCaseProtocol
+        stopChatMessageListener: StopChatMessageListenerUseCaseProtocol,
+        startConversationListener: StartConversationListenerUseCaseProtocol
     ) {
         self.chatUser = chatUser
+        self.fetchUserChatMessageUseCase = fetchUserChatMessage
         self.fetchChatMessageUseCase = fetchChatMessage
         self.fetchNextChatMessageUseCase = fetchNextChatMessage
         self.sendMessageUseCase = sendTextMessage
         self.sendImageMessageUseCase = sendImageMessage
         self.sendVideoMessageUseCase = sendVideoMessage
         self.sendFileMessageUseCase = sendFileMessage
-        self.fileSave = fileSave
-        self.startChatMessageListener = startChatMessageListner
+        self.fileSaveUseCase = fileSave
+        self.startChatMessageListenerUseCase = startChatMessageListner
         self.stopChatMessageListenerUseCase = stopChatMessageListener
+        self.startConversationListenerUseCase = startConversationListener
+    }
+    
+    func fetchMessage(chatUser: ChatUser) async {
+        do {
+            try await fetchUserChatMessageUseCase.excute(chatUser: chatUser)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func fetchChatMessage(chatRoomID: String) {
+        self.chatRoomID = chatRoomID
+        
+        fetchChatMessageUseCase.excute(chatRoomID: chatRoomID) { chatLog in
+            self.chatMessages.append(chatLog)
+        }
+    }
+    
+    func fetchNextChatMessage(from date: Date?) {
+        fetchNextChatMessageUseCase.excute(from: date, chatRoomID: chatRoomID) { chatLog in
+            self.chatMessages.append(chatLog)
+        }
+    }
+    
+    func addConversationListener(chatUserUID: String?) {
+        startConversationListenerUseCase.excute(chatUserUID: chatUserUID) { id in
+            self.chatRoomID = id
+            self.addChatMessageListener(chatRoomID: id)
+            self.fetchChatMessage(chatRoomID: id)
+        }
     }
     
     /**
@@ -68,34 +107,13 @@ final class ChatLogViewModel: NSObject, ObservableObject {
      
      - Throws: 'startChatMessageListener.excute(chatUser: chatUser)' 메서드가 실패한 경우 에러를 출력
      */
-    func fetchChatMessage() {
+    func addChatMessageListener(chatRoomID: String) {
         guard let chatUser = chatUser else {
             print("no Chat User")
             return
         }
         
-        fetchChatMessageUseCase.excute(chatUser: chatUser) { chatLog in
-            self.chatMessages.append(chatLog)
-        }
-    }
-    
-    func fetchNextChatMessage(from date: Date?) {
-        guard let chatUser = chatUser else {
-            print("no Chat User")
-            return
-        }
-        
-        fetchNextChatMessageUseCase.excute(from: date, chatUser: chatUser) { chatLog in
-            self.chatMessages.append(chatLog)
-        }
-    }
-    
-    func addListener() {
-        guard let chatUser = chatUser else {
-            print("no Chat User")
-            return
-        }
-        startChatMessageListener.excute(chatUser: chatUser) { result in
+        startChatMessageListenerUseCase.excute(chatUser: chatUser, chatRoomID: chatRoomID) { result in
             switch result {
             case .success(let chatMessage):
                 self.chatMessages.insert(chatMessage, at: 0)
@@ -289,7 +307,7 @@ final class ChatLogViewModel: NSObject, ObservableObject {
         
         Task {
             do {
-                let url = try await fileSave.excute(url: fileInfo.url)
+                let url = try await fileSaveUseCase.excute(url: fileInfo.url)
                 
                 let fileSaveResultMessage = try await FileSaveManager.shared.save(
                     name: fileInfo.name,
@@ -327,7 +345,7 @@ extension ChatLogViewModel: AVAudioPlayerDelegate {
                 do {
                     self.isFileLoading = true
                     
-                    let url = try await self.fileSave.excute(url: url)
+                    let url = try await self.fileSaveUseCase.excute(url: url)
                     play(url: url)
                 } catch {
                     print(error)

@@ -9,12 +9,11 @@ import Foundation
 
 protocol StartChatMessageListenerUseCaseProtocol {
     
-    func excute(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void)
+    func excute(chatUser: ChatUser, chatRoomID: String, completion: @escaping (Result<ChatLog, Error>) -> Void)
     
 }
 
 final class StartChatMessageListenerUseCase: StartChatMessageListenerUseCaseProtocol {
-    
     private let chatListenerRepo: ChatListenerRepositoryProtocol
     
     init(chatListenerRepo: ChatListenerRepositoryProtocol) {
@@ -33,9 +32,9 @@ final class StartChatMessageListenerUseCase: StartChatMessageListenerUseCaseProt
        - completion: 리스너 실행 결과를 처리하는 클로저
          - Parameter result: 리스너 실행 결과 (`Result<ChatMessage, Error>`)
      */
-    func excute(chatUser: ChatUser, completion: @escaping (Result<ChatLog, Error>) -> Void) {
-        chatListenerRepo.startFirebaseChatMessageListener(chatUser: chatUser)
-        chatListenerRepo.startRealmChatMessageListener(chatUser: chatUser) { result in
+    func excute(chatUser: ChatUser, chatRoomID: String, completion: @escaping (Result<ChatLog, Error>) -> Void) {
+        chatListenerRepo.startFirebaseChatMessageListener(chatUser: chatUser, chatRoomID: chatRoomID)
+        chatListenerRepo.startRealmChatMessageListener(chatRoomID: chatRoomID) { result in
             switch result {
             case .success(let chatMessage):
                 completion(.success(chatMessage))
@@ -44,5 +43,4 @@ final class StartChatMessageListenerUseCase: StartChatMessageListenerUseCaseProt
             }
         }
     }
-    
 }

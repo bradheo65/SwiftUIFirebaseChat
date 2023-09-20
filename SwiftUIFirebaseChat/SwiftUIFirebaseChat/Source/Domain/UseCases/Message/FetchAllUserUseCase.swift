@@ -34,8 +34,8 @@ final class FetchAllUserUseCase: FetchAllUserUseCaseProtocol {
      */
     func excute() async throws -> [ChatUser] {
         let result = try await userRepo.fetchFirebaseFriendList()
-        userRepo.saveRealmFriendList(chatUser: result)
-        let friendList = userRepo.fetchRealmFriendList()
+        userRepo.saveRealmFriendUser(chatUser: result)
+        let friendList = userRepo.fetchRealmFriendUser()
         
         return friendList
     }

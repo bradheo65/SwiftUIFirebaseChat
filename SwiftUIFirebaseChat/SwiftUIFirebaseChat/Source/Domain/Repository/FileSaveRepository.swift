@@ -8,7 +8,6 @@
 import Foundation
 
 final class FileSaveRepository: FileSaveRepositoryProtocol {
-    
     private let networkService = NetworkService.shared
     
     /**
@@ -26,5 +25,4 @@ final class FileSaveRepository: FileSaveRepositoryProtocol {
     func save(url: URL) async throws -> URL {
         return try await networkService.downloadFile(url: url)
     }
-    
 }

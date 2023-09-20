@@ -8,21 +8,21 @@
 import Foundation
 
 protocol FetchNextChatMessageUseCaseProtocol {
-    func excute(from date: Date?, chatUser: ChatUser, completion: @escaping (ChatLog) -> Void)
+    
+    func excute(from date: Date?, chatRoomID: String, completion: @escaping (ChatLog) -> Void)
+    
 }
 
 final class FetchNextChatMessageUseCase: FetchNextChatMessageUseCaseProtocol {
-    
     private let messageRepo: MessagingRepositoryProtocol
 
     init(messageRepo: MessagingRepositoryProtocol) {
         self.messageRepo = messageRepo
     }
     
-    func excute(from date: Date?, chatUser: ChatUser, completion: @escaping (ChatLog) -> Void) {
-        messageRepo.fetchNextChatMessage(from: date, chatUser: chatUser) { chatLog in
+    func excute(from date: Date?, chatRoomID: String, completion: @escaping (ChatLog) -> Void) {
+        messageRepo.fetchNextChatMessage(from: date, chatRoomID: chatRoomID) { chatLog in
             completion(chatLog)
         }
     }
-    
 }

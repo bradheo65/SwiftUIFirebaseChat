@@ -13,17 +13,23 @@ struct ChatLogView: View {
     @StateObject private var viewModel: ChatLogViewModel
 
     private let chatUser: ChatUser?
+    private let chatRoom: ChatRoom?
 
     @State private var selectedImage: UIImage?
     @State private var selectedImageFrame: CGRect?
     @State private var isImageTap = false
     @State private var isShowingImageViewer = false
 
-    init(chatUser: ChatUser?) {
+    init(
+        chatUser: ChatUser?,
+        chatRoom: ChatRoom?
+    ) {
         self.chatUser = chatUser
+        self.chatRoom = chatRoom
         self._viewModel = .init(
             wrappedValue: .init(
                 chatUser: chatUser,
+                fetchUserChatMessage: Reslover.shared.resolve(FetchUserChatMessageUseCaseProtocol.self),
                 fetchChatMessage: Reslover.shared.resolve(FetchChatMessageUseCaseProtocol.self),
                 fetchNextChatMessage: Reslover.shared.resolve(FetchNextChatMessageUseCaseProtocol.self),
                 sendTextMessage: Reslover.shared.resolve(SendTextMessageUseCaseProtocol.self),
@@ -32,7 +38,8 @@ struct ChatLogView: View {
                 sendFileMessage: Reslover.shared.resolve(SendFileMessageUseCaseProtocol.self),
                 fileSave: Reslover.shared.resolve(FileSaveUseCaseProtocol.self),
                 startChatMessageListner: Reslover.shared.resolve(StartChatMessageListenerUseCaseProtocol.self),
-                stopChatMessageListener: Reslover.shared.resolve(StopChatMessageListenerUseCaseProtocol.self)
+                stopChatMessageListener: Reslover.shared.resolve(StopChatMessageListenerUseCaseProtocol.self),
+                startConversationListener: Reslover.shared.resolve(StartConversationListenerUseCaseProtocol.self)
             )
         )
     }
@@ -79,12 +86,22 @@ struct ChatLogView: View {
             }
         }
         .onAppear {
-            viewModel.fetchChatMessage()
-            viewModel.addListener()
+            if viewModel.chatMessages.isEmpty {
+                Task {
+                    await viewModel.fetchMessage(chatUser: chatUser!)
+                }
+            }
+            if let chatRoom = chatRoom {
+                viewModel.fetchChatMessage(chatRoomID: chatRoom.id)
+                viewModel.addChatMessageListener(chatRoomID: chatRoom.id)
+            } else {
+                viewModel.addConversationListener(chatUserUID: chatUser?.uid)
+            }
         }
         .onDisappear {
             viewModel.removeListener()
         }
+       
     }
 }
 
@@ -376,7 +393,7 @@ private struct FileMessageView: View {
                     .foregroundColor(.purple)
                     .font(.system(size: 40))
                     .onTapGesture {
-                        if let index = viewModel.chatMessages.firstIndex(where: {$0.uid == message.uid}) {
+                        if let index = viewModel.chatMessages.firstIndex(where: {$0.id == message.id}) {
                             viewModel.getMessageIndex(index: index)
                         }
                         (message.isPlay ?? false)

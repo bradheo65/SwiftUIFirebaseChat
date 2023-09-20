@@ -23,6 +23,7 @@ struct MainMessageView: View {
     @State private var isShowingChatLogView = false
 
     @State private var chatUser: ChatUser?
+    @State private var chatRoom: ChatRoom?
 
     var body: some View {
         NavigationStack {
@@ -32,7 +33,10 @@ struct MainMessageView: View {
                 ChatRoomListView(viewModel: viewModel)
             }
             .navigationDestination(isPresented: $isShowingChatLogView) {
-                ChatLogView(chatUser: chatUser)
+                ChatLogView(
+                    chatUser: chatUser,
+                    chatRoom: chatRoom
+                )
             }
             .overlay(alignment: .bottom) {
                 NewMessageButtonView(
@@ -154,7 +158,7 @@ private struct ChatRoomListView: View {
                             uid: recentMessage.toId ,
                             email: recentMessage.email,
                             profileImageURL: recentMessage.profileImageURL
-                        )
+                        ), chatRoom: recentMessage
                     )
                 } label: {
                     ChatRoomListCell(chatRoom: recentMessage)

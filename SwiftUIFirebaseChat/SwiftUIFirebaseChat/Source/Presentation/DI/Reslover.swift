@@ -163,6 +163,10 @@ func buildContatier() -> Container {
     
     // MARK: - UserCase - MessageListener
     
+    container.register(FetchUserChatMessageUseCaseProtocol.self) { _ in
+        return FetchUserChatMessageUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+    
     container.register(FetchAllChatMessageUseCaseProtocol.self) { _ in
         return FetchAllChatMessageUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
     }.inObjectScope(.container)
@@ -181,6 +185,10 @@ func buildContatier() -> Container {
     
     container.register(StopRecentMessageListenerUseCaseProtocol.self) { _ in
         return StopRecentMessageListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
+    }.inObjectScope(.container)
+    
+    container.register(StartConversationListenerUseCaseProtocol.self) { _ in
+        return StartConversationListenerUseCase(chatListenerRepo: container.resolve(ChatListenerRepositoryProtocol.self)!)
     }.inObjectScope(.container)
     
     return container
