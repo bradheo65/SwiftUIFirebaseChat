@@ -12,6 +12,7 @@ final class LoginViewModel: ObservableObject {
 
     @Published var isLoginSuccess = false
     @Published var isLoading = false
+    @Published var isAlert = false
     @Published var isErrorAlert = false
 
     private let registerUserUseCase: RegisterUserUseCaseProtocol
@@ -96,6 +97,7 @@ extension LoginViewModel {
                     image: image
                 )
                 self.isLoading = false
+                self.isAlert.toggle()
             } catch {
                 self.failProcess(errorMessage: error.localizedDescription)
             }

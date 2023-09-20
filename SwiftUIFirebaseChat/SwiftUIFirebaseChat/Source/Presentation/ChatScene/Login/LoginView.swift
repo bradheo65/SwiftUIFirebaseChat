@@ -86,6 +86,9 @@ struct LoginView: View {
             )
             .showLoading(isLoading: viewModel.isLoading)
         }
+        .alert("Success", isPresented: $viewModel.isAlert, actions: {
+            Button("Ok") { }
+        })
         .showErrorMessage(
             showAlert: $viewModel.isErrorAlert,
             message: viewModel.loginStatusMessage
