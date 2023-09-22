@@ -291,8 +291,8 @@ extension ChatListenerRepository {
             newRoom.toId = chatRoomResponse.fromId
         } else {
             newRoom.name = chatRoomResponse.toId
-            newRoom.fromId = chatRoomResponse.toId
-            newRoom.toId = chatRoomResponse.fromId
+            newRoom.fromId = chatRoomResponse.fromId
+            newRoom.toId = chatRoomResponse.toId
         }
         newRoom.profileImageURL = chatRoomResponse.profileImageURL
         newRoom.email = chatRoomResponse.email
