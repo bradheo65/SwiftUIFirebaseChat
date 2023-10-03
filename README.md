@@ -8,7 +8,7 @@ Firebase를 이용한 **채팅** 앱
 
 | 채팅 목록 | 채팅 메세지 화면 |
 | :--------: | :--------: |
-| <img src="https://hackmd.io/_uploads/SymKV5Fla.png" width="300" height="600" /> | <img src="https://hackmd.io/_uploads/BkUGB5Yl6.png" width="300" height="600" /> 
+| <img src="https://github.com/bradheo65/SwiftUIFirebaseChat/assets/45350356/83b8d01f-bd8b-41a0-bdb9-c6bd03c0ac64" width="300" height="600" /> | <img src="https://github.com/bradheo65/SwiftUIFirebaseChat/assets/45350356/76552f16-88ed-444f-8934-dfad19de837a" width="300" height="600" /> 
 
 ## 주요기능
 - 채팅 메세지(텍스트, 사진, 비디오, 음성, 파일)
