@@ -57,11 +57,10 @@ struct AudioRecorderView: View {
                 }
                 
                 LottieView(
-                    name: "animation_Recording",
+                    name: "animation_Play",
                     loopMode: .loop,
                     play: .constant(viewModel.isRecording || viewModel.isPlaying)
                 )
-                .foregroundColor(.white)
                 .id(value)
                 
                 Spacer()

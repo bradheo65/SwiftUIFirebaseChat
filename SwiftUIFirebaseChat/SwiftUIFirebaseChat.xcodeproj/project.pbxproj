@@ -133,8 +133,6 @@
 		004F443C2AA8269300E9E28D /* Extention+UINavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extention+UINavigationController.swift"; sourceTree = "<group>"; };
 		004F443E2AA8547300E9E28D /* ChatRoomResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomResponse.swift; sourceTree = "<group>"; };
 		004F44402AA854A400E9E28D /* ChatMessageResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageResponse.swift; sourceTree = "<group>"; };
-		004F44452AA8571300E9E28D /* animation_Recording.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = animation_Recording.json; sourceTree = "<group>"; };
-		004F44462AA8571300E9E28D /* animation_play.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = animation_play.json; sourceTree = "<group>"; };
 		007E8D262AA05D5300325777 /* RealmDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataSource.swift; sourceTree = "<group>"; };
 		007E8D292AA05F2B00325777 /* RealmDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataSourceProtocol.swift; sourceTree = "<group>"; };
 		00A185452AA571070079906C /* AudioRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderView.swift; sourceTree = "<group>"; };
@@ -272,8 +270,6 @@
 			children = (
 				00A1854E2AA5CB680079906C /* AudioRecorderViewModel.swift */,
 				00A185452AA571070079906C /* AudioRecorderView.swift */,
-				004F44462AA8571300E9E28D /* animation_play.json */,
-				004F44452AA8571300E9E28D /* animation_Recording.json */,
 			);
 			path = AudioRecoreder;
 			sourceTree = "<group>";

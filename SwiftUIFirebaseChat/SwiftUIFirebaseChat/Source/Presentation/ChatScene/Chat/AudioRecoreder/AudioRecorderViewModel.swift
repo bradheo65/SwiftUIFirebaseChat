@@ -66,9 +66,11 @@ extension AudioRecorderViewModel: AVAudioRecorderDelegate {
             AVNumberOfChannelsKey: 1,
             AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
         ]
+        let audioSession = AVAudioSession.sharedInstance()
 
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playAndRecord)
+            try audioSession.setCategory(.playAndRecord, options: .defaultToSpeaker)
+            try audioSession.setActive(true)
         } catch {
             print("audioSession error: \(error.localizedDescription)")
         }
@@ -94,6 +96,7 @@ extension AudioRecorderViewModel: AVAudioRecorderDelegate {
     
     private func getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        
         return paths[0]
     }
 }
@@ -101,16 +104,20 @@ extension AudioRecorderViewModel: AVAudioRecorderDelegate {
 extension AudioRecorderViewModel: AVAudioPlayerDelegate {
     
     func startPlaying(recordingURL: URL) {
+        let audioSession = AVAudioSession.sharedInstance()
+
         if isPaused {
             resumePlaying()
         } else {
             do {
-                try AVAudioSession.sharedInstance().setCategory(.playAndRecord, options: .defaultToSpeaker)
-                try AVAudioSession.sharedInstance().setActive(true)
+                try audioSession.setCategory(.playAndRecord, options: .defaultToSpeaker)
+                try audioSession.setActive(true)
                 try audioPlayer = AVAudioPlayer(contentsOf: recordingURL)
                 
                 audioPlayer?.delegate = self
+                audioPlayer?.prepareToPlay()
                 audioPlayer?.play()
+                
                 isPlaying = true
                 isPaused = false
                 isEndPlay = false
