@@ -211,9 +211,7 @@ private struct ChatMessageCell: View {
                 HStack {
                     if let text = message.text {
                         Text(text)
-                            .foregroundColor(message.toId == chatUser?.uid ? .white : .black)
                             .padding()
-                            .background(message.toId == chatUser?.uid ? Color.purple : Color.white)
                     } else if message.fileUrl != nil {
                         FileMessageView(
                             viewModel: viewModel,
@@ -229,6 +227,23 @@ private struct ChatMessageCell: View {
                         )
                     }
                 }
+                .progressViewStyle(
+                    LinearProgressViewStyle(
+                        tint: message.toId == chatUser?.uid
+                        ? .white
+                        : .black
+                    )
+                )
+                .foregroundColor(
+                    message.toId == chatUser?.uid
+                    ? .white
+                    : .black
+                )
+                .background(
+                    message.toId == chatUser?.uid
+                    ? Color.purple 
+                    : Color.white
+                )
                 .cornerRadius(12, corners: message.toId == chatUser?.uid
                               ? [.topLeft, .bottomLeft, .bottomRight]
                               : [.topRight, .bottomLeft, .bottomRight]
@@ -389,32 +404,16 @@ private struct FileMessageView: View {
                         )
                     }
             } else {
-                Image(systemName: (message.isPlay ?? false) ? "pause.circle.fill" : "play.circle.fill")
-                    .foregroundColor(.purple)
-                    .font(.system(size: 40))
-                    .onTapGesture {
-                        if let index = viewModel.chatMessages.firstIndex(where: {$0.id == message.id}) {
-                            viewModel.getMessageIndex(index: index)
-                        }
-                        (message.isPlay ?? false)
-                        ? viewModel.pausePlaying()
-                        : viewModel.playAudio(url: URL(string: "\(message.fileUrl!).m4a")!)
-                    }
-            }
-            
-            VStack(alignment: .leading) {
-                Text(message.fileTitle ?? "")
-                    .font(.system(size: 14))
-                    .lineLimit(2)
-                Text(message.fileSizes ?? "")
-                    .foregroundColor(.secondary)
-                    .font(.system(size: 14))
+                VoiceRecorderView(
+                    viewModel: viewModel,
+                    chatLog: message
+                )
+                .frame(maxWidth: 350)
             }
             Spacer()
         }
         .padding()
         .frame(maxWidth: 250)
-        .background(.white)
         .confirmationDialog("", isPresented: $isShowingFileSaveSheet) {
             Button("파일 저장") {
                 viewModel.handleFileSave(fileInfo: fileInfo)
@@ -547,6 +546,72 @@ private struct MessageImageViewer: View {
         .alert("저장이 완료되었습니다.", isPresented: $viewModel.isSaveCompleted) {
             Button { } label: {
                 Text("OK")
+            }
+        }
+    }
+}
+
+fileprivate struct VoiceRecorderView: View {
+    @State private var downloadAmount = 0.0
+
+    @ObservedObject var viewModel: ChatLogViewModel
+    
+    var chatLog: ChatLog
+    
+    fileprivate init(
+        viewModel: ChatLogViewModel,
+        chatLog: ChatLog
+    ) {
+        self.viewModel = viewModel
+        self.chatLog = chatLog
+    }
+    
+    fileprivate var body: some View {
+        VStack {
+            HStack {
+                Image(
+                    systemName: chatLog.isPlay == .play
+                    ? "pause.circle"
+                    : "play.circle.fill"
+                )
+                .font(.system(size: 40))
+                .onTapGesture {
+                    if let index = viewModel.chatMessages.firstIndex(where: { $0.id == chatLog.id }) {
+                        viewModel.getMessageIndex(index: index)
+                        
+                        chatLog.isPlay == .play
+                        ? viewModel.pausePlaying()
+                        : viewModel.isPaused
+                        ? viewModel.resumePlaying()
+                        : viewModel.playAudio(url: URL(string: "\(chatLog.fileUrl!).m4a")!)
+                    }
+                }
+                VStack(alignment: .leading) {
+                    Text(chatLog.fileTitle ?? "")
+                        .lineLimit(2)
+                }
+            }
+            if chatLog.isPlay == .play || chatLog.isPlay == .pause {
+                ProgressView(
+                    value: viewModel.playTime,
+                    total: viewModel.playEndTime * 100,
+                    label: {
+                        Text(
+                            chatLog.isPlay == .play
+                            ? "Play..."
+                            : "Pause..."
+                        )
+                    },
+                    currentValueLabel: {
+                        HStack {
+                            Text("\((viewModel.playTime / 100).numberFormatter)")
+                            
+                            Spacer()
+                            
+                            Text("\((viewModel.playEndTime).numberFormatter)")
+                        }
+                    }
+                )
             }
         }
     }

@@ -109,6 +109,7 @@
 		A3EC4DFE2A9338CC008DDB02 /* ChatListenerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EC4DFD2A9338CC008DDB02 /* ChatListenerRepository.swift */; };
 		A3EC4E002A933936008DDB02 /* FirebaseChatListenerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EC4DFF2A933936008DDB02 /* FirebaseChatListenerProtocol.swift */; };
 		A3EC4E022A934459008DDB02 /* ChatListenerRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EC4E012A934459008DDB02 /* ChatListenerRepositoryTests.swift */; };
+		A3ECA9342ADCD90F0045E2AA /* Extension+Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3ECA9332ADCD90F0045E2AA /* Extension+Double.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -226,6 +227,7 @@
 		A3EC4DFD2A9338CC008DDB02 /* ChatListenerRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListenerRepository.swift; sourceTree = "<group>"; };
 		A3EC4DFF2A933936008DDB02 /* FirebaseChatListenerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseChatListenerProtocol.swift; sourceTree = "<group>"; };
 		A3EC4E012A934459008DDB02 /* ChatListenerRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListenerRepositoryTests.swift; sourceTree = "<group>"; };
+		A3ECA9332ADCD90F0045E2AA /* Extension+Double.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+Double.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -536,6 +538,7 @@
 		A36EF84D2A79F44000A7DEE2 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				A3ECA9332ADCD90F0045E2AA /* Extension+Double.swift */,
 				A36EF84E2A79F45100A7DEE2 /* Extention+View.swift */,
 				004F443C2AA8269300E9E28D /* Extention+UINavigationController.swift */,
 			);
@@ -908,6 +911,7 @@
 				A348F3A42A8DEDA00017DD72 /* MessagingRepository.swift in Sources */,
 				A348F3952A8DE7980017DD72 /* FileSaveUseCase.swift in Sources */,
 				A384CF722ABAC42900612779 /* Conversation.swift in Sources */,
+				A3ECA9342ADCD90F0045E2AA /* Extension+Double.swift in Sources */,
 				A3EC4E002A933936008DDB02 /* FirebaseChatListenerProtocol.swift in Sources */,
 				A3B722522A6D682E005F713F /* ChatUser.swift in Sources */,
 				A38FC45A2AB4006A00D2C144 /* LoadingViewModifier.swift in Sources */,

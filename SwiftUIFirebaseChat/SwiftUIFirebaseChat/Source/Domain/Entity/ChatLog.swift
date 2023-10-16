@@ -12,6 +12,13 @@ struct ChatLog: Identifiable, Hashable {
     let text, imageUrl, videoUrl, fileTitle, fileSizes, fileType, fileUrl: String?
     let imageWidth, imageHeight: Float?
     
-    var isPlay: Bool?
+    var isPlay: PlayStatus?
     let timestamp: Date
+    
+}
+
+enum PlayStatus: String, Codable {
+    case play
+    case pause
+    case stop
 }

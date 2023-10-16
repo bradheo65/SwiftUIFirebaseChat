@@ -29,6 +29,11 @@ final class ChatLogViewModel: NSObject, ObservableObject {
 
     private var chatRoom: ChatRoom? = nil
     private var chatRoomID = ""
+    
+    private var timer: DispatchSourceTimer?
+
+    @Published var playTime = 0.0
+    @Published var playEndTime = 0.0
 
     private let fetchUserChatMessageUseCase: FetchUserChatMessageUseCaseProtocol
     private let fetchChatMessageUseCase: FetchChatMessageUseCaseProtocol
@@ -355,20 +360,27 @@ extension ChatLogViewModel: AVAudioPlayerDelegate {
     }
     
     func play(url: URL) {
+        setTimer()
+
+        let audioSession = AVAudioSession.sharedInstance()
+
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
-            try AVAudioSession.sharedInstance().overrideOutputAudioPort(.speaker)
+            try audioSession.setCategory(.playAndRecord, options: .defaultToSpeaker)
+            try audioSession.setActive(true)
             
             try audioPlayer = AVAudioPlayer(contentsOf: url)
                         
             audioPlayer?.delegate = self
+            audioPlayer?.prepareToPlay()
             audioPlayer?.play()
             
+            playEndTime = round(audioPlayer!.duration * 10)/10
+
+            timer?.resume()
             DispatchQueue.main.async {
                 self.isFileLoading = false
                 self.isPaused = false
-                self.chatMessages[self.index].isPlay = true
+                self.updatePlayStatus(.play)
             }
         } catch {
             print("재생 중 오류 발생: \(error.localizedDescription)")
@@ -376,22 +388,49 @@ extension ChatLogViewModel: AVAudioPlayerDelegate {
     }
     
     func pausePlaying() {
+        timer?.suspend()
         audioPlayer?.pause()
+        
         isPaused = true
-        chatMessages[index].isPlay = false
+        updatePlayStatus(.pause)
     }
     
     func resumePlaying() {
+        timer?.resume()
         audioPlayer?.play()
+        
         isPaused = false
-        chatMessages[index].isPlay = true
+        updatePlayStatus(.play)
     }
 
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         isPaused = false
-        chatMessages[index].isPlay = false
 
         print("AudioPlayerDidFinishPlaying")
+    }
+    
+    func updatePlayStatus(_ status: PlayStatus) {
+        chatMessages[index].isPlay = status
+    }
+}
+
+extension ChatLogViewModel {
+    
+    func setTimer() {
+        timer = DispatchSource.makeTimerSource(queue: .main)
+        timer?.schedule(deadline: .now(), repeating: 0.01)
+
+        timer?.setEventHandler {
+            if self.playTime.formatter < self.playEndTime * 100 {
+                self.playTime += 1
+            } else {
+                self.updatePlayStatus(.stop)
+
+                self.playTime = 0
+                self.timer?.cancel()
+                self.timer = nil
+            }
+        }
     }
     
 }

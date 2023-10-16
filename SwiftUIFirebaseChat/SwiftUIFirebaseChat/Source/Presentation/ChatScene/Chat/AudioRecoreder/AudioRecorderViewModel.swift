@@ -105,7 +105,7 @@ extension AudioRecorderViewModel: AVAudioPlayerDelegate {
             resumePlaying()
         } else {
             do {
-                try AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSession.PortOverride.speaker)
+                try AVAudioSession.sharedInstance().setCategory(.playAndRecord, options: .defaultToSpeaker)
                 try AVAudioSession.sharedInstance().setActive(true)
                 try audioPlayer = AVAudioPlayer(contentsOf: recordingURL)
                 
