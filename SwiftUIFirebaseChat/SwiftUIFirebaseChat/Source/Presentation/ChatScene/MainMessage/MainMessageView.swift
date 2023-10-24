@@ -26,49 +26,47 @@ struct MainMessageView: View {
     @State private var chatRoom: ChatRoom?
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                UserProfileHeaderView(viewModel: viewModel)
-                
-                ChatRoomListView(viewModel: viewModel)
+        LoadingView(isShowing: $viewModel.isLoading) {
+            NavigationStack {
+                VStack {
+                    UserProfileHeaderView(viewModel: viewModel)
+                    
+                    ChatRoomListView(viewModel: viewModel)
+                }
+                .navigationDestination(isPresented: $isShowingChatLogView) {
+                    ChatLogView(
+                        chatUser: chatUser,
+                        chatRoom: chatRoom
+                    )
+                }
+                .overlay(alignment: .bottom) {
+                    NewMessageButtonView(
+                        chatUser: $chatUser,
+                        isShowingChatMessageView: $isShowingChatLogView
+                    )
+                }
             }
-            .navigationDestination(isPresented: $isShowingChatLogView) {
-                ChatLogView(
-                    chatUser: chatUser,
-                    chatRoom: chatRoom
-                )
+            .navigationBarHidden(true)
+            .showErrorMessage(
+                showAlert: $viewModel.isErrorAlert,
+                message: viewModel.errorMessage
+            )
+            .onChange(of: viewModel.isUserCurrentlyLoggedOut) { newValue in
+                dismiss()
             }
-            .overlay(alignment: .bottom) {
-                NewMessageButtonView(
-                    chatUser: $chatUser,
-                    isShowingChatMessageView: $isShowingChatLogView
-                )
+            .onAppear {
+                viewModel.addRecentMessageListener()
             }
-        }
-        .navigationBarHidden(true)
-        .showLoadingMessage(
-            isLoading: viewModel.isLoading,
-            text: $viewModel.loadingMessage
-        )
-        .showErrorMessage(
-            showAlert: $viewModel.isErrorAlert,
-            message: viewModel.errorMessage
-        )
-        .onChange(of: viewModel.isUserCurrentlyLoggedOut) { newValue in
-            dismiss()
-        }
-        .onAppear {
-            viewModel.addRecentMessageListener()
-        }
-        .onDisappear {
-            viewModel.removeRecentMessageListener()
-        }
-        .task {
-            viewModel.isLoading = true
-            await viewModel.fetchCurrentUser()
-            await viewModel.fetchAllUser()
-            await viewModel.fetchAllMessage()
-            viewModel.isLoading = false
+            .onDisappear {
+                viewModel.removeRecentMessageListener()
+            }
+            .task {
+                viewModel.isLoading = true
+                await viewModel.fetchCurrentUser()
+                await viewModel.fetchAllUser()
+                await viewModel.fetchAllMessage()
+                viewModel.isLoading = false
+            }
         }
     }
 }

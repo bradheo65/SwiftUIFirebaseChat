@@ -34,70 +34,70 @@ struct LoginView: View {
     @State private var password = ""
 
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 16) {
-                    Picker(selection: $loginMode, label: Text("Picker here")) {
-                        ForEach(LoginMode.allCases, id: \.self) { mode in
-                            Text(mode.title)
+        LoadingView(isShowing: $viewModel.isLoading) {
+            NavigationView {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        Picker(selection: $loginMode, label: Text("Picker here")) {
+                            ForEach(LoginMode.allCases, id: \.self) { mode in
+                                Text(mode.title)
+                            }
                         }
-                    }
-                    .pickerStyle(.segmented)
-                    
-                    if loginMode == .signup {
-                        ProfileImageSelectButtonView(profileImage: $profileImage)
-                    }
-                    
-                    Group {
-                        TextField("Email", text: $email)
-                            .keyboardType(.emailAddress)
-                            .autocorrectionDisabled(true)
+                        .pickerStyle(.segmented)
                         
-                        SecureField("Password", text: $password)
-                    }
-                    .padding(12)
-                    .background(.white)
-                    
-                    Button {
-                        viewModel.handleAction(
-                            loginMode: loginMode,
-                            email: email,
-                            password: password,
-                            profileImage: profileImage
-                        )
-                    } label: {
-                        HStack {
-                            Spacer()
-                            Text(loginMode.title)
-                                .foregroundColor(.white)
-                                .padding(.vertical, 10)
-                                .font(.system(size: 14, weight: .semibold))
-                            Spacer()
+                        if loginMode == .signup {
+                            ProfileImageSelectButtonView(profileImage: $profileImage)
                         }
-                        .background(.purple)
-                        .cornerRadius(6)
+                        
+                        Group {
+                            TextField("Email", text: $email)
+                                .keyboardType(.emailAddress)
+                                .autocorrectionDisabled(true)
+                            
+                            SecureField("Password", text: $password)
+                        }
+                        .padding(12)
+                        .background(.white)
+                        
+                        Button {
+                            viewModel.handleAction(
+                                loginMode: loginMode,
+                                email: email,
+                                password: password,
+                                profileImage: profileImage
+                            )
+                        } label: {
+                            HStack {
+                                Spacer()
+                                Text(loginMode.title)
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, 10)
+                                    .font(.system(size: 14, weight: .semibold))
+                                Spacer()
+                            }
+                            .background(.purple)
+                            .cornerRadius(6)
+                        }
                     }
+                    .padding()
                 }
-                .padding()
+                .navigationTitle(loginMode.title)
+                .background(
+                    Color(uiColor: .secondarySystemBackground)
+                )
             }
-            .navigationTitle(loginMode.title)
-            .background(
-                Color(uiColor: .secondarySystemBackground)
+            .alert("Success", isPresented: $viewModel.isAlert, actions: {
+                Button("Ok") { }
+            })
+            .showErrorMessage(
+                showAlert: $viewModel.isErrorAlert,
+                message: viewModel.loginStatusMessage
             )
-            .showLoading(isLoading: viewModel.isLoading)
-        }
-        .alert("Success", isPresented: $viewModel.isAlert, actions: {
-            Button("Ok") { }
-        })
-        .showErrorMessage(
-            showAlert: $viewModel.isErrorAlert,
-            message: viewModel.loginStatusMessage
-        )
-        .fullScreenCover(isPresented: $viewModel.isLoginSuccess) {
-            MainMessageView()
+            .fullScreenCover(isPresented: $viewModel.isLoginSuccess) {
+                MainMessageView()
+            }
         }
     }
-    
 }
 
 struct ContentView_Previews: PreviewProvider {

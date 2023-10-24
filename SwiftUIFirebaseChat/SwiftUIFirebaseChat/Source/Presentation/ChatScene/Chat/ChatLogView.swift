@@ -46,16 +46,18 @@ struct ChatLogView: View {
     
     var body: some View {
         ZStack {
-            ChatMessageListView(
-                viewModel: viewModel,
-                chatUser: chatUser,
-                selectedImage: $selectedImage,
-                selectedImageFrame: $selectedImageFrame,
-                isImageTap: $isImageTap
-            )
-            .opacity(isShowingImageViewer ? 0 : 1)
-            .onTapGesture {
-                hideKeyboard()
+            LoadingView(isShowing: $viewModel.isLoading) {
+                ChatMessageListView(
+                    viewModel: viewModel,
+                    chatUser: chatUser,
+                    selectedImage: $selectedImage,
+                    selectedImageFrame: $selectedImageFrame,
+                    isImageTap: $isImageTap
+                )
+                .opacity(isShowingImageViewer ? 0 : 1)
+                .onTapGesture {
+                    hideKeyboard()
+                }
             }
             
             MessageImageViewer(
@@ -163,7 +165,6 @@ private struct ChatMessageListView: View {
                 .rotationEffect(Angle(degrees: 180))
                 .scaleEffect(x: -1.0, y: 1.0, anchor: .center)
                 .background(Color(.init(white: 0.95, alpha: 1)))
-                .showLoading(isLoading: viewModel.isLoading)
             }
             .safeAreaInset(edge: .bottom) {
                 ChatInputView(
