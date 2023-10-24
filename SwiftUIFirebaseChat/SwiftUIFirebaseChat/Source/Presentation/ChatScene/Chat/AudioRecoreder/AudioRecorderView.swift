@@ -36,12 +36,37 @@ struct AudioRecorderView: View {
         )
     }
     
+    private func normalizeSoundLevel(level: Float) -> CGFloat {
+        if level == 0 {
+            return CGFloat(0)
+        } else {
+            let level = max(0.2, CGFloat(level) + 50)
+            
+            return CGFloat(level * (100 / 25))
+        }
+    }
+    
     var body: some View {
         VStack {
             Text("음성메시지")
                 .padding()
             
             HStack {
+                VStack {
+                    HStack(spacing: 4) {
+                        // 4
+                        ForEach(viewModel.soundSamples, id: \.self) { level in
+                            BarView(
+                                isPlay: viewModel.recordedFiles.isEmpty,
+                                value: self.normalizeSoundLevel(level: level)
+                            )
+                        }
+                    }
+                }
+                .padding()
+                
+                Spacer()
+                
                 if viewModel.recordedFiles.isEmpty == false {
                     if viewModel.isRecording == false {
                         Button {
@@ -55,20 +80,11 @@ struct AudioRecorderView: View {
                         .padding(.leading)
                     }
                 }
-                
-                LottieView(
-                    name: "animation_Play",
-                    loopMode: .loop,
-                    play: .constant(viewModel.isRecording || viewModel.isPlaying)
-                )
-                .id(value)
-                
-                Spacer()
-                
                 Text("\(formattedTime)")
                     .foregroundColor(viewModel.recordedFiles.isEmpty ? .black : .white)
                     .padding()
             }
+            .frame(height: 100)
             .background(Color(uiColor: viewModel.recordedFiles.isEmpty ? .secondarySystemFill : .systemPurple))
             .cornerRadius(16)
 
@@ -90,8 +106,7 @@ struct AudioRecorderView: View {
                         : stopTimer()
                         value += 1
                     } else {
-                        viewModel.recordedFiles.removeAll()
-                        
+                        viewModel.clearPlay()
                         clearTimer()
                     }
                 } label: {
@@ -176,49 +191,25 @@ struct AudioRecorderView: View {
         timer?.invalidate()
         timer = nil
     }
-    
 }
 
-import Lottie
+fileprivate struct BarView: View {
+    private var isPlay: Bool
+    private var value: CGFloat
 
-struct LottieView: UIViewRepresentable {
-    private let name: String
-    private let loopMode: LottieLoopMode
-    private let contentMode: UIView.ContentMode
-    @Binding var play: Bool
-    
-    private let animationView: LottieAnimationView
-
-    init(
-        name: String,
-        loopMode: LottieLoopMode = .loop,
-        contentMode: UIView.ContentMode = .scaleAspectFit,
-        play: Binding<Bool> = .constant(true)
-    ) {
-        self.name = name
-        self.animationView = LottieAnimationView(name: name)
-        self.loopMode = loopMode
-        self.contentMode = contentMode
-        self._play = play
+    fileprivate init(isPlay: Bool, value: CGFloat) {
+        self.isPlay = isPlay
+        self.value = value
     }
     
-    func makeUIView(context: UIViewRepresentableContext<LottieView>) -> UIView {
-        let view = UIView(frame: .zero)
-        view.addSubview(animationView)
-        animationView.contentMode = contentMode
-        animationView.translatesAutoresizingMaskIntoConstraints = false
-        animationView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-        animationView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
-        animationView.loopMode = loopMode
-        return view
-    }
-    
-    func updateUIView(_ uiView: UIView, context: UIViewRepresentableContext<LottieView>) {
-        if play {
-            animationView.play()
-        } else {
-            animationView.stop()
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(isPlay ? .purple : .white)
+                .frame(
+                    width: 5,
+                    height: value
+                )
         }
     }
 }
-

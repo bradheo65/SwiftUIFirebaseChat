@@ -25,6 +25,13 @@ final class AudioRecorderViewModel: NSObject, ObservableObject {
 
     private let sendFileMessageUseCase: SendFileMessageUseCaseProtocol
     
+    private var timer: Timer?
+    
+    private var currentSample: Int = 0
+    private let numberOfSamples: Int = 20
+    
+    @Published var soundSamples: [Float] = []
+    
     init(
         chatUser: ChatUser?,
         sendFileMessage: SendFileMessageUseCaseProtocol
@@ -78,7 +85,16 @@ extension AudioRecorderViewModel: AVAudioRecorderDelegate {
         do {
             audioRecorder = try AVAudioRecorder(url: fileURL, settings: setting)
             audioRecorder.delegate = self
+            audioRecorder.isMeteringEnabled = true
             audioRecorder.record()
+            self.soundSamples = [Float](repeating: .zero, count: numberOfSamples)
+
+            timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { timer in
+                self.audioRecorder.updateMeters()
+                self.soundSamples[self.currentSample] = self.audioRecorder.averagePower(forChannel: 0)
+                self.currentSample = (self.currentSample + 1) % self.numberOfSamples
+            })
+            
             self.isRecording = true
         } catch {
             print("녹음 중 오류 발생: \(error.localizedDescription)")
@@ -89,8 +105,9 @@ extension AudioRecorderViewModel: AVAudioRecorderDelegate {
     }
     
     func stopRecording() {
+        timer?.invalidate()
         audioRecorder.stop()
-        self.recordedFiles.append(self.audioRecorder.url)
+        recordedFiles.append(self.audioRecorder.url)
         isRecording = false
     }
     
@@ -110,13 +127,23 @@ extension AudioRecorderViewModel: AVAudioPlayerDelegate {
             resumePlaying()
         } else {
             do {
+                soundSamples.removeAll()
+
                 try audioSession.setCategory(.playAndRecord, options: .defaultToSpeaker)
                 try audioSession.setActive(true)
                 try audioPlayer = AVAudioPlayer(contentsOf: recordingURL)
                 
                 audioPlayer?.delegate = self
+                audioPlayer?.isMeteringEnabled = true
                 audioPlayer?.prepareToPlay()
                 audioPlayer?.play()
+                self.soundSamples = [Float](repeating: .zero, count: numberOfSamples)
+
+                timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { timer in
+                    self.audioPlayer?.updateMeters()
+                    self.soundSamples[self.currentSample] = self.audioPlayer?.averagePower(forChannel: 0) ?? 0
+                    self.currentSample = (self.currentSample + 1) % self.numberOfSamples
+                })
                 
                 isPlaying = true
                 isPaused = false
@@ -127,13 +154,8 @@ extension AudioRecorderViewModel: AVAudioPlayerDelegate {
         }
     }
     
-    func stopPlaying() {
-        audioPlayer?.stop()
-        isPaused = true
-        isPlaying = false
-    }
-    
     func pausePlaying() {
+        timer?.invalidate()
         audioPlayer?.pause()
         isPaused = true
         isPlaying = false
@@ -141,11 +163,25 @@ extension AudioRecorderViewModel: AVAudioPlayerDelegate {
     
     func resumePlaying() {
         audioPlayer?.play()
+
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { timer in
+            self.audioPlayer?.updateMeters()
+            self.soundSamples[self.currentSample] = self.audioPlayer?.averagePower(forChannel: 0) ?? 0
+            self.currentSample = (self.currentSample + 1) % self.numberOfSamples
+        })
         isPaused = false
         isPlaying = true
     }
     
+    func clearPlay() {
+        timer?.invalidate()
+        recordedFiles.removeAll()
+        soundSamples.removeAll()
+    }
+    
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        timer?.invalidate()
+
         isPlaying = false
         isPaused = false
         isEndPlay = true

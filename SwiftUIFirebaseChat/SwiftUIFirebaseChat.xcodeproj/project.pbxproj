@@ -13,7 +13,6 @@
 		007E8D272AA05D5300325777 /* RealmDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007E8D262AA05D5300325777 /* RealmDataSource.swift */; };
 		007E8D2A2AA05F2B00325777 /* RealmDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007E8D292AA05F2B00325777 /* RealmDataSourceProtocol.swift */; };
 		00A185462AA571070079906C /* AudioRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A185452AA571070079906C /* AudioRecorderView.swift */; };
-		00A1854B2AA5A2B00079906C /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 00A1854A2AA5A2B00079906C /* Lottie */; };
 		00A1854F2AA5CB680079906C /* AudioRecorderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A1854E2AA5CB680079906C /* AudioRecorderViewModel.swift */; };
 		00B3208B2A9C9883007A038F /* ChatLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B3208A2A9C9883007A038F /* ChatLog.swift */; };
 		A310D6A22A84A9D700634DFE /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A310D6A12A84A9D700634DFE /* NetworkService.swift */; };
@@ -247,7 +246,6 @@
 				A35736822A6F9D50007B0402 /* FirebaseStorage in Frameworks */,
 				A357367E2A6F9D50007B0402 /* FirebaseFirestore in Frameworks */,
 				A35736802A6F9D50007B0402 /* FirebaseFirestoreSwift in Frameworks */,
-				00A1854B2AA5A2B00079906C /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -779,7 +777,6 @@
 				A348F38D2A8D99A70017DD72 /* Swinject */,
 				A34989F92A983A5A00A8DE38 /* Realm */,
 				A34989FB2A983A5A00A8DE38 /* RealmSwift */,
-				00A1854A2AA5A2B00079906C /* Lottie */,
 			);
 			productName = SwiftUIFirebaseChat;
 			productReference = A354F6902A5460630063652A /* SwiftUIFirebaseChat.app */;
@@ -845,7 +842,6 @@
 				A357367A2A6F9D50007B0402 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				A348F38C2A8D99A70017DD72 /* XCRemoteSwiftPackageReference "Swinject" */,
 				A34989F82A983A5A00A8DE38 /* XCRemoteSwiftPackageReference "realm-swift" */,
-				00A185492AA5A2B00079906C /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			productRefGroup = A354F6912A5460630063652A /* Products */;
 			projectDirPath = "";
@@ -1172,7 +1168,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SwiftUIFirebaseChat/Preview Content\"";
-				DEVELOPMENT_TEAM = U2VE4R4QH9;
+				DEVELOPMENT_TEAM = K22GCUDQ2Z;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SwiftUIFirebaseChat/Info.plist;
@@ -1210,7 +1206,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SwiftUIFirebaseChat/Preview Content\"";
-				DEVELOPMENT_TEAM = U2VE4R4QH9;
+				DEVELOPMENT_TEAM = K22GCUDQ2Z;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SwiftUIFirebaseChat/Info.plist;
@@ -1326,14 +1322,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		00A185492AA5A2B00079906C /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
 		A348F38C2A8D99A70017DD72 /* XCRemoteSwiftPackageReference "Swinject" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Swinject/Swinject.git";
@@ -1361,11 +1349,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		00A1854A2AA5A2B00079906C /* Lottie */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 00A185492AA5A2B00079906C /* XCRemoteSwiftPackageReference "lottie-ios" */;
-			productName = Lottie;
-		};
 		A348F38D2A8D99A70017DD72 /* Swinject */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A348F38C2A8D99A70017DD72 /* XCRemoteSwiftPackageReference "Swinject" */;
