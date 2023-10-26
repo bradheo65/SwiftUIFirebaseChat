@@ -19,34 +19,13 @@ struct ImageViewer: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            Color.black
+            ZoomInImageView(
+                uiimage: uIimage ?? UIImage()
+            )
                 .ignoresSafeArea()
-            
-            GeometryReader { proxy in
-                ZStack {
-                    Image(uiImage: uIimage ?? UIImage())
-                        .resizable()
-                        .scaledToFit()
-                        .frame(
-                            width: proxy.size.width,
-                            height: proxy.size.height
-                        )
-                        .clipShape(Rectangle())
-                        .modifier(
-                            ImageModifier(
-                                contentSize: CGSize(
-                                    width: proxy.size.width,
-                                    height: proxy.size.height
-                                )
-                            )
-                        )
-                }
                 .onTapGesture {
                     showButtons.toggle()
                 }
-            }
-            .ignoresSafeArea()
-            
             if showButtons {
                 contentButtonView
             }
