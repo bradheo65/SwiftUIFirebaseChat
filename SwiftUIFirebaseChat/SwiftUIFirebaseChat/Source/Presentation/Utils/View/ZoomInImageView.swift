@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 
 struct ZoomInImageView: UIViewControllerRepresentable {
@@ -22,8 +23,6 @@ struct ZoomInImageView: UIViewControllerRepresentable {
 
     }
 }
-
-import UIKit
 
 final class ZoomInImageViewController: UIViewController {
     private let imageView: UIImageView = {
